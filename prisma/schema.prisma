@@ -1,0 +1,244 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+model Admin {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  username String @unique
+  wallet      Int    @default(0) 
+}
+
+model Child {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  username    String       @unique
+  name        String
+  surname     String
+  email       String?      @unique
+  phone       String?      @unique
+  address     String
+  img         String?
+  bloodType   String
+  sex         UserSex
+  createdAt   DateTime     @default(now())
+  parentId    String       @db.ObjectId
+  parent      Parent       @relation(fields: [parentId], references: [id])
+  tribeId     String       @db.ObjectId
+  tribe       Tribe        @relation(fields: [tribeId], references: [id])
+  gradeId     String         @db.ObjectId
+  grade       Grade        @relation(fields: [gradeId], references: [id])
+  clerkId     String        @unique
+  attendances Attendance[]
+  results     Result[]
+  birthday    DateTime
+  wallet      Int    @default(0) 
+  tasks      Task[] 
+
+
+}
+
+model Creator {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId   String   @unique
+  username  String   @unique
+  name      String
+  surname   String
+  email     String?  @unique
+  phone     String?  @unique
+  address   String
+  img       String?
+  bloodType String
+  sex       UserSex
+  createdAt DateTime @default(now())
+  subjects  SubjectCreator[]
+  tasks     Task[]
+  tribees   Tribe[]
+  birthday  DateTime
+  wallet      Int    @default(0) 
+}
+
+model Parent {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  username  String    @unique
+  name      String
+  surname   String
+  email     String?   @unique
+  phone     String    @unique
+  address   String
+  createdAt DateTime  @default(now())
+  children    Child[]
+  wallet      Int    @default(0) 
+}
+
+model Grade {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  level Int @unique
+
+  children Child[]
+  tribes   Tribe[]
+}
+
+model Tribe {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String @unique
+  capacity Int
+
+  supervisorId  String? @db.ObjectId
+  supervisor    Creator?       @relation(fields: [supervisorId], references: [id])
+  tasks         Task[]
+  children      Child[]
+  gradeId       String @db.ObjectId
+  grade         Grade          @relation(fields: [gradeId], references: [id])
+  events        Event[]
+  announcements Announcement[]
+}
+
+model Subject {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  name     String   @unique
+  Tasks  Task[]
+  Creators SubjectCreator[]
+}
+
+model SubjectCreator {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  subjectId String   @db.ObjectId
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  
+  CreatorId String   @db.ObjectId
+  Creator   Creator  @relation(fields: [CreatorId], references: [id])
+}
+
+model Task{
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  day         Day
+  startTime   DateTime
+  endTime     DateTime
+
+  subjectId   String    @db.ObjectId
+  subject     Subject   @relation(fields: [subjectId], references: [id])
+  tribeId     String    @db.ObjectId
+  tribe       Tribe     @relation(fields: [tribeId], references: [id])
+  CreatorId   String    @db.ObjectId
+  Creator     Creator   @relation(fields: [CreatorId], references: [id])
+  exams       Exam[]
+  assignments Assignment[]
+  attendances Attendance[]
+  title       String
+  description String?
+  isImportant Boolean   @default(false)
+  link        String?
+  reward      Float?
+  code        String?
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+  childId     String    @db.ObjectId
+  child       Child     @relation(fields: [childId], references: [id])
+
+  completions TaskCompletion[] // Link to TaskCompletion
+}
+
+model TaskCompletion {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  taskId   String   @db.ObjectId
+  task     Task     @relation(fields: [taskId], references: [id])
+  userId   String   
+  completedAt DateTime? 
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+
+
+model Exam {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  startTime DateTime
+  endTime   DateTime
+
+  TaskId  String   @db.ObjectId
+  Task    Task   @relation(fields: [TaskId], references: [id])
+  results   Result[]
+}
+
+model Assignment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  startDate DateTime
+  dueDate   DateTime
+
+  TaskId  String   @db.ObjectId
+  Task    Task   @relation(fields: [TaskId], references: [id])
+  results   Result[]
+}
+
+model Result {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  score Int
+
+  examId       String?    @db.ObjectId
+  exam         Exam?      @relation(fields: [examId], references: [id])
+  assignmentId String?    @db.ObjectId
+  assignment   Assignment?@relation(fields: [assignmentId], references: [id])
+  childId      String     @db.ObjectId
+  child        Child    @relation(fields: [childId], references: [id])
+}
+
+model Attendance {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  date      DateTime
+  present   Boolean
+
+  childId String   @db.ObjectId
+  child   Child  @relation(fields: [childId], references: [id])
+  TaskId  String   @db.ObjectId
+  Task    Task   @relation(fields: [TaskId], references: [id])
+}
+
+model Event {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  startTime   DateTime
+  endTime     DateTime
+
+  tribeId     String?   @db.ObjectId
+  tribe       Tribe?    @relation(fields: [tribeId], references: [id])
+}
+
+model Announcement {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  date        DateTime
+
+  tribeId     String?   @db.ObjectId
+  tribe       Tribe?    @relation(fields: [tribeId], references: [id])
+}
+
+
+enum UserSex {
+  MALE
+  FEMALE
+}
+
+enum Day {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}
+
+
