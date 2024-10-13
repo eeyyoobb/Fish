@@ -65,38 +65,36 @@ const Navbar = async () => {
           </div>
         ) : (
           <>
-            {/* User Info */}
             <div className="flex flex-col">
               {/* <span className="text-xs leading-3 font-medium">{user?.firstName}</span>
               <span className="text-[10px] text-gray-500 text-right">{role}</span> */}
             </div>
 
             {/* Display Wallet if available */}
-            {wallet !== null && ( 
-              <div className="flex items-center bold text-orange-500">
-                <Image src="/coin.png" alt="Coin" width={40} height={40} />
-                <span className="text-lg font-bold">{wallet} BT</span>
+            {/* {wallet !== null && (  */}
+              <div className="flex items-center bold ">
+                <Image src="/coin.png" alt="Coin" width={25} height={25} />
+                <span className="text-lg font-bold text-brand">{wallet} Bt</span>
               </div>
-            )}
-          </>
-        )}
+            {/* )} */}
+         
+      
 
-        {/* Message Icon */}
         <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
           {Message}
         </div>
 
-        {/* Announcements Icon with Badge */}
          <Link href="/income/list/announcements" className="relative">
            <div className="relative rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
               {Announce}
               <div className="absolute -top-3 -right-3 w-5 h-5 flex items-center justify-center bg-purple-500 rounded-full text-xs">
-                {count}
+              {count}
               </div>
            </div>
            </Link>
-        {/* Mode Toggle */}
         <ModeToggle />
+        </>
+      )}
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized", status: 401 });
     }
 
-    const { taskId } = await req.json(); // Parse request body
+    const { taskId, reward } = await req.json(); // Parse request body
 
     // Create task completion entry and store the userId
     const taskCompletion = await prisma.taskCompletion.create({
@@ -22,9 +22,38 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(taskCompletion);
+    // Update user wallet based on role
+    await addRewardToUserWallet(userId, reward); // Call to update the user's wallet
+
+    return NextResponse.json({ message: "Task completed and reward claimed!", taskCompletion });
   } catch (error) {
-    console.log("ERROR CREATING TASK: ", error);
+    console.error("ERROR CREATING TASK: ", error);
     return NextResponse.json({ error: "Error creating task", status: 500 });
+  }
+}
+
+// Function to add reward to the user's wallet based on their role
+async function addRewardToUserWallet(userId: string, reward: number) {
+  const { sessionClaims } = auth();
+  const role = (sessionClaims?.metadata as { role?: string })?.role;
+
+  try {
+    if (!role) {
+      throw new Error("User role not found");
+    }
+
+    // Update the wallet based on the user role
+    //@ts-ignore
+    await prisma[role].update({
+      where: { clerkId: userId }, // Match by Clerk ID or relevant identifier
+      data: {
+        wallet: {
+          increment: reward, // Increment wallet balance by the reward amount
+        },
+      },
+    });
+  } catch (error) {
+    console.error("ERROR UPDATING WALLET: ", error);
+    throw new Error("Error updating wallet");
   }
 }

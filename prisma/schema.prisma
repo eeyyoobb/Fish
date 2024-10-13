@@ -14,8 +14,9 @@ datasource db {
 }
 model Admin {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
-  username String @unique
+  username  String @unique
   wallet      Int    @default(0) 
+  clerkId    String  @unique
 }
 
 model Child {
@@ -158,8 +159,6 @@ model TaskCompletion {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
-
-
 
 model Exam {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId

@@ -44,7 +44,7 @@ export default function RootLayout({
         <body className={inter.className}>
         <NextTopLoader
             height={2}
-            color="#27AE60"
+            color="#d56f23"
             easing="cubic-bezier(0.53,0.21,0,1)"
           /> 
           <ThemeProvider
@@ -59,9 +59,11 @@ export default function RootLayout({
               <div className="h-screen">
                  <Navbar/>
                 <div className="flex">
+            { role ? (
                <div className="w-[14%] md:w-[8%] lg:w-[16%] xl:w-[14%] p-4">
                 <Sidebar />
                </div>
+               ) : null}
                <div className="w-[84%] md:w-[92%] lg:w-full xl:w-full overflow-scroll flex flex-col">
                 <div className=" flex-grow">{children}
                  <Toaster richColors/>

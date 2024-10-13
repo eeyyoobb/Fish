@@ -7,6 +7,8 @@ import { useClerk, UserButton, useUser } from "@clerk/nextjs";
 import { useRouter, usePathname } from "next/navigation"; 
 import { logout } from "@/utils/Icons";
 
+
+
 const Menu = () => {
   const { isSignedIn, user, isLoaded } = useUser();
   const role = user?.publicMetadata.role as string;
@@ -37,8 +39,8 @@ const Menu = () => {
                   className="transition-transform duration-500 rounded-full"
                 />
               </div>
-              <h1 className="mt-1 text-lg capitalize z-10 hidden lg:block">{user.firstName}</h1>
-              <span className="mt-1 text-lg capitalize z-10 block lg:hidden">{initials}</span>
+              <h1 className="mt-1 text-lg capitalize z-10 hidden lg:block">{user.firstName ? user.firstName : 'unknown User'}</h1>
+              <span className="mt-1 text-lg capitalize z-10 block lg:hidden">{user.firstName ?  initials: "user"}  </span>
               <h1 className="mt-1 text-sm bg-brand rounded p-1 z-10 text-gray-900">{role}</h1> 
             </div>
           ) : null}
@@ -79,7 +81,7 @@ const Menu = () => {
         <button
           className="flex items-center justify-center w-full py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition duration-300"
           onClick={() => {
-            signOut(() => router.push("/signin"));
+            signOut(() => router.push("/"));
           }}
         >
           <span className="mr-2">{logout}</span>
