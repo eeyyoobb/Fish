@@ -4,12 +4,12 @@ import { auth } from "@clerk/nextjs/server";
 
 export type FormContainerProps = {
   table:
-    | "teacher"
-    | "student"
+    | "creator"
+    | "child"
     | "parent"
-    | "subject"
-    | "class"
-    | "lesson"
+    | "category"
+    | "tribe"
+    | "task"
     | "exam"
     | "assignment"
     | "result"
@@ -30,45 +30,45 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
 
   if (type !== "delete") {
     switch (table) {
-      case "subject":
-        const subjectTeachers = await prisma.teacher.findMany({
+      case "category":
+        const categoryTeachers = await prisma.creator.findMany({
           select: { id: true, name: true, surname: true },
         });
-        relatedData = { teachers: subjectTeachers };
+        relatedData = { creators: categoryTeachers };
         break;
-      case "class":
-        const classGrades = await prisma.grade.findMany({
+      case "tribe":
+        const tribeGrades = await prisma.grade.findMany({
           select: { id: true, level: true },
         });
-        const classTeachers = await prisma.teacher.findMany({
+        const tribeTeachers = await prisma.creator.findMany({
           select: { id: true, name: true, surname: true },
         });
-        relatedData = { teachers: classTeachers, grades: classGrades };
+        relatedData = { creators: tribeTeachers, grades: tribeGrades };
         break;
-      case "teacher":
-        const teacherSubjects = await prisma.subject.findMany({
+      case "creator":
+        const creatorSubjects = await prisma.category.findMany({
           select: { id: true, name: true },
         });
-        relatedData = { subjects: teacherSubjects };
+        relatedData = { categorys: creatorSubjects };
         break;
-      case "student":
-        const studentGrades = await prisma.grade.findMany({
+      case "child":
+        const childGrades = await prisma.grade.findMany({
           select: { id: true, level: true },
         });
-        const studentClasses = await prisma.class.findMany({
-          include: { _count: { select: { students: true } } },
+        const childTribes = await prisma.tribe.findMany({
+          include: { _count: { select: { children: true } } },
         });
-        relatedData = { classes: studentClasses, grades: studentGrades };
+        relatedData = { tribees: childTribes, grades: childGrades };
         break;
-      case "exam":
-        const examLessons = await prisma.lesson.findMany({
-          where: {
-            ...(role === "teacher" ? { teacherId: currentUserId! } : {}),
-          },
-          select: { id: true, name: true },
-        });
-        relatedData = { lessons: examLessons };
-        break;
+      // case "exam":
+      //   const examTasks = await prisma.task.findMany({
+      //     where: {
+      //       ...(role === "creator" ? { creatorId: currentUserId! } : {}),
+      //     },
+      //     select: { id: true, name: true },
+      //   });
+      //   relatedData = { tasks: examTasks };
+      //   break;
 
       default:
         break;

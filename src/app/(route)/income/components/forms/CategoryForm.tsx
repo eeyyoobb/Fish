@@ -2,15 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputField from "../InputField";
-import { subjectSchema, SubjectSchema } from "@/lib/formValidationSchemas";
-import { createSubject, updateSubject } from "@/lib/actions";
+import InputField from "../Components/InputField";
+import {  CategorySchema } from "@/lib/formValidationSchemas";
+import { createCategory, updateCategory } from "@/lib/actions";
 import { useFormState } from "react-dom";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
- const SubjectForm = ({
+ const CategoryForm = ({
    type,
    data,
    setOpen,
@@ -25,14 +25,14 @@ import { useRouter } from "next/navigation";
       register,
       handleSubmit,
       formState: { errors },
-    } = useForm<SubjectSchema>({
-      resolver: zodResolver(subjectSchema),
+    } = useForm<CategorySchema>({
+     // resolver: zodResolver(categorySchema),
     });
 
    // AFTER REACT 19 IT'LL BE USEACTIONSTATE
 
   const [state, formAction] = useFormState(
-    type === "create" ? createSubject : updateSubject,
+    type === "create" ? createCategory : updateCategory,
     {
       success: false,
       error: false,
@@ -48,24 +48,24 @@ import { useRouter } from "next/navigation";
 
   useEffect(() => {
     if (state.success) {
-      toast(`Subject has been ${type === "create" ? "created" : "updated"}!`);
+      toast(`Category has been ${type === "create" ? "created" : "updated"}!`);
        setOpen(false);
       router.refresh();
     }
   }, [state, router, type, setOpen]);
 
-   const { teachers } = relatedData;
+   const { creators } = relatedData;
 
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}
     >
       <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new subject" : "Update the subject"}
+        {type === "create" ? "Create a new category" : "Update the category"}
       </h1>
 
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="Subject name"
+          label="Category name"
           name="name"
           defaultValue={data?.name}
           register={register}
@@ -82,24 +82,24 @@ import { useRouter } from "next/navigation";
           />
         )}
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-300">Teachers</label>
+          <label className="text-xs text-gray-300">Creators</label>
            <select
             multiple
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("teachers")}
-            defaultValue={data?.teachers}
+            {...register("creators")}
+            defaultValue={data?.creators}
           >
-            {teachers.map(
-              (teacher: { id: string; name: string; surname: string }) => (
-                <option value={teacher.id} key={teacher.id}>
-                  {teacher.name + " " + teacher.surname}
+            {creators.map(
+              (creator: { id: string; name: string; surname: string }) => (
+                <option value={creator.id} key={creator.id}>
+                  {creator.name + " " + creator.surname}
                 </option>
               )
             )}
           </select>
-          {errors.teachers?.message && (
+          {errors.creators?.message && (
             <p className="text-xs text-red-400">
-              {errors.teachers.message.toString()}
+              {errors.creators.message.toString()}
             </p>
           )}
         </div>
@@ -114,4 +114,4 @@ import { useRouter } from "next/navigation";
   );
  };
 
- export default SubjectForm;
+ export default CategoryForm;

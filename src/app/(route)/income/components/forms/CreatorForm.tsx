@@ -1,80 +1,67 @@
 "use client";
 
-// import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputField from "../InputField";
-import Image from "next/image";
+import InputField from "../Components/InputField";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {
-  studentSchema,
-  StudentSchema,
-  teacherSchema,
-  TeacherSchema,
-} from "@/lib/formValidationSchemas";
+import { creatorSchema, CreatorSchema } from "@/lib/formValidationSchemas";
 import { useFormState } from "react-dom";
-// import {
-//   createStudent,
-//   createTeacher,
-//   updateStudent,
-//   updateTeacher,
-// } from "@/lib/actions";
+import { createCreator, updateCreator } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-// import { toast } from "react-toastify";
-// import { CldUploadWidget } from "next-cloudinary";
+import { toast } from "react-toastify";
+import { CldUploadWidget } from "next-cloudinary";
+import { MdOutlineCloudUpload } from "react-icons/md";
 
-const StudentForm = ({
+const CreatorForm = ({
   type,
   data,
-  setOpen,
-  relatedData,
+   setOpen,
+   relatedData,
 }: {
   type: "create" | "update";
-  data?: any;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
+   data?: any;
+   setOpen: Dispatch<SetStateAction<boolean>>;
+   relatedData?: any;
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<StudentSchema>({
-    // resolver: zodResolver(studentSchema),
+  } = useForm<CreatorSchema>({
+     resolver: zodResolver(creatorSchema),
   });
 
   const [img, setImg] = useState<any>();
 
-  // const [state, formAction] = useFormState(
-  //   type === "create" ? createStudent : updateStudent,
-  //   {
-  //     success: false,
-  //     error: false,
-  //   }
-  // );
+  const [state, formAction] = useFormState(
+    type === "create" ? createCreator : updateCreator,
+    {
+      success: false,
+      error: false,
+    }
+  );
 
-  // const onSubmit = handleSubmit((data) => {
-  //   console.log("hello");
-  //   console.log(data);
-  //   formAction({ ...data, img: img?.secure_url });
-  // });
+  const onSubmit = handleSubmit((data) => {
+    // console.log(data);
+     formAction({ ...data, img: img?.secure_url });
+  });
 
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (state.success) {
-  //     // toast(`Student has been ${type === "create" ? "created" : "updated"}!`);
-  //     setOpen(false);
-  //     router.refresh();
-  //   }
-  // }, [state, router, type, setOpen]);
+  useEffect(() => {
+    if (state.success) {
+      toast(`Creator has been ${type === "create" ? "created" : "updated"}!`);
+      setOpen(false);
+      router.refresh();
+    }
+  }, [state, router, type, setOpen]);
 
-  const { grades, classes } = relatedData;
+  const { caterories } = relatedData;
 
   return (
-    <form className="flex flex-col gap-8" 
-    // onSubmit={onSubmit}
-    >
+    <form className="flex flex-col gap-8"  onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new student" : "Update the student"}
+        {type === "create" ? "Create a new creator" : "Update the creator"}
       </h1>
       <span className="text-xs text-gray-400 font-medium">
         Authentication Information
@@ -106,25 +93,6 @@ const StudentForm = ({
       <span className="text-xs text-gray-400 font-medium">
         Personal Information
       </span>
-      {/* <CldUploadWidget
-        uploadPreset="school"
-        onSuccess={(result, { widget }) => {
-          setImg(result.info);
-          widget.close();
-        }}
-      >
-        {({ open }) => {
-          return (
-            <div
-              className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer"
-              onClick={() => open()}
-            >
-              <Image src="/upload.png" alt="" width={28} height={28} />
-              <span>Upload a photo</span>
-            </div>
-          );
-        }}
-      </CldUploadWidget> */}
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="First Name"
@@ -169,13 +137,6 @@ const StudentForm = ({
           error={errors.birthday}
           type="date"
         />
-        <InputField
-          label="Parent Id"
-          name="parentId"
-          defaultValue={data?.parentId}
-          register={register}
-          error={errors.parentId}
-        />
         {data && (
           <InputField
             label="Id"
@@ -203,61 +164,55 @@ const StudentForm = ({
           )}
         </div>
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Grade</label>
+          <label className="text-xs text-gray-500">Categoriess</label>
           <select
+            multiple
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("gradeId")}
-            defaultValue={data?.gradeId}
+            {...register("Categorys")}
+            defaultValue={data?.caterories}
           >
-            {grades.map((grade: { id: number; level: number }) => (
-              <option value={grade.id} key={grade.id}>
-                {grade.level}
+            {caterories.map((caterories: { id: number; name: string }) => (
+              <option value={caterories.id} key={caterories.id}>
+                {caterories.name}
               </option>
             ))}
           </select>
-          {errors.gradeId?.message && (
+          {errors.Categorys?.message && (
             <p className="text-xs text-red-400">
-              {errors.gradeId.message.toString()}
+              {errors.Categorys.message.toString()}
             </p>
           )}
         </div>
-        <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Class</label>
-          <select
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("classId")}
-            defaultValue={data?.classId}
-          >
-            {classes.map(
-              (classItem: {
-                id: number;
-                name: string;
-                capacity: number;
-                _count: { students: number };
-              }) => (
-                <option value={classItem.id} key={classItem.id}>
-                  ({classItem.name} -{" "}
-                  {classItem._count.students + "/" + classItem.capacity}{" "}
-                  Capacity)
-                </option>
-              )
-            )}
-          </select>
-          {errors.classId?.message && (
-            <p className="text-xs text-red-400">
-              {errors.classId.message.toString()}
-            </p>
-          )}
-        </div>
+         <CldUploadWidget
+          uploadPreset="profile"
+          onSuccess={(result, { widget }) => {
+            setImg(result.info);
+            widget.close();
+          }}
+        >
+          {({ open }) => {
+            return (
+              <div
+                className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer"
+                onClick={() => open()}
+              > 
+                 <MdOutlineCloudUpload style={{ width: '100%', height: '100%' }} />
+                <span>Upload a photo</span>
+              </div>
+            );
+            }}
+        </CldUploadWidget> 
       </div>
-      {/* {state.error && (
+      {state.error && (
         <span className="text-red-500">Something went wrong!</span>
-      )} */}
-      <button type="submit" className="bg-blue-400 text-white p-2 rounded-md">
+      )}
+      <button className=" card  p-2 rounded-md">
+         <div className="content">
         {type === "create" ? "Create" : "Update"}
+        </div>
       </button>
     </form>
   );
 };
 
-export default StudentForm;
+export default CreatorForm;

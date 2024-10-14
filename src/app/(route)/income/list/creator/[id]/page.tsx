@@ -1,11 +1,11 @@
 import prisma from "@/lib/prisma";
-import Announcements from "../../../components/Announcements";
-import BigCalendarContainer from "../../../components/BigCalendarContainer";
-import BigCalendar from "../../../components/BigCalender";
-import FormContainer from "../../../components/FormContainer";
-import Performance from "../../../components/Performance";
+import Announcements from "../../../components/Components/Announcements";
+import BigCalendarContainer from "../../../components/Components/BigCalendarContainer";
+import BigCalendar from "../../../components/Components/BigCalender";
+import FormContainer from "../../../components/Components/FormContainer";
+import Performance from "../../../components/Components/Performance";
 import { auth } from "@clerk/nextjs/server";
-import { Teacher } from "@prisma/client";
+import { Creator } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,32 +14,32 @@ import { MdBloodtype, MdDateRange } from "react-icons/md";
 import { IoIosMail } from "react-icons/io";
 import { FaPhoneAlt } from "react-icons/fa";
 
-const SingleTeacherPage = async ({
+const SingleCreatorPage = async ({
   params: { id },
 }: {
   params: { id: string };
 }) => {
    const { sessionClaims } = auth();
    const role = (sessionClaims?.metadata as { role?: string })?.role;
-
-  const teacher:
-   |(Teacher & {
-        _count: { subjects: number; lessons: number; classes: number };
+  //@ts-ignore
+  const creator:
+   |(Creator & {
+        _count: { categories: number; tasks: number; tribes: number };
       })
-   | null = await prisma.teacher.findUnique({
+   | null = await prisma.creator.findUnique({
     where: { id },
     include: {
       _count: {
         select: {
-          subjects: true,
-          lessons: true,
-          classes: true,
+          categories: true,
+          tasks: true,
+          // tribes: true,
         },
       },
     },
   });
 
-  if (!teacher) {
+  if (!creator) {
     return notFound();
   }
   return (
@@ -51,9 +51,9 @@ const SingleTeacherPage = async ({
           {/* USER INFO CARD */}
           <div className="glass py-3 px-4 rounded-md flex-1 flex gap-4">
             <div className="w-1/3 flex justify-center items-center">
-              {teacher.img ? (
+              {creator.img ? (
                 <Image
-                    src={teacher.img || "/noAvatar.png"}
+                    src={creator.img || "/noAvatar.png"}
                     alt=""
                     width={144}
                     height={144}
@@ -68,11 +68,11 @@ const SingleTeacherPage = async ({
             <div className="w-2/3 flex flex-col justify-between gap-4 z-50">
               <div className="flex items-center gap-4">
                 <h1 className="text-xl font-semibold">
-                  {teacher.name + " " + teacher.surname}
+                  {creator.name + " " + creator.surname}
                 </h1>
-                 {role === "school/admin" && (
+                 {role === "income/admin" && (
                   <> 
-                  <FormContainer  table="teacher" type="update" data={teacher} />
+                  <FormContainer  table="creator" type="update" data={creator} />
                   </> 
                )} 
               </div>
@@ -82,21 +82,21 @@ const SingleTeacherPage = async ({
               <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   <MdBloodtype />
-                  <span>{teacher.bloodType}</span>
+                  <span>{creator.bloodType}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   <MdDateRange/>
                   <span>
-                    {new Intl.DateTimeFormat("en-GB").format(teacher.birthday)}
+                    {new Intl.DateTimeFormat("en-GB").format(creator.birthday)}
                   </span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                 <IoIosMail />
-                  <span>{teacher.email || "-"}</span>
+                  <span>{creator.email || "-"}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   <FaPhoneAlt />
-                  <span>{teacher.phone || "-"}</span>
+                  <span>{creator.phone || "-"}</span>
                 </div>
               </div>
             </div>
@@ -128,7 +128,7 @@ const SingleTeacherPage = async ({
               />
               <div className="">
                 <h1 className="text-xl font-semibold">
-                  {teacher._count.subjects}
+                  {creator._count.categories}
                 </h1>
                 <span className="text-sm text-gray-400">Branches</span>
               </div>
@@ -144,9 +144,9 @@ const SingleTeacherPage = async ({
               />
               <div className="">
                 <h1 className="text-xl font-semibold">
-                  {teacher._count.lessons}
+                  {creator._count.tasks}
                 </h1>
-                <span className="text-sm text-gray-400">Lessons</span>
+                <span className="text-sm text-gray-400">Tasks</span>
               </div>
             </div>
             {/* CARD */}
@@ -160,7 +160,7 @@ const SingleTeacherPage = async ({
               />
               <div className="">
                 <h1 className="text-xl font-semibold">
-                   {teacher._count.classes} 
+                   {creator._count.tribes} 
                 </h1>
                 <span className="text-sm ">Classes</span>
               </div>
@@ -169,8 +169,8 @@ const SingleTeacherPage = async ({
         </div>
         {/* BOTTOM */}
         <div className="glass mt-4 rounded-md p-4 h-[800px]">
-          <h1>Teacher&apos;s Schedule</h1>
-          <BigCalendarContainer type="teacherId" id={teacher.id} />
+          <h1>Creator&apos;s Schedule</h1>
+          <BigCalendarContainer type="creatorId" id={creator.id} />
         </div>
       </div>
       {/* RIGHT */}
@@ -180,33 +180,33 @@ const SingleTeacherPage = async ({
           <div className="mt-4 flex gap-4 flex-wrap text-xs ">
             <Link
               className="p-3 rounded-md bg-lamaSkyLight"
-              href={`/list/classes?supervisorId=${teacher.id}`}
+              href={`/income/list/tribes?supervisorId=${creator.id}`}
             >
-              Teacher&apos;s Classes
+              Creator&apos;s Tribe
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaPurpleLight"
-              href={`/school/list/students?teacherId=${teacher.id}`}
+              href={`/income/list/children?creatorId=${creator.id}`}
             >
-              Teacher&apos;s Students
+              Creator&apos;s Children
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaYellowLight"
-              href={`/school/list/lessons?teacherId=${teacher.id}`}
+              href={`/income/list/tasks?creatorId=${creator.id}`}
             >
-              Teacher&apos;s Lessons
+              Creator&apos;s tasks
             </Link>
             <Link
               className="p-3 rounded-md bg-pink-50"
-              href={`/school/list/exams?teacherId=${teacher.id}`}
+              href={`/income/list/exams?creatorId=${creator.id}`}
             >
-              Teacher&apos;s Exams
+              Creator&apos;s Exams
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaSkyLight"
-              href={`/school/list/assignments?teacherId=${teacher.id}`}
+              href={`/income/list/assignments?creatorId=${creator.id}`}
             >
-              Teacher&apos;s Assignments
+              Creator&apos;s Assignments
             </Link> 
           </div>
         </div>
@@ -217,4 +217,4 @@ const SingleTeacherPage = async ({
   );
 };
 
-export default SingleTeacherPage;
+export default SingleCreatorPage;

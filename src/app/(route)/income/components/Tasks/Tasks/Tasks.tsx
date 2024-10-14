@@ -10,14 +10,36 @@ import { useUser } from "@clerk/nextjs";
 
 interface Task {
   id: string;
+  day: Day;
+  startTime: Date;
+  endTime: Date;
+  subjectId: string;
+  tribeId: string;
+  CreatorId: string;
+  exams: any; // replace with actual type
+  assignments: any; // replace with actual type
+  attendances: any; // replace with actual type
   title: string;
-  description?: string;
-  link?: string;
-  reward?: number;
-  isCompleted?: boolean;
-  isOwner?: boolean;
-  code?: string;
+  description: string | null; // Allow null here
+  isImportant: boolean;
+  link: string;
+  reward: number;
+  code: string;
+  createdAt: Date;
+  updatedAt: Date;
+  childId: string;
+  completions: Completion[]; 
 }
+type Completion = {
+  userId: string;        // ID of the user who completed the task
+  id: string;            // Unique ID of the completion record
+  createdAt: Date;       // Date when the completion record was created
+  updatedAt: Date;       // Date when the completion record was last updated
+  taskId: string;        // ID of the task that was completed
+  completedAt: Date | null; // Date when the task was completed, null if not completed
+};
+type Day = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
+
 
 interface Props {
   title: string;

@@ -1,18 +1,18 @@
-import FormContainer from "../../components/FormContainer";
-import Pagination from "../../components/Pagination";
-import Table from "../../components/Table";
-import TableSearch from "../../components/TableSearch";
+import FormContainer from "../../components/Components/FormContainer";
+import Pagination from "../../components/Components/Pagination";
+import Table from "../../components/Components/Table";
+import TableSearch from "../../components/Components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { Class, Prisma, Teacher } from "@prisma/client";
+import { Tribe, Prisma, Creator } from "@prisma/client";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 import { Filter } from "lucide-react";
 import { Sort } from "@/components/Icons";
 
-type ClassList = Class & { supervisor: Teacher };
+type TribeList = Tribe & { supervisor: Creator };
 
-const ClassListPage = async ({
+const TribeListPage = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
@@ -24,7 +24,7 @@ const role = (sessionClaims?.metadata as { role?: string })?.role;
 
 const columns = [
   {
-    header: "Class Name",
+    header: "Tribe Name",
     accessor: "name",
   },
   {
@@ -52,7 +52,7 @@ const columns = [
     : []),
 ];
 
-const renderRow = (item: ClassList) => (
+const renderRow = (item: TribeList) => (
   <tr
     key={item.id}
     className="border-b border-gray-200 even:glass text-sm hover:bg-lamaPurpleLight"
@@ -65,10 +65,10 @@ const renderRow = (item: ClassList) => (
     </td>
     <td>
       <div className="flex items-center gap-2">
-        {role === "school/admin" && ( 
+        {role === "admin" && ( 
           <>
-            <FormContainer table="class" type="update" data={item} />
-            <FormContainer table="class" type="delete" id={item.id} />
+            <FormContainer table="tribe" type="update" data={item} />
+            <FormContainer table="tribe" type="delete" id={item.id} />
           </>
          )} 
       </div>
@@ -82,7 +82,7 @@ const renderRow = (item: ClassList) => (
 
   // URL PARAMS CONDITION
 
-  const query: Prisma.ClassWhereInput = {};
+  const query: Prisma.TribeWhereInput = {};
 
   if (queryParams) {
     for (const [key, value] of Object.entries(queryParams)) {
@@ -102,7 +102,7 @@ const renderRow = (item: ClassList) => (
   }
 
   const [data, count] = await prisma.$transaction([
-    prisma.class.findMany({
+    prisma.tribe.findMany({
       where: query,
       include: {
         supervisor: true,
@@ -110,14 +110,14 @@ const renderRow = (item: ClassList) => (
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),
-    prisma.class.count({ where: query }),
+    prisma.tribe.count({ where: query }),
   ]);
 
   return (
     <div className="glass p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
       <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Classes</h1>
+        <h1 className="hidden md:block text-lg font-semibold">All Tribees</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
@@ -127,8 +127,8 @@ const renderRow = (item: ClassList) => (
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Sort/>
             </button>
-            {role === "school/admin" && 
-            <FormContainer table="class" type="create" />
+            {role === "admin" && 
+            <FormContainer table="tribe" type="create" />
             } 
           </div>
         </div>
@@ -141,4 +141,4 @@ const renderRow = (item: ClassList) => (
   );
 };
 
-export default ClassListPage;
+export default TribeListPage;

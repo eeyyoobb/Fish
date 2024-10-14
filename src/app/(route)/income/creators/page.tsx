@@ -1,5 +1,5 @@
-import Announcements from "../components/Announcements";
-import BigCalendarContainer from "../components/BigCalendarContainer";
+import Announcements from "../components/Components/Announcements";
+import BigCalendarContainer from "../components/Components/BigCalendarContainer";
 import { auth } from "@clerk/nextjs/server";
 
 const TeacherPage = () => {

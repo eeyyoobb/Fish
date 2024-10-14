@@ -1,22 +1,22 @@
 
-import FormContainer from "../../components/FormContainer";
-import Pagination from "../../components/Pagination";
-import Table from "../../components/Table";
-import TableSearch from "../../components/TableSearch";
+import FormContainer from "../../components/Components/FormContainer";
+import Pagination from "../../components/Components/Pagination";
+import Table from "../../components/Components/Table";
+import TableSearch from "../../components/Components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { Prisma, Subject, Teacher ,SubjectTeacher} from "@prisma/client";
+import { Prisma, Category, Creator ,CategoryCreator} from "@prisma/client";
 import Image from "next/image";
 import {Filter,Sort } from "@/components/Icons";
 import { auth } from "@clerk/nextjs/server";
 
-type SubjectList = Subject & {
-  teachers: (SubjectTeacher & {
-    teacher: Teacher; 
+type CategoryList = Category & {
+  creators: (CategoryCreator & {
+    creator: Creator; 
   })[];
 };
 
-const SubjectListPage = async ({
+const CategoryListPage = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
@@ -26,12 +26,12 @@ const SubjectListPage = async ({
 
   const columns = [
     {
-      header: "Subject Name",
+      header: "Category Name",
       accessor: "name",
     },
     {
-      header: "Teachers",
-      accessor: "teachers",
+      header: "Creators",
+      accessor: "creators",
       className: "hidden md:table-cell",
     },
     {
@@ -40,21 +40,25 @@ const SubjectListPage = async ({
     },
   ];
 
-  const renderRow = (item: SubjectList) => (
+  const renderRow = (item: CategoryList) => (
     <tr
       key={item.id}
       className="border-b  even:bg-glass text-sm hover:bg-maya"
     >
       <td className="flex items-center gap-4 p-4">{item.name}</td>
       <td className="hidden md:table-cell">
-        {item.teachers.map((subjectTeacher) => subjectTeacher.teacher.name).join(",")}
+      {item.creators?.length > 0 ? (
+            item.creators.map((categoryCreator) => categoryCreator.creator.name).join(", ")
+          ) : (
+            <span>No creators</span>
+         )}
       </td>
       <td>
         <div className="flex items-center gap-2">
-           {role === "school/admin" && (
+           {role === "admin" && (
             <> 
-              <FormContainer table="subject" type="update" data={item} />
-              <FormContainer table="subject" type="delete" id={item.id} />
+              <FormContainer table="category" type="update" data={item} />
+              <FormContainer table="category" type="delete" id={item.id} />
             </>
            )} 
         </div>
@@ -68,7 +72,7 @@ const SubjectListPage = async ({
 
   // URL PARAMS CONDITION
 
-  const query: Prisma.SubjectWhereInput = {};
+  const query: Prisma.CategoryWhereInput = {};
 
   if (queryParams) {
     for (const [key, value] of Object.entries(queryParams)) {
@@ -85,26 +89,26 @@ const SubjectListPage = async ({
   }
 
   const [data, count] = await prisma.$transaction([
-    prisma.subject.findMany({
+    prisma.category.findMany({
       where: query, // Ensure this is defined properly
       include: {
-        teachers: {
+        Creators: {
           include: {
-            teacher: true, // To include the actual teacher details
+            Creator: true,
           },
         },
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),
-    prisma.subject.count({ where: query }),
+    prisma.category.count({ where: query }),
   ]);
 
   return (
     <div className="glass p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
       <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Subjects</h1>
+        <h1 className="hidden md:block text-lg font-semibold">All Categorys</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
@@ -114,8 +118,8 @@ const SubjectListPage = async ({
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Sort/>
             </button>
-            {role === "school/admin" && ( 
-              <FormContainer table="subject" type="create" />
+            {role === "admin" && ( 
+              <FormContainer table="category" type="create" />
              )} 
           </div>
         </div>
@@ -128,4 +132,4 @@ const SubjectListPage = async ({
   );
 };
 
-export default SubjectListPage;
+export default CategoryListPage;

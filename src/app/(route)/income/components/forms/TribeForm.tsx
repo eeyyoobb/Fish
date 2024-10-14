@@ -2,25 +2,25 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputField from "../InputField";
+import InputField from "../Components/InputField";
 import {
-  classSchema,
-  ClassSchema,
-  subjectSchema,
-  SubjectSchema,
+  tribeSchema,
+  TribeSchema,
+  categorySchema,
+  CategorySchema,
 } from "@/lib/formValidationSchemas";
 import {
-  createClass,
-  createSubject,
-  updateClass,
-  updateSubject,
+  createTribe,
+  createCategory,
+  updateTribe,
+  updateCategory,
 } from "@/lib/actions";
 import { useFormState } from "react-dom";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
-const ClassForm = ({
+const TribeForm = ({
   type,
   data,
   setOpen,
@@ -35,14 +35,14 @@ const ClassForm = ({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ClassSchema>({
-     resolver: zodResolver(classSchema),
+  } = useForm<TribeSchema>({
+     resolver: zodResolver(tribeSchema),
   });
 
   // AFTER REACT 19 IT'LL BE USEACTIONSTATE
 
   const [state, formAction] = useFormState(
-    type === "create" ? createClass : updateClass,
+    type === "create" ? createTribe : updateTribe,
     {
       success: false,
       error: false,
@@ -58,7 +58,7 @@ const ClassForm = ({
 
   useEffect(() => {
     if (state.success) {
-       toast(`Subject has been ${type === "create" ? "created" : "updated"}!`);
+       toast(`Category has been ${type === "create" ? "created" : "updated"}!`);
       setOpen(false);
       router.refresh();
     }
@@ -67,16 +67,15 @@ const ClassForm = ({
   const { teachers, grades } = relatedData;
 
   return (
-    <form className="flex flex-col gap-8" 
-     onSubmit={onSubmit}
+    <form className="flex flex-col gap-8"  onSubmit={onSubmit}
     >
       <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new class" : "Update the class"}
+        {type === "create" ? "Create a new tribe" : "Update the tribe"}
       </h1>
 
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
-          label="Class name"
+          label="Tribe name"
           name="name"
           defaultValue={data?.name}
           register={register}
@@ -158,4 +157,4 @@ const ClassForm = ({
   );
 };
 
-export default ClassForm;
+export default TribeForm;

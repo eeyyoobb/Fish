@@ -1,18 +1,18 @@
 import { PiSortAscending } from "react-icons/pi";
-import FormContainer from "../../components/FormContainer";
-import Pagination from "../../components/Pagination";
-import Table from "../../components/Table";
-import TableSearch from "../../components/TableSearch";
+import FormContainer from "../../components/Components/FormContainer";
+import Pagination from "../../components/Components/Pagination";
+import Table from "../../components/Components/Table";
+import TableSearch from "../../components/Components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { Parent, Prisma, Student } from "@prisma/client";
+import { Parent, Prisma, Child } from "@prisma/client";
 import Image from "next/image";
 import { MdFilter, MdFilter2 } from "react-icons/md";
 import { Filter,Sort} from "@/components/Icons";
 
 import { auth } from "@clerk/nextjs/server";
 
-type ParentList = Parent & { students: Student[] };
+type ParentList = Parent & { children: Child[] };
 
 const ParentListPage = async ({
   searchParams,
@@ -31,7 +31,7 @@ const columns = [
   },
   {
     header: "Student Names",
-    accessor: "students",
+    accessor: "childs",
     className: "hidden md:table-cell",
   },
   {
@@ -66,7 +66,7 @@ const renderRow = (item: ParentList) => (
       </div>
     </td>
     <td className="hidden md:table-cell">
-      {item.students.map((student) => student.name).join(",")}
+      {item.children.map((child) => child.name).join(",")}
     </td>
     <td className="hidden md:table-cell">{item.phone}</td>
     <td className="hidden md:table-cell">{item.address}</td>
@@ -109,7 +109,7 @@ const renderRow = (item: ParentList) => (
     prisma.parent.findMany({
       where: query,
       include: {
-        students: true,
+        children: true,
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),

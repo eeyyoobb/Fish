@@ -2,11 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import {
-  ClassSchema,
+  TribeSchema,
   ExamSchema,
-  StudentSchema,
-  SubjectSchema,
-  TeacherSchema,
+  ChildSchema,
+  CategorySchema,
+  CreatorSchema,
 } from "./formValidationSchemas";
  import prisma from "./prisma";
 import { auth, clerkClient } from "@clerk/nextjs/server";
@@ -15,23 +15,23 @@ import { ObjectId } from 'mongodb';
 
  type CurrentState = { success: boolean; error: boolean };
 
-export const createSubject = async (
+export const createCategory = async (
    currentState: CurrentState,
-  data: SubjectSchema
+  data: CategorySchema
 ) => {
   try {
-    await prisma.subject.create({
+    await prisma.category.create({
       data: {
         name: data.name,
-        teachers: {
-            create: data.teachers.map((teacherId) => ({
-             teacher: { connect: { id: teacherId } }, // Connect teacher by id
-             })),
-        },
+        // creator: {
+        //     create: data.creator.map((creatorId) => ({
+        //      creator: { connect: { id: creatorId } }, // Connect creator by id
+        //      })),
+        // },
       },
     });
 
- //revalidatePath("/list/subjects");
+ //revalidatePath("/list/categorys");
      return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -39,29 +39,29 @@ export const createSubject = async (
    }
  };
 
-export const updateSubject = async (
+export const updateCategory = async (
   currentState: CurrentState,
-  data: SubjectSchema
+  data: CategorySchema
 ) => {
     if (!data.id) {
-        throw new Error("Subject ID is required for updating.");
+        throw new Error("Category ID is required for updating.");
       }
   try {
-    await prisma.subject.update({
+    await prisma.category.update({
       where: {
         id: data.id.toString(),
       },
       data: {
         name: data.name,
-        teachers: {
-            create: data.teachers.map((teacherId) => ({
-             teacher: { connect: { id: teacherId } }, // Connect teacher by id
-             })),
-        },
+        // creators: {
+        //     create: data.creators.map((creatorId) => ({
+        //      creator: { connect: { id: creatorId } }, // Connect creator by id
+        //      })),
+        // },
       },
     });
 
-     // revalidatePath("/list/subjects");
+     // revalidatePath("/list/categorys");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -69,19 +69,19 @@ export const updateSubject = async (
   }
 };
 
-export const deleteSubject = async (
+export const deleteCategory = async (
   currentState: CurrentState,
   data: FormData
 ) => {
   const id = data.get("id") as string;
   try {
-    await prisma.subject.delete({
+    await prisma.category.delete({
       where: {
         id: id,
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/categorys");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -89,17 +89,17 @@ export const deleteSubject = async (
   }
 };
 
-export const createClass = async (
+export const createTribe = async (
   currentState: CurrentState,
-  data: ClassSchema
+  data: TribeSchema
 ) => {
   try {
-    await prisma.class.create({
+    await prisma.tribe.create({
         //@ts-ignore
       data,
     });
 
-    // revalidatePath("/list/class");
+    // revalidatePath("/list/tribe");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -107,12 +107,12 @@ export const createClass = async (
   }
 };
 
-export const updateClass = async (
+export const updateTribe = async (
   currentState: CurrentState,
-  data: ClassSchema
+  data: TribeSchema
 ) => {
   try {
-    await prisma.class.update({
+    await prisma.tribe.update({
       where: {
         id: data.id?.toString(),
       },
@@ -120,7 +120,7 @@ export const updateClass = async (
       data,
     });
 
-    // revalidatePath("/list/class");
+    // revalidatePath("/list/tribe");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -128,19 +128,19 @@ export const updateClass = async (
   }
 };
 
-export const deleteClass = async (
+export const deleteTribe = async (
   currentState: CurrentState,
   data: FormData
 ) => {
   const id = data.get("id") as string;
   try {
-    await prisma.class.delete({
+    await prisma.tribe.delete({
       where: {
         id: id,
       },
     });
 
-    // revalidatePath("/list/class");
+    // revalidatePath("/list/tribe");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -148,9 +148,9 @@ export const deleteClass = async (
   }
 };
 
-export const createTeacher = async (
+export const createCreator = async (
   currentState: CurrentState,
-  data: TeacherSchema
+  data: CreatorSchema
 ) => {
   try {
     const user = await clerkClient.users.createUser({
@@ -158,14 +158,14 @@ export const createTeacher = async (
       password: data.password,
       firstName: data.name,
       lastName: data.surname,
-      publicMetadata:{role:"teacher"}
+      publicMetadata:{role:"creator"}
     });
     if (!user || !user.id) {
       throw new Error('Failed to create user in Clerk');
     }
 
     const newUserId = new ObjectId();
-    await prisma.teacher.create({
+    await prisma.creator.create({
       
       data: {
         id: newUserId.toString(),
@@ -180,14 +180,14 @@ export const createTeacher = async (
         bloodType: data.bloodType,
         sex: data.sex,
         birthday: data.birthday,
-        subjects: {
-          create: data.subjects?.map((subjectId) => ({
-            subject:  { connect: { id: subjectId } },
+        categories: {
+          create: data.Categorys?.map((categoryId) => ({
+            category: { connect: { id: categoryId } },  // Connect categories correctly
           })),
         },
       },
     });
-    // revalidatePath("/list/teachers");
+    // revalidatePath("/list/creators");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -195,9 +195,9 @@ export const createTeacher = async (
   }
 };
 
-export const updateTeacher = async (
+export const updateCreator = async (
   currentState: CurrentState,
-  data: TeacherSchema
+  data: CreatorSchema
 ) => {
   if (!data.clerkUserId) { // Check if clerkUserId is present
     return { success: false, error: true };
@@ -213,11 +213,11 @@ export const updateTeacher = async (
       lastName: data.surname,
     });
 
-    // Update teacher in database using the MongoDB ID
-    console.log("Updating teacher in database:", data.id);
-    await prisma.teacher.update({
+    // Update creator in database using the MongoDB ID
+    console.log("Updating creator in database:", data.id);
+    await prisma.creator.update({
       where: {
-        id: data.id, // Use the MongoDB ID for the teacher record
+        id: data.id, // Use the MongoDB ID for the creator record
       },
       data: {
         ...(data.password !== "" && { password: data.password }),
@@ -231,9 +231,9 @@ export const updateTeacher = async (
         bloodType: data.bloodType,
         sex: data.sex,
         birthday: data.birthday,
-        subjects: {
-          set: data.subjects?.map((subjectId: string) => ({
-            id: subjectId,
+        categorys: {
+          set: data.categorys?.map((categoryId: string) => ({
+            id: categoryId,
           })),
         },
       },
@@ -241,35 +241,35 @@ export const updateTeacher = async (
 
     return { success: true, error: false };
   } catch (err) {
-    console.log("Error updating teacher:", err);
+    console.log("Error updating creator:", err);
     return { success: false, error: true };
   }
 };
 
 
-export const deleteTeacher = async (
+export const deleteCreator = async (
   currentState: CurrentState,
   data: FormData
 ) => {
   const id = data.get("id") as string; // This should be the MongoDB ObjectId
   try {
-    // Fetch the teacher record from the database using the MongoDB ID
-    const teacher = await prisma.teacher.findUnique({
+    // Fetch the creator record from the database using the MongoDB ID
+    const creator = await prisma.creator.findUnique({
       where: {
         id: id,
       },
     });
 
-    // Check if teacher exists
-    if (!teacher) {
-      return { success: false, error: true, message: "Teacher not found." };
+    // Check if creator exists
+    if (!creator) {
+      return { success: false, error: true, message: "Creator not found." };
     }
 
     // Use the Clerk user ID to delete the user from Clerk
-    await clerkClient.users.deleteUser(teacher.clerkId);
+    await clerkClient.users.deleteUser(creator.clerkId);
 
-    // Delete the teacher from the database
-    await prisma.teacher.delete({
+    // Delete the creator from the database
+    await prisma.creator.delete({
       where: {
         id: id,
       },
@@ -277,24 +277,24 @@ export const deleteTeacher = async (
 
     return { success: true, error: false };
   } catch (err) {
-    console.log("Error deleting teacher:", err);
+    console.log("Error deleting creator:", err);
     return { success: false, error: true, message: "An error occurred." };
   }
 };
 
 
-export const createStudent = async (
+export const createChild = async (
   currentState: CurrentState,
-  data: StudentSchema
+  data: ChildSchema
 ) => {
   console.log(data);
   try {
-    const classItem = await prisma.class.findUnique({
-      where: { id: data.classId.toString() },
-      include: { _count: { select: { students: true } } },
+    const tribeItem = await prisma.tribe.findUnique({
+      where: { id: data.tribeId.toString() },
+      include: { _count: { select: { children: true } } },
     });
 
-    if (classItem && classItem.capacity === classItem._count.students) {
+    if (tribeItem && tribeItem.capacity === tribeItem._count.children) {
       return { success: false, error: true };
     }
 
@@ -303,10 +303,10 @@ export const createStudent = async (
       password: data.password,
       firstName: data.name,
       lastName: data.surname,
-      publicMetadata:{role:"student"}
+      publicMetadata:{role:"child"}
     });
     const newUserId= new ObjectId();
-    await prisma.student.create({
+    await prisma.child.create({
       data: {
         id: newUserId.toString(),
         clerkId: user.id ,
@@ -321,12 +321,12 @@ export const createStudent = async (
         sex: data.sex,
         birthday: data.birthday,
         gradeId: data.gradeId.toString(),
-        classId: data.classId.toString(),
+        tribeId: data.tribeId.toString(),
         parentId: data.parentId.toString(),
       },
     });
 
-    // revalidatePath("/list/students");
+    // revalidatePath("/list/childs");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -334,9 +334,9 @@ export const createStudent = async (
   }
 };
 
-export const updateStudent = async (
+export const updateChild = async (
   currentState: CurrentState,
-  data: StudentSchema
+  data: ChildSchema
 ) => {
   if (!data.id) {
     return { success: false, error: true };
@@ -349,7 +349,7 @@ export const updateStudent = async (
       lastName: data.surname,
     });
 
-    await prisma.student.update({
+    await prisma.child.update({
       where: {
         id: data.id,
       },
@@ -366,11 +366,11 @@ export const updateStudent = async (
         sex: data.sex,
         birthday: data.birthday,
         gradeId: data.gradeId.toString(),
-        classId: data.classId.toString(),
+        tribeId: data.tribeId.toString(),
         parentId: data.parentId,
       },
     });
-    // revalidatePath("/list/students");
+    // revalidatePath("/list/childs");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -378,7 +378,7 @@ export const updateStudent = async (
   }
 };
 
-export const deleteStudent = async (
+export const deleteChild = async (
   currentState: CurrentState,
   data: FormData
 ) => {
@@ -386,13 +386,13 @@ export const deleteStudent = async (
   try {
     await clerkClient.users.deleteUser(id);
 
-    await prisma.student.delete({
+    await prisma.child.delete({
       where: {
         id: id,
       },
     });
 
-    // revalidatePath("/list/students");
+    // revalidatePath("/list/childs");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -408,15 +408,15 @@ export const createExam = async (
    const role = (sessionClaims?.metadata as { role?: string })?.role;
 
   try {
-    if (role === "teacher") {
-      const teacherLesson = await prisma.lesson.findFirst({
+    if (role === "creator") {
+      const creatorLesson = await prisma.lesson.findFirst({
         where: {
-          teacherId: userId!,
+          creatorId: userId!,
           id: data.lessonId,
         },
       });
 
-      if (!teacherLesson) {
+      if (!creatorLesson) {
         return { success: false, error: true };
       }
     }
@@ -430,7 +430,7 @@ export const createExam = async (
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/categorys");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -449,15 +449,15 @@ export const updateExam = async (
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
   try {
-    if (role === "teacher") {
-      const teacherLesson = await prisma.lesson.findFirst({
+    if (role === "creator") {
+      const creatorLesson = await prisma.lesson.findFirst({
         where: {
-          teacherId: userId!,
+          creatorId: userId!,
           id: data.lessonId,
         },
       });
 
-      if (!teacherLesson) {
+      if (!creatorLesson) {
         return { success: false, error: true };
       }
     }
@@ -474,7 +474,7 @@ export const updateExam = async (
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/categorys");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -495,11 +495,11 @@ export const deleteExam = async (
     await prisma.exam.delete({
       where: {
         id: id,
-         ...(role === "teacher" ? { lesson: { teacherId: userId! } } : {}),
+         ...(role === "creator" ? { lesson: { creatorId: userId! } } : {}),
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/categorys");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);

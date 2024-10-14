@@ -1,11 +1,11 @@
 "use client";
 
 import {
-   deleteClass,
+   deleteTribe,
    deleteExam,
-   deleteStudent,
-   deleteSubject,
-   deleteTeacher,
+   deleteChild,
+   deleteCategory,
+   deleteCreator,
 } from "@/lib/actions";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -18,39 +18,39 @@ import {Delete,Plus,View} from "@/components/Icons"
 import { MdOutlineClose } from "react-icons/md";
 
 const deleteActionMap = {
-  subject: deleteSubject,
-  class: deleteClass,
-  teacher: deleteTeacher,
-  student: deleteStudent,
+  subject: deleteCategory,
+  class: deleteTribe,
+  teacher: deleteCreator,
+  child: deleteChild,
   exam: deleteExam,
 // TODO: OTHER DELETE ACTIONS
-  parent: deleteSubject,
-  lesson: deleteSubject,
-  assignment: deleteSubject,
-  result: deleteSubject,
-  attendance: deleteSubject,
-  event: deleteSubject,
-  announcement: deleteSubject,
+  parent: deleteCategory,
+  lesson: deleteCategory,
+  assignment: deleteCategory,
+  result: deleteCategory,
+  attendance: deleteCategory,
+  event: deleteCategory,
+  announcement: deleteCategory,
 };
 
 // USE LAZY LOADING
 
-// import TeacherForm from "./forms/TeacherForm";
-// import StudentForm from "./forms/StudentForm";
+// import CreatorForm from "./forms/CreatorForm";
+// import ChildForm from "./forms/ChildForm";
 
-const TeacherForm = dynamic(() => import("./forms/TeacherForm"), {
+const CreatorForm = dynamic(() => import("../forms/CreatorForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const StudentForm = dynamic(() => import("./forms/StudentForm"), {
+const ChildForm = dynamic(() => import("../forms/ChildForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const SubjectForm = dynamic(() => import("./forms/SubjectForm"), {
+const CategoryForm = dynamic(() => import("../forms/CategoryForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const ClassForm = dynamic(() => import("./forms/ClassForm"), {
+const ClassForm = dynamic(() => import("../forms/TribeForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const ExamForm = dynamic(() => import("./forms/ExamForm"), {
+const ExamForm = dynamic(() => import("../forms/ExamForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 // TODO: OTHER FORMS
@@ -63,15 +63,15 @@ const forms: {
     relatedData?: any
   ) => JSX.Element;
 } = {
-  subject: (setOpen, type, data, relatedData) => (
-    <SubjectForm
+  category: (setOpen, type, data, relatedData) => (
+    <CategoryForm
       type={type}
       data={data}
       setOpen={setOpen}
       relatedData={relatedData}
     />
   ),
-  class: (setOpen, type, data, relatedData) => (
+  tribe: (setOpen, type, data, relatedData) => (
     <ClassForm
       type={type}
       data={data}
@@ -79,16 +79,16 @@ const forms: {
       relatedData={relatedData}
     />
   ),
-  teacher: (setOpen, type, data, relatedData) => (
-    <TeacherForm
+  creator: (setOpen, type, data, relatedData) => (
+    <CreatorForm
       type={type}
       data={data}
       setOpen={setOpen}
       relatedData={relatedData}
     />
   ),
-  student: (setOpen, type, data, relatedData) => (
-    <StudentForm
+  child: (setOpen, type, data, relatedData) => (
+    <ChildForm
       type={type}
       data={data}
       setOpen={setOpen}

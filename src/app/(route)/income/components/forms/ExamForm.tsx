@@ -2,23 +2,23 @@
 
 // import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputField from "../InputField";
+import InputField from "../Components/InputField";
 import {
   examSchema,
   ExamSchema,
-  subjectSchema,
-  SubjectSchema,
+  creatorSchema,
+  CreatorSchema,
 } from "@/lib/formValidationSchemas";
-// import {
-//   createExam,
-//   createSubject,
-//   updateExam,
-//   updateSubject,
-// } from "@/lib/actions";
+import {
+  createExam,
+  createCreator,
+  updateExam,
+  updateCreator,
+} from "@/lib/actions";
 import { useFormState } from "react-dom";
 import { Dispatch, SetStateAction, useEffect } from "react";
-// import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const ExamForm = ({
   type,
@@ -41,34 +41,33 @@ const ExamForm = ({
 
   // AFTER REACT 19 IT'LL BE USEACTIONSTATE
 
-  // const [state, formAction] = useFormState(
-  //   type === "create" ? createExam : updateExam,
-  //   {
-  //     success: false,
-  //     error: false,
-  //   }
-  // );
+  const [state, formAction] = useFormState(
+    type === "create" ? createExam : updateExam,
+    {
+      success: false,
+      error: false,
+    }
+  );
 
-  // const onSubmit = handleSubmit((data) => {
-  //   console.log(data);
-  //   formAction(data);
-  // });
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
+    formAction(data);
+  });
 
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (state.success) {
-  //     // toast(`Exam has been ${type === "create" ? "created" : "updated"}!`);
-  //     setOpen(false);
-  //     router.refresh();
-  //   }
-  // }, [state, router, type, setOpen]);
+  useEffect(() => {
+    if (state.success) {
+      toast(`Exam has been ${type === "create" ? "created" : "updated"}!`);
+      setOpen(false);
+      router.refresh();
+    }
+  }, [state, router, type, setOpen]);
 
   const { lessons } = relatedData;
 
   return (
-    <form className="flex flex-col gap-8" 
-    // onSubmit={onSubmit}
+    <form className="flex flex-col gap-8" onSubmit={onSubmit}
     >
       <h1 className="text-xl font-semibold">
         {type === "create" ? "Create a new exam" : "Update the exam"}
@@ -128,9 +127,9 @@ const ExamForm = ({
           )}
         </div>
       </div>
-      {/* {state.error && (
+      {state.error && (
         <span className="text-red-500">Something went wrong!</span>
-      )} */}
+      )}
       <button className="bg-blue-400 text-white p-2 rounded-md">
         {type === "create" ? "Create" : "Update"}
       </button>

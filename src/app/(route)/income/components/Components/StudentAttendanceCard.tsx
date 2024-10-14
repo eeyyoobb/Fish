@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 const StudentAttendanceCard = async ({ id }: { id: string }) => {
   const attendance = await prisma.attendance.findMany({
     where: {
-      studentId: id,
+      childId: id,
       date: {
         gte: new Date(new Date().getFullYear(), 0, 1),
       },

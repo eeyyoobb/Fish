@@ -1,24 +1,25 @@
 import { z } from "zod";
+import { Category } from '@prisma/client';
 
-export const subjectSchema = z.object({
+export const categorySchema = z.object({
   id: z.coerce.number().optional(),
-  name: z.string().min(1, { message: "Subject name is required!" }),
-   teachers: z.array(z.string()), 
+  name: z.string().min(1, { message: "Category name is required!" }),
+  creators: z.array(z.string()), 
 });
 
-export type SubjectSchema = z.infer<typeof subjectSchema>;
+export type CategorySchema = z.infer<typeof categorySchema>;
 
-export const classSchema = z.object({
+export const tribeSchema = z.object({
   id: z.coerce.number().optional(),
-  name: z.string().min(1, { message: "Subject name is required!" }),
+  name: z.string().min(1, { message: "Category name is required!" }),
   capacity: z.coerce.number().min(1, { message: "Capacity name is required!" }),
   gradeId: z.coerce.string().min(1, { message: "Grade name is required!" }),
   supervisorId: z.coerce.string().optional(),
 });
 
-export type ClassSchema = z.infer<typeof classSchema>;
+export type TribeSchema = z.infer<typeof tribeSchema>;
 
-export const teacherSchema = z.object({
+export const creatorSchema = z.object({
   id: z.string().optional(),
   clerkUserId: z.string().optional().or(z.literal("")),
   username: z
@@ -43,12 +44,12 @@ export const teacherSchema = z.object({
   bloodType: z.string().min(1, { message: "Blood Type is required!" }),
   birthday: z.coerce.date({ message: "Birthday is required!" }),
   sex: z.enum(["MALE", "FEMALE"], { message: "Sex is required!" }),
-  subjects: z.array(z.string()).optional(), // subject ids
+  Categorys: z.array(z.string()).optional(), // Category ids
 });
 
-export type TeacherSchema = z.infer<typeof teacherSchema>;
+export type CreatorSchema = z.infer<typeof creatorSchema>;
 
-export const studentSchema = z.object({
+export const childSchema = z.object({
   id: z.string().optional(),
   username: z
     .string()
@@ -77,7 +78,7 @@ export const studentSchema = z.object({
   parentId: z.string().min(1, { message: "Parent Id is required!" }),
 });
 
-export type StudentSchema = z.infer<typeof studentSchema>;
+export type ChildSchema = z.infer<typeof childSchema>;
 
 export const examSchema = z.object({
   id: z.coerce.string().optional(),

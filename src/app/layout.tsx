@@ -10,7 +10,8 @@ import { Toaster, toast } from 'sonner'
 import ContextProvider from "../context/ContextProvider";
 import Sidebar from "@/components/sidebar";
 import { auth } from "@clerk/nextjs/server";
-import Link from "next/link";
+import { dark, neobrutalism } from '@clerk/themes'
+
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -30,7 +31,10 @@ export default function RootLayout({
 
   return (
     <>
-      <ClerkProvider> 
+      <ClerkProvider
+            appearance={{
+              baseTheme: [dark, neobrutalism],
+            }}> 
       <html lang="en">
       <head>
           <link

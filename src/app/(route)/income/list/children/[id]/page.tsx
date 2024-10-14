@@ -1,12 +1,12 @@
 import { Avatar, Calendar } from "@/components/Icons";
-import Announcements from "../../../components/Announcements";
-import BigCalendarContainer from "../../../components/BigCalendarContainer";
-import FormContainer from "../../../components/FormContainer";
-import Performance from "../../../components/Performance";
-import StudentAttendanceCard from "../../../components/StudentAttendanceCard";
+import Announcements from "../../../components/Components/Announcements";
+import BigCalendarContainer from "../../../components/Components/BigCalendarContainer";
+import FormContainer from "../../../components/Components/FormContainer";
+import Performance from "../../../components/Components/Performance";
+import ChildAttendanceCard from "../../../components/Components/StudentAttendanceCard";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { Class, Student } from "@prisma/client";
+import { Tribe, Child } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,7 +14,7 @@ import { Suspense } from "react";
 import { MdBloodtype, MdMail } from "react-icons/md";
 import { Phone } from "lucide-react";
 
-const SingleStudentPage = async ({
+const SingleChildPage = async ({
   params: { id },
 }: {
   params: { id: string };
@@ -22,9 +22,9 @@ const SingleStudentPage = async ({
   const { sessionClaims } = auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
-  const student:
-    | (Student & {
-        class: Class & { _count: { lessons: number } };
+  const child:
+    | (Child & {
+        tribe: Tribe & { _count: { tasks: number } };
       })
     | null = await prisma.child.findUnique({
     where: { id },
@@ -33,7 +33,7 @@ const SingleStudentPage = async ({
     },
   });
 
-  if (!student) {
+  if (!child) {
     return notFound();
   }
 
@@ -46,9 +46,9 @@ const SingleStudentPage = async ({
           {/* USER INFO CARD */}
           <div className="glass py-6 px-4 rounded-md flex-1 flex gap-4">
             <div className="w-1/3 flex justify-center items-center">
-            {student.img ? (
+            {child.img ? (
               <Image
-                src={student.img ||"/noAvatar.png"}
+                src={child.img ||"/noAvatar.png"}
                 alt=""
                 width={144}
                 height={144}
@@ -63,10 +63,10 @@ const SingleStudentPage = async ({
             <div className="w-2/3 flex flex-col justify-between gap-4">
               <div className="flex items-center gap-4">
                 <h1 className="text-xl font-semibold">
-                  {student.name + " " + student.surname}
+                  {child.name + " " + child.surname}
                 </h1>
-                {role === "school/admin" && (
-                  <FormContainer table="student" type="update" data={student} />
+                {role === "admin" && (
+                  <FormContainer table="child" type="update" data={child} />
                 )}
               </div>
               <p className="text-sm text-gray-500">
@@ -75,21 +75,21 @@ const SingleStudentPage = async ({
               <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   <MdBloodtype/>
-                  <span>{student.bloodType}</span>
+                  <span>{child.bloodType}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   <Calendar/>
                   <span>
-                    {new Intl.DateTimeFormat("en-GB").format(student.birthday)}
+                    {new Intl.DateTimeFormat("en-GB").format(child.birthday)}
                   </span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   < MdMail/>
-                  <span>{student.email || "-"}</span>
+                  <span>{child.email || "-"}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   <Phone/>
-                  <span>{student.phone || "-"}</span>
+                  <span>{child.phone || "-"}</span>
                 </div>
               </div>
             </div>
@@ -106,7 +106,7 @@ const SingleStudentPage = async ({
                 className="w-6 h-6"
               />
               <Suspense fallback="loading...">
-                <StudentAttendanceCard id={student.id} />
+                <ChildAttendanceCard id={child.id} />
               </Suspense>
             </div>
             {/* CARD */}
@@ -120,7 +120,7 @@ const SingleStudentPage = async ({
               />
               <div className="">
                 <h1 className="text-xl font-semibold">
-                  {student.class.name.charAt(0)}th
+                  {child.tribe.name.charAt(0)}th
                 </h1>
                 <span className="text-sm text-gray-400">Grade</span>
               </div>
@@ -136,7 +136,7 @@ const SingleStudentPage = async ({
               />
               <div className="">
                 <h1 className="text-xl font-semibold">
-                  {student.class._count.lessons}
+                  {child.tribe._count.tasks}
                 </h1>
                 <span className="text-sm text-gray-400">Lessons</span>
               </div>
@@ -144,23 +144,23 @@ const SingleStudentPage = async ({
             {/* CARD */}
             <div className="glass p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
               <Image
-                src="/singleClass.png"
+                src="/singleTribe.png"
                 alt=""
                 width={24}
                 height={24}
                 className="w-6 h-6"
               />
               <div className="">
-                <h1 className="text-xl font-semibold">{student.class.name}</h1>
-                <span className="text-sm text-gray-400">Class</span>
+                <h1 className="text-xl font-semibold">{child.tribe.name}</h1>
+                <span className="text-sm text-gray-400">Tribe</span>
               </div>
             </div>
           </div>
         </div>
         {/* BOTTOM */}
         <div className="mt-4 glass rounded-md p-4 h-[800px]">
-          <h1>Student&apos;s Schedule</h1>
-          <BigCalendarContainer type="classId" id={student.class.id} />
+          <h1>Child&apos;s Schedule</h1>
+          {/* <BigCalendarContainer type="tribeId" id={child.tribe.id} /> */}
         </div>
       </div>
       {/* RIGHT */}
@@ -170,33 +170,33 @@ const SingleStudentPage = async ({
           <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
             <Link
               className="p-3 rounded-md bg-lamaSkyLight"
-              href={`/school/list/lessons?classId=${student.class.id}`}
+              href={`/school/list/tasks?tribeId=${child.tribe.id}`}
             >
-              Student&apos;s Lessons
+              Child&apos;s Lessons
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaPurpleLight"
-              href={`/school/list/teachers?classId=${student.class.id}`}
+              href={`/school/list/teachers?tribeId=${child.tribe.id}`}
             >
-              Student&apos;s Teachers
+              Child&apos;s Teachers
             </Link>
             <Link
               className="p-3 rounded-md bg-pink-50"
-              href={`/school/list/exams?classId=${student.class.id}`}
+              href={`/school/list/exams?tribeId=${child.tribe.id}`}
             >
-              Student&apos;s Exams
+              Child&apos;s Exams
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaSkyLight"
-              href={`/school/list/assignments?classId=${student.class.id}`}
+              href={`/school/list/assignments?tribeId=${child.tribe.id}`}
             >
-              Student&apos;s Assignments
+              Child&apos;s Assignments
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaYellowLight"
-              href={`/school/list/results?studentId=${student.id}`}
+              href={`/school/list/results?childId=${child.id}`}
             >
-              Student&apos;s Results
+              Child&apos;s Results
             </Link>
           </div>
         </div>
@@ -207,4 +207,4 @@ const SingleStudentPage = async ({
   );
 };
 
-export default SingleStudentPage;
+export default SingleChildPage;

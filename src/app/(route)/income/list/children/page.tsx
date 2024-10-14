@@ -1,8 +1,8 @@
 import { MdFilterList, MdOutlineSort, MdOutlineAddCircleOutline } from "react-icons/md";
-import FormContainer from "../../components/FormContainer";
-import Pagination from "../../components/Pagination";
-import Table from "../../components/Table";
-import TableSearch from "../../components/TableSearch";
+import FormContainer from "../../components/Components/FormContainer";
+import Pagination from "../../components/Components/Pagination";
+import Table from "../../components/Components/Table";
+import TableSearch from "../../components/Components/TableSearch";
 import { Avatar, Delete, View } from "@/components/Icons";
 import { AvatarImg } from "@/components/image";
 import prisma from "@/lib/prisma";
@@ -74,7 +74,7 @@ const renderRow = (item: ChildList) => (
     <td className="hidden md:table-cell">{item.address}</td>
     <td>
       <div className="flex items-center gap-2">
-        <Link href={`/school/list/students/${item.id}`}>
+        <Link href={`/income/list/children/${item.id}`}>
           <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
             <View />
           </button>
@@ -84,7 +84,7 @@ const renderRow = (item: ChildList) => (
             {/* <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaPurple">
               <Delete />
              </button> */}
-            <FormContainer table="teacher" type="delete" id={item.id} />
+            <FormContainer table="creator" type="delete" id={item.id} />
           </>
         )}
       </div>
@@ -114,7 +114,7 @@ const ChildListPage = async ({
             query.tribe = {
               tasks: {
                 some: {
-                  CreatorId: value,
+                  creatorId: value,
                 },
               },
             };
@@ -155,8 +155,8 @@ const ChildListPage = async ({
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <MdOutlineSort />
             </button>
-            {role === "school/admin" && (
-              <FormContainer table="student" type="create" />
+            {role === "admin" && (
+              <FormContainer table="child" type="create" />
             )}
           </div>
         </div>

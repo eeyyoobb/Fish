@@ -44,7 +44,6 @@ model Child {
   wallet      Int    @default(0) 
   tasks      Task[] 
 
-
 }
 
 model Creator {
@@ -60,9 +59,8 @@ model Creator {
   bloodType String
   sex       UserSex
   createdAt DateTime @default(now())
-  subjects  SubjectCreator[]
+  categories CategoryCreator[]
   tasks     Task[]
-  tribees   Tribe[]
   birthday  DateTime
   wallet      Int    @default(0) 
 }
@@ -76,7 +74,8 @@ model Parent {
   phone     String    @unique
   address   String
   createdAt DateTime  @default(now())
-  children    Child[]
+  children   Child[]
+  tribes    Tribe[]
   wallet      Int    @default(0) 
 }
 
@@ -93,8 +92,8 @@ model Tribe {
   name     String @unique
   capacity Int
 
-  supervisorId  String? @db.ObjectId
-  supervisor    Creator?       @relation(fields: [supervisorId], references: [id])
+  supervisorId  String?   @db.ObjectId
+  supervisor    Parent?   @relation(fields: [supervisorId], references: [id])
   tasks         Task[]
   children      Child[]
   gradeId       String @db.ObjectId
@@ -103,48 +102,48 @@ model Tribe {
   announcements Announcement[]
 }
 
-model Subject {
+model Category {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
   name     String   @unique
   Tasks  Task[]
-  Creators SubjectCreator[]
+  Creators CategoryCreator[]
 }
 
-model SubjectCreator {
+model CategoryCreator {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  subjectId String   @db.ObjectId
-  subject   Subject  @relation(fields: [subjectId], references: [id])
+  categoryId String   @db.ObjectId
+  category   Category  @relation(fields: [categoryId], references: [id])
   
   CreatorId String   @db.ObjectId
   Creator   Creator  @relation(fields: [CreatorId], references: [id])
 }
 
 model Task{
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  day         Day
-  startTime   DateTime
-  endTime     DateTime
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  day           Day
+  startTime     DateTime
+  endTime       DateTime
 
-  subjectId   String    @db.ObjectId
-  subject     Subject   @relation(fields: [subjectId], references: [id])
-  tribeId     String    @db.ObjectId
-  tribe       Tribe     @relation(fields: [tribeId], references: [id])
-  CreatorId   String    @db.ObjectId
-  Creator     Creator   @relation(fields: [CreatorId], references: [id])
-  exams       Exam[]
-  assignments Assignment[]
-  attendances Attendance[]
-  title       String
-  description String?
-  isImportant Boolean   @default(false)
-  link        String?
-  reward      Float?
-  code        String?
+  categoryId    String    @db.ObjectId
+  category      Category   @relation(fields: [categoryId], references: [id])
+  tribeId       String    @db.ObjectId
+  tribe         Tribe     @relation(fields: [tribeId], references: [id])
+  creatorId     String    @db.ObjectId
+  creator       Creator   @relation(fields: [creatorId], references: [id])
+  exams         Exam[]
+  assignments   Assignment[]
+  attendances   Attendance[]
+  title         String
+  description   String?
+  isImportant   Boolean   @default(false)
+  link          String?
+  reward        Float?
+  code          String?
 
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
-  childId     String    @db.ObjectId
-  child       Child     @relation(fields: [childId], references: [id])
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+  childId       String    @db.ObjectId
+  child         Child     @relation(fields: [childId], references: [id])
 
   completions TaskCompletion[] // Link to TaskCompletion
 }
