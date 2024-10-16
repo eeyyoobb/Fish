@@ -28,8 +28,6 @@ model Child {
   phone       String?      @unique
   address     String
   img         String?
-  bloodType   String
-  sex         UserSex
   createdAt   DateTime     @default(now())
   parentId    String       @db.ObjectId
   parent      Parent       @relation(fields: [parentId], references: [id])
@@ -40,10 +38,8 @@ model Child {
   clerkId     String        @unique
   attendances Attendance[]
   results     Result[]
-  birthday    DateTime
   wallet      Int    @default(0) 
-  tasks      Task[] 
-
+  tasks       Task[] 
 }
 
 model Creator {

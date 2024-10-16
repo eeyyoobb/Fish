@@ -317,9 +317,6 @@ export const createChild = async (
         phone: data.phone || null,
         address: data.address,
         img: data.img || null,
-        bloodType: data.bloodType,
-        sex: data.sex,
-        birthday: data.birthday,
         gradeId: data.gradeId.toString(),
         tribeId: data.tribeId.toString(),
         parentId: data.parentId.toString(),
@@ -362,9 +359,6 @@ export const updateChild = async (
         phone: data.phone || null,
         address: data.address,
         img: data.img || null,
-        bloodType: data.bloodType,
-        sex: data.sex,
-        birthday: data.birthday,
         gradeId: data.gradeId.toString(),
         tribeId: data.tribeId.toString(),
         parentId: data.parentId,
@@ -409,7 +403,7 @@ export const createExam = async (
 
   try {
     if (role === "creator") {
-      const creatorLesson = await prisma.lesson.findFirst({
+      const creatorLesson = await prisma.task.findFirst({
         where: {
           creatorId: userId!,
           id: data.lessonId,

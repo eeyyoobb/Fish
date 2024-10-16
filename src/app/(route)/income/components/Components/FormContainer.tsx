@@ -58,7 +58,7 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
         const childTribes = await prisma.tribe.findMany({
           include: { _count: { select: { children: true } } },
         });
-        relatedData = { tribees: childTribes, grades: childGrades };
+        relatedData = { tribes: childTribes, grades: childGrades };
         break;
       // case "exam":
       //   const examTasks = await prisma.task.findMany({

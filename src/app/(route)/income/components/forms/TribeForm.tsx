@@ -64,7 +64,7 @@ const TribeForm = ({
     }
   }, [state, router, type, setOpen]);
 
-  const { teachers, grades } = relatedData;
+  const { creators, grades } = relatedData;
 
   return (
     <form className="flex flex-col gap-8"  onSubmit={onSubmit}
@@ -76,7 +76,7 @@ const TribeForm = ({
       <div className="flex justify-between flex-wrap gap-4">
         <InputField
           label="Tribe name"
-          name="name"
+          name="tribe"
           defaultValue={data?.name}
           register={register}
           error={errors?.name}
@@ -103,16 +103,16 @@ const TribeForm = ({
           <select
             className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
              {...register("supervisorId")}
-            defaultValue={data?.teachers}
+            defaultValue={data?.creators}
           >
-            {teachers.map(
-              (teacher: { id: string; name: string; surname: string }) => (
+            {creators.map(
+              (creator: { id: string; name: string; surname: string }) => (
                 <option
-                  value={teacher.id}
-                  key={teacher.id}
-                  selected={data && teacher.id === data.supervisorId}
+                  value={creator.id}
+                  key={creator.id}
+                  selected={data && creator.id === data.supervisorId}
                 >
-                  {teacher.name + " " + teacher.surname}
+                  {creator.name + " " + creator.surname}
                 </option>
               )
             )}

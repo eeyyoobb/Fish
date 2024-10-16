@@ -69,7 +69,7 @@ const ChildForm = ({
     }
   }, [state, router, type, setOpen]);
 
-  const { grades, classes } = relatedData;
+  const { grades, tribes} = relatedData;
 
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}
@@ -108,7 +108,7 @@ const ChildForm = ({
         Personal Information
       </span>
       <CldUploadWidget
-        uploadPreset="school"
+        uploadPreset="income"
         onSuccess={(result, { widget }) => {
           setImg(result.info);
           widget.close();
@@ -155,21 +155,7 @@ const ChildForm = ({
           register={register}
           error={errors.address}
         />
-        <InputField
-          label="Blood Type"
-          name="bloodType"
-          defaultValue={data?.bloodType}
-          register={register}
-          error={errors.bloodType}
-        />
-        <InputField
-          label="Birthday"
-          name="birthday"
-          defaultValue={data?.birthday.toISOString().split("T")[0]}
-          register={register}
-          error={errors.birthday}
-          type="date"
-        />
+
         <InputField
           label="Parent Id"
           name="parentId"
@@ -187,22 +173,7 @@ const ChildForm = ({
             hidden
           />
         )}
-        <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Sex</label>
-          <select
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("sex")}
-            defaultValue={data?.sex}
-          >
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
-          </select>
-          {errors.sex?.message && (
-            <p className="text-xs text-red-400">
-              {errors.sex.message.toString()}
-            </p>
-          )}
-        </div>
+        
         <div className="flex flex-col gap-2 w-full md:w-1/4">
           <label className="text-xs text-gray-500">Grade</label>
           <select
@@ -223,37 +194,42 @@ const ChildForm = ({
           )}
         </div>
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Class</label>
-          <select
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("classId")}
-            defaultValue={data?.classId}
-          >
-            {classes.map(
-              (classItem: {
-                id: number;
-                name: string;
-                capacity: number;
-                _count: { childs: number };
-              }) => (
-                <option value={classItem.id} key={classItem.id}>
-                  ({classItem.name} -{" "}
-                  {classItem._count.childs + "/" + classItem.capacity}{" "}
-                  Capacity)
-                </option>
-              )
+            <label className="text-xs text-gray-500">Tribe</label>
+            <select
+              className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
+              {...register("tribeId")}
+              defaultValue={data?.tribeId}
+            >
+              {tribes && tribes.length > 0 ? (
+                tribes.map(
+                  (tribeItem: {
+                    id: number;
+                    name: string;
+                    capacity: number;
+                    _count: { childs: number };
+                  }) => (
+                    <option value={tribeItem.id} key={tribeItem.id}>
+                      ({tribeItem.name} -{" "}
+                      {tribeItem._count.childs + "/" + tribeItem.capacity}{" "}
+                      Capacity)
+                    </option>
+                  )
+                )
+              ) : (
+                <option value="" disabled>No tribes available</option>
+              )}
+            </select>
+            {errors.tribeId?.message && (
+              <p className="text-xs text-red-400">
+                {errors.tribeId.message.toString()}
+              </p>
             )}
-          </select>
-          {errors.classId?.message && (
-            <p className="text-xs text-red-400">
-              {errors.classId.message.toString()}
-            </p>
-          )}
-        </div>
+          </div>
+
       </div>
-      {/* {state.error && (
+      {state.error && (
         <span className="text-red-500">Something went wrong!</span>
-      )} */}
+      )}
       <button type="submit" className="bg-blue-400 text-white p-2 rounded-md">
         {type === "create" ? "Create" : "Update"}
       </button>

@@ -24,7 +24,8 @@ const HomePage = async () => {
         },
       },
       include: {
-        completions: true, // Include completion records with tasks
+        completions: true,
+        
       },
     });
   } catch (error) {
