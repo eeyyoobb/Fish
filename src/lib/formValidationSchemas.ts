@@ -70,9 +70,8 @@ export const childSchema = z.object({
   phone: z.string().optional(),
   address: z.string(),
   img: z.string().optional(),
-  gradeId: z.coerce.string().min(1, { message: "Grade is required!" }),
-  tribeId: z.coerce.string().min(1, { message: "Tribe is required!" }),
-  parentId: z.string().min(1, { message: "Parent Id is required!" }),
+  fatherId: z.string().min(1, { message: "Parent Id is required!" }),
+  //parentId: z.string().min(1, { message: "Parent Id is required!" }),
 });
 
 export type ChildSchema = z.infer<typeof childSchema>;

@@ -80,14 +80,16 @@ function TaskItem({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ taskId, reward }),
+        body: JSON.stringify({ taskId, reward,isCompleted: true }),
       });
-
-      const result = await res.json();
+  
+      // Check if the response has content
       if (!res.ok) {
-        throw new Error(result.error || "Failed to claim reward");
+        const errorText = await res.text(); // Get the error message if any
+        throw new Error(errorText || "Failed to claim reward");
       }
-
+  
+      const result = await res.json(); // Only parse if there's valid content
       setCompleted(true); // Mark task as completed after claiming reward
       setButtonState("completed");
       toast.success(`${title} reward claimed! You have earned ${reward} BT!`);
@@ -98,6 +100,7 @@ function TaskItem({
       setIsLoading(false);
     }
   };
+  
 
   const handleDelete = async () => {
     try {

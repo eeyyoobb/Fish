@@ -89,7 +89,7 @@ function Tasks({ title, tasks }: Props) {
 
   return (
     <main className="relative p-8 w-full bg-gray-500 bg-opacity-10 border-2 border-gray-400 rounded-lg h-full overflow-y-auto">
-      {modal && <Modal content={<CreateContent closeModal={closeModal} />} />} 
+      {modal && <Modal content={<CreateContent /*closeModal={closeModal}*/ />} />} 
       <h1 className="text-2xl font-bold relative mb-8">
         {title}
         <span className="absolute bottom-[-0.6rem] left-0 w-12 h-1 bg-brand rounded"></span>

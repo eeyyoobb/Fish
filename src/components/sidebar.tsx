@@ -3,24 +3,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { menuItems } from "./MenuItem";
-import { useClerk, UserButton, useUser } from "@clerk/nextjs"; 
+import { useAuth, useClerk, UserButton, useUser } from "@clerk/nextjs"; 
 import { useRouter, usePathname } from "next/navigation"; 
 import { logout } from "@/utils/Icons";
 import { useState } from "react";
 import { dark } from '@clerk/themes'
 import { PencilIcon } from "lucide-react";
+import GenerateLinkButton from './Refer';
+
 
 const Menu = () => {
   const { isSignedIn, user, isLoaded } = useUser();
   const role = user?.publicMetadata.role as string;
   const { signOut, openUserProfile } = useClerk(); 
-
+  const { userId } = useAuth()
   const router = useRouter();
   const pathname = usePathname();
 
   const initials = `${user?.firstName?.charAt(0)}${user?.lastName?.charAt(0) || user?.firstName?.charAt(1) || ''}${user?.lastName ? '' : user?.firstName?.charAt(2) || ''}`;
+  
 
-
+  const referralId = userId;
 
 
   if (!isLoaded) {
@@ -115,6 +118,7 @@ const Menu = () => {
           <span className="mr-2">{logout}</span>
           <p className="hidden lg:block">Sign Out</p>
         </button>
+        <GenerateLinkButton referralId={referralId} />
       </div>
     </div>
   );

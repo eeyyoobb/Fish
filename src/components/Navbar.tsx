@@ -24,12 +24,12 @@ const Navbar = async () => {
 
   const count = await prisma.announcement.count({
     where: {
-      ...(role !== "admin" && {
-        OR: [
-          { tribeId: null },
-          { tribe: roleConditions[role as keyof typeof roleConditions] || {} },
-        ],
-      }),
+      // ...(role !== "admin" && {
+      //   OR: [
+      //     { tribeId: null },
+      //     { tribe: roleConditions[role as keyof typeof roleConditions] || {} },
+      //   ],
+      // }),
     },
   });
 

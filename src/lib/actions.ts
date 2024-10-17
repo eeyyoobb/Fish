@@ -12,6 +12,7 @@ import {
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { error } from "console";
 import { ObjectId } from 'mongodb';
+import { NextApiRequest, NextApiResponse } from "next";
 
  type CurrentState = { success: boolean; error: boolean };
 
@@ -228,14 +229,14 @@ export const updateCreator = async (
         phone: data.phone || null,
         address: data.address,
         img: data.img || null,
-        bloodType: data.bloodType,
-        sex: data.sex,
-        birthday: data.birthday,
-        categorys: {
-          set: data.categorys?.map((categoryId: string) => ({
-            id: categoryId,
-          })),
-        },
+        // bloodType: data.bloodType,
+        // sex: data.sex,
+        // birthday: data.birthday,
+        // categorys: {
+        //   set: data.categorys?.map((categoryId: string) => ({
+        //     id: categoryId,
+        //   })),
+        // },
       },
     });
 
@@ -289,14 +290,19 @@ export const createChild = async (
 ) => {
   console.log(data);
   try {
-    const tribeItem = await prisma.tribe.findUnique({
-      where: { id: data.tribeId.toString() },
-      include: { _count: { select: { children: true } } },
-    });
 
-    if (tribeItem && tribeItem.capacity === tribeItem._count.children) {
-      return { success: false, error: true };
-    }
+    // if (!data.tribeId || !data.gradeId) {
+    //   console.error('tribeId or gradeId is undefined');
+    //   return { success: false, error: true, message: 'tribeId and gradeId are required' };
+    // }
+    // const tribeItem = await prisma.tribe.findUnique({
+    //   where: { id: data.tribeId.toString() },
+    //   include: { _count: { select: { children: true } } },
+    // });
+
+    // if (tribeItem && tribeItem.capacity === tribeItem._count.children) {
+    //   return { success: false, error: true };
+    // }
 
     const user = await clerkClient.users.createUser({
       username: data.username,
@@ -317,9 +323,10 @@ export const createChild = async (
         phone: data.phone || null,
         address: data.address,
         img: data.img || null,
-        gradeId: data.gradeId.toString(),
-        tribeId: data.tribeId.toString(),
-        parentId: data.parentId.toString(),
+        // gradeId: data.gradeId.toString(),
+        // tribeId: data.tribeId.toString(),
+        //parentId: data.parentId ,
+        fatherId: data.fatherId,
       },
     });
 
@@ -359,9 +366,9 @@ export const updateChild = async (
         phone: data.phone || null,
         address: data.address,
         img: data.img || null,
-        gradeId: data.gradeId.toString(),
-        tribeId: data.tribeId.toString(),
-        parentId: data.parentId,
+        // gradeId: data.gradeId.toString(),
+        // tribeId: data.tribeId.toString(),
+        //parentId: data.parentId,
       },
     });
     // revalidatePath("/list/childs");
@@ -394,43 +401,43 @@ export const deleteChild = async (
   }
 };
 
-export const createExam = async (
-  currentState: CurrentState,
-  data: ExamSchema
-) => {
-   const { userId, sessionClaims } = auth();
-   const role = (sessionClaims?.metadata as { role?: string })?.role;
+// export const createExam = async (
+//   currentState: CurrentState,
+//   data: ExamSchema
+// ) => {
+//    const { userId, sessionClaims } = auth();
+//    const role = (sessionClaims?.metadata as { role?: string })?.role;
 
-  try {
-    if (role === "creator") {
-      const creatorLesson = await prisma.task.findFirst({
-        where: {
-          creatorId: userId!,
-          id: data.lessonId,
-        },
-      });
+//   try {
+//     if (role === "creator") {
+//       const creatorLesson = await prisma.task.findFirst({
+//         where: {
+//           creatorId: userId!,
+//           id: data.taskId,
+//         },
+//       });
 
-      if (!creatorLesson) {
-        return { success: false, error: true };
-      }
-    }
+//       if (!creatorLesson) {
+//         return { success: false, error: true };
+//       }
+//     }
 
-    await prisma.exam.create({
-      data: {
-        title: data.title,
-        startTime: data.startTime,
-        endTime: data.endTime,
-        lessonId: data.lessonId.toString(),
-      },
-    });
+//     await prisma.exam.create({
+//       data: {
+//         title: data.title,
+//         startTime: data.startTime,
+//         endTime: data.endTime,
+//         taskId: data.taskId.toString(),
+//       },
+//     });
 
-    // revalidatePath("/list/categorys");
-    return { success: true, error: false };
-  } catch (err) {
-    console.log(err);
-    return { success: false, error: true };
-  }
-};
+//     // revalidatePath("/list/categorys");
+//     return { success: true, error: false };
+//   } catch (err) {
+//     console.log(err);
+//     return { success: false, error: true };
+//   }
+// };
 
 export const updateExam = async (
   currentState: CurrentState,
@@ -444,10 +451,10 @@ export const updateExam = async (
 
   try {
     if (role === "creator") {
-      const creatorLesson = await prisma.lesson.findFirst({
+      const creatorLesson = await prisma.task.findFirst({
         where: {
           creatorId: userId!,
-          id: data.lessonId,
+          id: data.taskId,
         },
       });
 
@@ -464,7 +471,7 @@ export const updateExam = async (
         title: data.title,
         startTime: data.startTime,
         endTime: data.endTime,
-        lessonId: data.lessonId.toString(),
+        taskId: data.taskId.toString(),
       },
     });
 
@@ -489,7 +496,7 @@ export const deleteExam = async (
     await prisma.exam.delete({
       where: {
         id: id,
-         ...(role === "creator" ? { lesson: { creatorId: userId! } } : {}),
+         ...(role === "creator" ? { task: { creatorId: userId! } } : {}),
       },
     });
 
@@ -500,3 +507,30 @@ export const deleteExam = async (
     return { success: false, error: true };
   }
 };
+
+
+// In lib/actions.ts (or actions.js)
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { parentId } = req.query; // Extract parentId from the request URL
+
+  try {
+    // Fetch parent data from the database using Prisma
+    const parent = await prisma.child.findUnique({
+      where: { id: String(parentId) },
+      select: {
+        tribeId: true,
+        gradeId: true,
+      },
+    });
+
+    if (!parent) {
+      return res.status(404).json({ error: "Parent not found" });
+    }
+
+    // Return the tribeId and gradeId
+    return res.status(200).json(parent);
+  } catch (error) {
+    console.error("Error fetching parent data:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}

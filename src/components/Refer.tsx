@@ -1,14 +1,17 @@
-// components/GenerateLinkButton.tsx
-"use client"; // If you are using React 18 with Next.js
+"use client"
 
 const GenerateLinkButton = ({ referralId }: { referralId: string }) => {
-  const linkToCopy = `/income/registration?referral=${referralId}`; // Add the referral ID to the link
+  
+  const linkToCopy = `/income/registration?referral=${referralId}`;
 
+   
   const handleClick = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.origin + linkToCopy);
-      alert("Link copied to clipboard!"); // Notify the user
+      const fullLink = window.location.origin + linkToCopy;
+      await navigator.clipboard.writeText(fullLink);
+      alert("Link copied to clipboard!");
     } catch (err) {
+      // Log any errors
       console.error("Failed to copy: ", err);
     }
   };

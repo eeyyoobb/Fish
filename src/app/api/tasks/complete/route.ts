@@ -11,16 +11,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized", status: 401 });
     }
 
-    const { taskId, reward } = await req.json(); // Parse request body
+    const { taskId, reward ,isCompleted} = await req.json(); // Parse request body
 
     // Create task completion entry and store the userId
     const taskCompletion = await prisma.taskCompletion.create({
       data: {
         taskId, // Associate the task being completed
         userId, // Save the userId directly
+        isCompleted,
         completedAt: new Date(), // Track when the task was completed
       },
     });
+
+    const completionCount = await prisma.taskCompletion.count({
+      where: {
+        taskId,
+        isCompleted: true,
+      },
+    });
+
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      select: { threshold: true },
+    });
+    
+    if (completionCount >= (task?.threshold || 10)) {
+      await prisma.task.update({
+        where: { id: taskId },
+        data: { isCompleted: true },
+      });
+    }
 
     // Update user wallet based on role
     await addRewardToUserWallet(userId, reward); // Call to update the user's wallet
