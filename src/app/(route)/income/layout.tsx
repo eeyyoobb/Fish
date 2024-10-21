@@ -1,6 +1,6 @@
 
 import { auth} from "@clerk/nextjs/server";
-import ContextProvider from "@/context/ContextProvider";
+//import ContextProvider from "@/context/ContextProvider";
 
 export default async function SchoolLayout({
   children,
@@ -12,12 +12,12 @@ export default async function SchoolLayout({
 
 
   return (
-    <ContextProvider>
+    // <ContextProvider>
     <div className="h-screen"> 
       <div className="w-full">
         {children}
       </div>
     </div>
-   </ContextProvider>
+  //  </ContextProvider>
   );
 }

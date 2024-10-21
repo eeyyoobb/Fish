@@ -2,12 +2,12 @@
 import React from "react";
 import styled from "styled-components";
 
-interface ModalProps {
+interface Props {
   content: React.ReactNode;
-  closeModal: () => void;
+  closeModal: () => void; // Add closeModal prop to close the modal
 }
 
-function Modal({ content, closeModal }: ModalProps) {
+function Modal({ content, closeModal }: Props) {
   return (
     <ModalStyled>
       <div className="modal-overlay" onClick={closeModal}></div>
@@ -16,7 +16,7 @@ function Modal({ content, closeModal }: ModalProps) {
   );
 }
 
-const ModalStyled = styled.div`
+const ModalStyled = styled.div`s
   position: fixed;
   top: 0;
   left: 0;
@@ -40,17 +40,14 @@ const ModalStyled = styled.div`
 
   .modal-content {
     margin: 0 1rem;
-
     padding: 2rem;
     position: relative;
     max-width: 630px;
     width: 100%;
     z-index: 100;
-
-    border-radius: 1rem;
-    background-color:#212121;
+    border-radius: 1rem; /* You can customize this if needed */
+    background-color:glass;
     box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
-    border-radius: 15px;
 
     @media screen and (max-width: 450px) {
       font-size: 90%;

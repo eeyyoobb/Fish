@@ -7,8 +7,7 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react'
 import { AvatarImg } from '../../../components/image';
 
-export default function SignUpPage() {
-
+const  SignUpPage=() => {
 
   return (
     <div className="grid w-full flex-grow items px-4 sm:justify-center">
@@ -139,3 +138,4 @@ export default function SignUpPage() {
     </div>
   )
 }
+export default SignUpPage;

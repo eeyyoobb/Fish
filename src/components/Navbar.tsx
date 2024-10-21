@@ -50,7 +50,13 @@ const Navbar = async () => {
       {/* Brand Logo */}
       <div className="flex justify-start">
         <Link href={`/${role}`} className="flex items-center gap-2 mb-4">
-          <AvatarImg src="/brandlogo.png" />
+        <Image
+            src="/brandlogo.png" // Your image source
+            alt="Brand Logo" // Alternative text for accessibility
+            width={40} // Set the appropriate width
+            height={40} // Set the appropriate height
+            priority // This is the key property to improve LCP
+          />
           <span className="hidden lg:block font-bold">{brandname}</span>
         </Link>
       </div>
@@ -58,10 +64,10 @@ const Navbar = async () => {
       {/* Icons and User Info */}
       <div className="flex items-center gap-6 justify-end w-full">
         {!role ? (
-          <div className="lg:flex lg:items-center lg:space-x-6">
-            <Link href="/sign-in" className="text-sm">Sign in</Link>
+          <div className="lg:flex lg:items-center  lg:space-x-6">
+            <Link href="/sign-in" className="text-sm ">Sign in</Link>
             <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
-            <Link href="/sign-up" className="text-sm">Create account</Link>
+            {/* <Link href="/sign-up" className="text-sm">Create account</Link> */}
           </div>
         ) : (
           <>
@@ -71,12 +77,12 @@ const Navbar = async () => {
             </div>
 
             {/* Display Wallet if available */}
-            {/* {wallet !== null && (  */}
+            {wallet !== null && (  
               <div className="flex items-center bold ">
                 <Image src="/coin.png" alt="Coin" width={25} height={25} />
                 <span className="text-lg font-bold text-brand">{wallet} Bt</span>
               </div>
-            {/* )} */}
+             )}
          
       
 

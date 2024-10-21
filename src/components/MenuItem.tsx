@@ -14,12 +14,6 @@ export const menuItems = [
           visible: ["admin", "creater", "child", "audit"],
         },
         {
-          icon: Admin,
-          label: "admin",
-          href: "/admin",
-          visible: ["admin", "creater"],
-        },
-        {
           icon: Creator,
           label: "creators",
           href: "/income/list/creator",

@@ -4,37 +4,57 @@ import { edit, trash } from "@/utils/Icons";
 import Image from "next/image";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+
+
 
 interface Props {
   title: string;
   description: string;
-  isCompleted: boolean;
   id: string;
   link: string;
   reward: number;
   taskId: string;
   onVerify: (taskId: string, code: string) => void;
-  isOwner: boolean;
   code: string;
+  completions:TaskCompletion[];
+  isCompleted: boolean;
+}
+interface TaskCompletion {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isCompleted: boolean;
+  userId: string;
+  taskId: string;
+  completedAt: Date | null;
 }
 
 function TaskItem({
   title,
   description,
-  isCompleted,
   link,
   reward,
   taskId,
   onVerify,
   id,
-  isOwner,
   code,
+  completions,
+  isCompleted
 }: Props) {
+
   const [completed, setCompleted] = useState(isCompleted);
   const [inputCode, setInputCode] = useState("");
   const [buttonState, setButtonState] = useState("initial");
   const [attempts, setAttempts] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const { user } = useUser();
+
+
+
 
   const handleEarnClick = () => {
     if (buttonState === "initial") {
@@ -54,6 +74,7 @@ function TaskItem({
       }
     } else if (buttonState === "claim") {
       handleClaimReward();
+      router.refresh
     }
   };
 
@@ -154,17 +175,17 @@ function TaskItem({
           ? "Verify"
           : "Earn"}
       </button>
-      {isOwner && (
-        <div className="flex items-center gap-5 mt-auto">
-          <button className="ml-auto text-blue-500 hover:text-blue-700">{edit}</button>
-          <button 
-            className="bg-red-600 rounded-lg py-1 px-3 text-white transition-colors duration-200 hover:bg-red-700" 
-            onClick={handleDelete}
-          >
-            {trash}
-          </button>
-        </div>
-      )}
+      {/* {isOwner && (  */}
+      <div className="flex items-center gap-5 mt-auto">
+        <button className="ml-auto text-blue-500 hover:text-blue-700">{edit}</button>
+        <button 
+          className="bg-red-600 rounded-lg py-1 px-3 text-white transition-colors duration-200 hover:bg-red-700" 
+          onClick={handleDelete}
+        >
+          {trash}
+        </button>
+      </div>
+    {/* )} */}
     </div>
   );
 }

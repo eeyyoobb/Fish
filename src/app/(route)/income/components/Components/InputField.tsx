@@ -9,6 +9,7 @@ type InputFieldProps = {
   error?: FieldError;
   hidden?: boolean;
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+  readOnly?: boolean;
 };
 
 const InputField = ({
@@ -20,6 +21,7 @@ const InputField = ({
   error,
   hidden,
   inputProps,
+  readOnly,
 }: InputFieldProps) => {
   return (
     <div className={hidden ? "hidden" : "flex flex-col gap-2 w-full md:w-1/4"}>
@@ -30,6 +32,7 @@ const InputField = ({
         className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
         {...inputProps}
         defaultValue={defaultValue}
+        readOnly={readOnly}
       />
       {error?.message && (
         <p className="text-xs text-red-400">{error.message.toString()}</p>

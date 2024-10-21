@@ -1,5 +1,8 @@
 "use client"
 
+import { toast } from "sonner";
+import { Avatar } from "./Icons";
+
 const GenerateLinkButton = ({ referralId }: { referralId: string }) => {
   
   const linkToCopy = `/income/registration?referral=${referralId}`;
@@ -9,7 +12,7 @@ const GenerateLinkButton = ({ referralId }: { referralId: string }) => {
     try {
       const fullLink = window.location.origin + linkToCopy;
       await navigator.clipboard.writeText(fullLink);
-      alert("Link copied to clipboard!");
+      toast("Link copied to clipboard!");
     } catch (err) {
       // Log any errors
       console.error("Failed to copy: ", err);
@@ -19,9 +22,9 @@ const GenerateLinkButton = ({ referralId }: { referralId: string }) => {
   return (
     <button
       onClick={handleClick}
-      className="bg-blue-500 text-white py-2 px-4 rounded"
+      className="items-center justify-center w-full py-2 rounded-lg  md-border border-gray-600  hover:bg-gray-600 hover:text-white transition duration-300500 text-white  px-4 "
     >
-      Copy Registration Link
+      Invite friend <Avatar/>
     </button>
   );
 };

@@ -7,9 +7,9 @@ import Script from 'next/script';
 import NextTopLoader from 'nextjs-toploader';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Toaster, toast } from 'sonner'
-import ContextProvider from "../context/ContextProvider";
+//import ContextProvider from "../context/ContextProvider";
 import Sidebar from "@/components/sidebar";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { dark, neobrutalism } from '@clerk/themes'
 
 
@@ -26,15 +26,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { sessionClaims } = auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
-
+  const { userId,sessionClaims } = auth();
+  const role = (sessionClaims?.metadata as { role?: string })?.role; 
+  
   return (
     <>
       <ClerkProvider
             appearance={{
-              baseTheme: [dark, neobrutalism],
-            }}> 
+              baseTheme: [dark, neobrutalism] }}> 
       <html lang="en">
       <head>
           <link
@@ -55,27 +54,26 @@ export default function RootLayout({
             attribute="class"
             defaultTheme="system"
             enableSystem
-            disableTransitionOnChange
-             >
+            disableTransitionOnChange>
 
             <Script src="https://cdn.lordicon.com/lordicon.js" strategy="lazyOnload" />
-            <ContextProvider>
+            {/* <ContextProvider> */}
               <div className="h-screen">
-                 <Navbar/>
+                <Navbar/>
                 <div className="flex">
-            { role ? (
-               <div className="w-[14%] md:w-[8%] lg:w-[16%] xl:w-[14%] p-4">
-                <Sidebar />
-               </div>
-               ) : null}
-               <div className="w-[84%] md:w-[92%] lg:w-full xl:w-full overflow-scroll flex flex-col">
-                <div className=" flex-grow">{children}
-                 <Toaster richColors/>
-                </div>
+                  { role ? (
+                      <div className="w-[14%] md:w-[8%] lg:w-[16%] xl:w-[14%] p-4">
+                        <Sidebar />
+                      </div>
+                    ) : null}
+                    <div className="w-[84%] md:w-[92%] lg:w-full xl:w-full overflow-scroll flex flex-col">
+                    <div className=" flex-grow">{children}
+                        <Toaster richColors/>
+                    </div>
                 </div>
               </div>
             </div>
-            </ContextProvider>
+            {/* </ContextProvider> */}
           </ThemeProvider>
         </body>
       </html>

@@ -1,8 +1,6 @@
 "use client";
-import { useGlobalState } from "@/context/globalProvider";
 
 import React from "react";
-import styled from "styled-components";
 
 interface Props {
   icon?: React.ReactNode;
@@ -31,52 +29,22 @@ function Button({
   border,
   color,
 }: Props) {
-  const { theme } = useGlobalState();
-
   return (
-    <ButtonStyled
+    <button
       type={type}
-      style={{
-        background: background,
-        padding: padding || "0.5rem 1rem",
-        borderRadius: borderRad || "0.5rem",
-        fontWeight: fw || "500",
-        fontSize: fs,
-        border: border || "none",
-        color: color || theme.colorGrey0,
-      }}
-      theme={theme}
+      className={`relative flex items-center z-5 cursor-pointer transition-all duration-500 ${
+        padding ? padding : "py-2 px-4"
+      } ${borderRad ? borderRad : "rounded-md"} ${fw ? `font-${fw}` : "font-medium"} ${
+        fs ? `text-${fs}` : "text-base"
+      } ${border ? border : "border-none"} ${
+        background ? background : "bg-gray-800"
+      } ${color ? color : "text-gray-300"} hover:text-gray-100 hover:bg-gray-700`}
       onClick={click}
     >
-      {icon && icon}
+      {icon && <span className="mr-2">{icon}</span>}
       {name}
-    </ButtonStyled>
+    </button>
   );
 }
-
-const ButtonStyled = styled.button`
-  position: relative;
-  display: flex;
-  align-items: center;
-  color: ${(props) => props.theme.colorGrey2};
-  z-index: 5;
-  cursor: pointer;
-
-  transition: all 0.55s ease-in-out;
-
-  i {
-    margin-right: 1rem;
-    color: ${(props) => props.theme.colorGrey2};
-    font-size: 1.5rem;
-    transition: all 0.55s ease-in-out;
-  }
-
-  &:hover {
-    color: ${(props) => props.theme.colorGrey0};
-    i {
-      color: ${(props) => props.theme.colorGrey0};
-    }
-  }
-`;
 
 export default Button;

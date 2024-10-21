@@ -1,6 +1,6 @@
 "use client";
 
-// import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../components/Components/InputField";
 import Image from "next/image";
@@ -27,7 +27,7 @@ const ChildForm = ({
     handleSubmit,
     formState: { errors },
   } = useForm<ChildSchema>({
-    // resolver: zodResolver(childSchema),
+    resolver: zodResolver(childSchema),
   });
 
   const [img, setImg] = useState<any>();
@@ -57,14 +57,15 @@ const ChildForm = ({
 
 
   const onSubmit = handleSubmit((data) => {
-    formAction({ ...data, img: img?.secure_url ,fatherId });
+    formAction({ ...data, img: img?.secure_url  });
   });
 
 
   useEffect(() => {
     if (state.success) {
        toast(`Child has been created!`);
-      router.refresh();
+       router.push("/");
+        router.refresh();
     }
   }, [state, router]);
 
@@ -155,12 +156,12 @@ const ChildForm = ({
         />
 
         <InputField
-          label="Parent Id"
+          label='"Please confirm your invitation by clicking the field below."'
           name="fatherId"
           defaultValue={fatherId || ''}
           register={register}
           error={errors.fatherId}
-          disabled
+          readOnly
         />
         {data && (
           <InputField
@@ -175,9 +176,9 @@ const ChildForm = ({
         
       </div>
       {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
+        <span className="text-red-500">Username  or Account already exist</span>
       )}
-      <button type="submit" className="bg-blue-400 text-white p-2 rounded-md">
+      <button type="submit" className="bg-brand text-white p-2 rounded-md">
          Register
       </button>
     </form>

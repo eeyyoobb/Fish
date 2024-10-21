@@ -26,6 +26,7 @@ const HomePage = async () => {
       include: {
         completions: true,
         
+        
       },
     });
   } catch (error) {
@@ -41,7 +42,6 @@ const HomePage = async () => {
         <div className="relative flex-grow glass p-4 rounded-md min-h-full">
           <h1 className="text-xl font-semibold">Daily Task (4A)</h1>
           <Tasks title="All Tasks" tasks={tasks} />
-
         </div>
       </div>
       {/* RIGHT */}

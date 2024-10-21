@@ -58,6 +58,10 @@ export const childSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters long!" })
+    .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter." })
+    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter." })
+    .regex(/[0-9]/, { message: "Password must contain at least one number." })
+    .regex(/[\W_]/, { message: "Password must contain at least one special character." })
     .optional()
     .or(z.literal("")),
   name: z.string().min(1, { message: "First name is required!" }),
@@ -70,7 +74,7 @@ export const childSchema = z.object({
   phone: z.string().optional(),
   address: z.string(),
   img: z.string().optional(),
-  fatherId: z.string().min(1, { message: "Parent Id is required!" }),
+  fatherId: z.string().min(10, { message: "you must be invited to be registered OR click here Or you shold confirm" }),
   //parentId: z.string().min(1, { message: "Parent Id is required!" }),
 });
 

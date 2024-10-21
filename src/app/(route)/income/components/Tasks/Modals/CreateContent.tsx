@@ -1,20 +1,48 @@
 "use client";
-import { useGlobalState } from "@/context/globalProvider";
 import axios from "axios";
-import React, { useState } from "react";
-import styled from "styled-components";
-import Button from "../Button/Button";
-import { add, plus } from "@/utils/Icons";
+import React, { useEffect, useState } from "react";
+import { add } from "@/utils/Icons";
 import { toast } from "sonner";
+import Button from "../Button/Button";
 
-function CreateContent() {
+interface CreateContentProps {
+  closeModal: () => void;
+}
+
+interface Category {
+  id: string;  // Adjust the type if necessary
+  name: string;
+}
+
+function CreateContent({ closeModal }: CreateContentProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [completed, setCompleted] = useState(false);
-  const [important, setImportant] = useState(false);
+  const [day, setDay] = useState(""); 
+  const [startTime, setStartTime] = useState(""); 
+  const [endTime, setEndTime] = useState(""); 
+  const [categoryId, setCategoryId] = useState(""); 
+  const [creatorId] = useState(""); 
+  const [link, setLink] = useState(""); 
+  const [reward, setReward] = useState(0); 
+  const [code, setCode] = useState(""); 
+  const [threshold, setThreshold] = useState(0); 
+  const [duration, setDuration] = useState(""); // New field for video duration
+  const [ads, setAds] = useState(0); // New field for number of ads
+  const [categories, setCategories] = useState<Category[]>([]); 
 
-  const { theme, allTasks, closeModal } = useGlobalState();
+  // Fetch categories from the API when the component mounts
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("/api/categories");
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleChange = (name: string) => (e: any) => {
     switch (name) {
@@ -24,14 +52,35 @@ function CreateContent() {
       case "description":
         setDescription(e.target.value);
         break;
-      case "date":
-        setDate(e.target.value);
+      case "day":
+        setDay(e.target.value);
         break;
-      case "completed":
-        setCompleted(e.target.checked);
+      case "startTime":
+        setStartTime(e.target.value);
         break;
-      case "important":
-        setImportant(e.target.checked);
+      case "endTime":
+        setEndTime(e.target.value);
+        break;
+      case "categoryId":
+        setCategoryId(e.target.value);
+        break;
+      case "link":
+        setLink(e.target.value);
+        break;
+      case "reward":
+        setReward(Number(e.target.value));
+        break;
+      case "code":
+        setCode(e.target.value);
+        break;
+      case "threshold":
+        setThreshold(Number(e.target.value));
+        break;
+      case "duration":
+        setDuration(e.target.value);
+        break;
+      case "ads":
+        setAds(Number(e.target.value));
         break;
       default:
         break;
@@ -44,9 +93,19 @@ function CreateContent() {
     const task = {
       title,
       description,
-      date,
-      completed,
-      important,
+      day,
+      startTime,
+      endTime,
+      categoryId,
+      creatorId,
+      link,
+      reward,
+      code,
+      threshold,
+      duration, // Include duration if applicable
+      ads, // Include ads if applicable
+      completionCount: 0, 
+      isCompleted: false,
     };
 
     try {
@@ -54,12 +113,9 @@ function CreateContent() {
 
       if (res.data.error) {
         toast.error(res.data.error);
-      }
-
-      if (!res.data.error) {
+      } else {
         toast.success("Task created successfully.");
-        allTasks();
-        closeModal();
+        closeModal(); 
       }
     } catch (error) {
       toast.error("Something went wrong.");
@@ -68,154 +124,155 @@ function CreateContent() {
   };
 
   return (
-    <CreateContentStyled onSubmit={handleSubmit} theme={theme}>
-      <h1>Create a Task</h1>
-      <div className="input-control">
-        <label htmlFor="title">Title</label>
+    <form onSubmit={handleSubmit} className="text-gray-300">
+      <h1 className="text-xl font-semibold mb-4">Create a Task</h1>
+
+      <div className="mb-4">
+        <label htmlFor="categoryId" className="block mb-2 font-medium">
+          Category
+        </label>
+        <select
+          id="categoryId"
+          value={categoryId}
+          onChange={handleChange("categoryId")}
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+        >
+          <option value="">Select a category</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Conditionally render fields based on selected category */}
+      {categoryId === "youtube" && ( // Replace "youtube" with the actual ID for YouTube category
+        <>
+          <div className="mb-4">
+            <label htmlFor="duration" className="block mb-2 font-medium">
+              Video Duration
+            </label>
+            <input
+              type="text"
+              id="duration"
+              value={duration}
+              onChange={handleChange("duration")}
+              placeholder="e.g., 10:30"
+              className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="ads" className="block mb-2 font-medium">
+              Number of Ads
+            </label>
+            <input
+              type="number"
+              id="ads"
+              value={ads}
+              onChange={handleChange("ads")}
+              placeholder="Number of ads"
+              className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+            />
+          </div>
+        </>
+      )}
+
+      <div className="mb-4">
+        <label htmlFor="title" className="block mb-2 font-medium">
+          Title
+        </label>
         <input
           type="text"
           id="title"
           value={title}
           name="title"
           onChange={handleChange("title")}
-          placeholder="e.g, Watch a video from Fireship."
+          placeholder="e.g., Watch a video from Fireship."
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
         />
       </div>
-      <div className="input-control">
-        <label htmlFor="description">Description</label>
+
+      <div className="mb-4">
+        <label htmlFor="description" className="block mb-2 font-medium">
+          Description
+        </label>
         <textarea
           value={description}
           onChange={handleChange("description")}
           name="description"
           id="description"
           rows={4}
-          placeholder="e.g, Watch a video about Next.js Auth"
+          placeholder="e.g., Watch a video about Next.js Auth"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
         ></textarea>
       </div>
-      <div className="input-control">
-        <label htmlFor="date">Date</label>
+
+      <div className="mb-4">
+        <label htmlFor="link" className="block mb-2 font-medium">
+          Link
+        </label>
         <input
-          value={date}
-          onChange={handleChange("date")}
-          type="date"
-          name="date"
-          id="date"
-        />
-      </div>
-      <div className="input-control toggler">
-        <label htmlFor="completed">Toggle Completed</label>
-        <input
-          value={completed.toString()}
-          onChange={handleChange("completed")}
-          type="checkbox"
-          name="completed"
-          id="completed"
-        />
-      </div>
-      <div className="input-control toggler">
-        <label htmlFor="important">Toggle Important</label>
-        <input
-          value={important.toString()}
-          onChange={handleChange("important")}
-          type="checkbox"
-          name="important"
-          id="important"
+          type="url"
+          id="link"
+          value={link}
+          onChange={handleChange("link")}
+          placeholder="e.g., https://example.com"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
         />
       </div>
 
-      <div className="submit-btn flex justify-end">
-        <Button
-          type="submit"
-          name="Create Task"
-          icon={add}
-          padding={"0.8rem 2rem"}
-          borderRad={"0.8rem"}
-          fw={"500"}
-          fs={"1.2rem"}
-          background={"rgb(0, 163, 255)"}
+      <div className="mb-4">
+        <label htmlFor="reward" className="block mb-2 font-medium">
+          Reward
+        </label>
+        <input
+          type="number"
+          id="reward"
+          value={reward}
+          onChange={handleChange("reward")}
+          placeholder="Reward amount"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
         />
       </div>
-    </CreateContentStyled>
+
+      <div className="mb-4">
+        <label htmlFor="code" className="block mb-2 font-medium">
+          Code
+        </label>
+        <input
+          type="text"
+          id="code"
+          value={code}
+          onChange={handleChange("code")}
+          placeholder="Enter code"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="threshold" className="block mb-2 font-medium">
+          Threshold
+        </label>
+        <input
+          type="number"
+          id="threshold"
+          value={threshold}
+          onChange={handleChange("threshold")}
+          placeholder="Threshold value"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+        />
+      </div>
+
+      <button type="button" onClick={closeModal} className="bg-gray-600 hover:bg-gray-500">
+        Cancel
+      </button>
+      <div className="flex justify-end px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-green-600">
+        <Button icon={add} name="Create Task" />
+      </div>
+    </form>
   );
 }
-
-const CreateContentStyled = styled.form`
-  > h1 {
-    font-size: clamp(1.2rem, 5vw, 1.6rem);
-    font-weight: 600;
-  }
-
-  color: ${(props) => props.theme.colorGrey1};
-
-  .input-control {
-    position: relative;
-    margin: 1.6rem 0;
-    font-weight: 500;
-
-    @media screen and (max-width: 450px) {
-      margin: 1rem 0;
-    }
-
-    label {
-      margin-bottom: 0.5rem;
-      display: inline-block;
-      font-size: clamp(0.9rem, 5vw, 1.2rem);
-
-      span {
-        color: ${(props) => props.theme.colorGrey3};
-      }
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      padding: 1rem;
-
-      resize: none;
-      background-color: ${(props) => props.theme.colorGreyDark};
-      color: ${(props) => props.theme.colorGrey2};
-      border-radius: 0.5rem;
-    }
-  }
-
-  .submit-btn button {
-    transition: all 0.35s ease-in-out;
-
-    @media screen and (max-width: 500px) {
-      font-size: 0.9rem !important;
-      padding: 0.6rem 1rem !important;
-
-      i {
-        font-size: 1.2rem !important;
-        margin-right: 0.5rem !important;
-      }
-    }
-
-    i {
-      color: ${(props) => props.theme.colorGrey0};
-    }
-
-    &:hover {
-      background: ${(props) => props.theme.colorPrimaryGreen} !important;
-      color: ${(props) => props.theme.colorWhite} !important;
-    }
-  }
-
-  .toggler {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    cursor: pointer;
-
-    label {
-      flex: 1;
-    }
-
-    input {
-      width: initial;
-    }
-  }
-`;
 
 export default CreateContent;

@@ -284,38 +284,53 @@ export const deleteCreator = async (
 };
 
 
+
 export const createChild = async (
   currentState: CurrentState,
   data: ChildSchema
 ) => {
   console.log(data);
   try {
+    // Fetch the father's user details using fatherId from the data
+    const fatherUser = await clerkClient.users.getUser(data.fatherId);
+    const role = fatherUser?.publicMetadata.role as string;
 
-    // if (!data.tribeId || !data.gradeId) {
-    //   console.error('tribeId or gradeId is undefined');
-    //   return { success: false, error: true, message: 'tribeId and gradeId are required' };
-    // }
-    // const tribeItem = await prisma.tribe.findUnique({
-    //   where: { id: data.tribeId.toString() },
-    //   include: { _count: { select: { children: true } } },
-    // });
+    // Get the father's role details to access tribe and grade
+    //@ts-ignore
+    const roleDetails = await prisma[role]?.findFirst({
+      where: {
+        clerkId: data.fatherId,
+      },
+      include: {
+        tribe: true,
+        grade: true,
+      },
+    });
 
-    // if (tribeItem && tribeItem.capacity === tribeItem._count.children) {
-    //   return { success: false, error: true };
-    // }
+    if (!roleDetails) {
+      return { success: false, error: true, message: "Father's role details not found." };
+    }
 
+    // Get tribe and grade from father's role details
+    const tribeId = roleDetails.tribe?.id || null;
+    const gradeId = roleDetails.grade?.id || null;
+
+    // Create the user in Clerk
     const user = await clerkClient.users.createUser({
       username: data.username,
       password: data.password,
       firstName: data.name,
       lastName: data.surname,
-      publicMetadata:{role:"child"}
+      publicMetadata: { role: "child" },
     });
-    const newUserId= new ObjectId();
+
+    const newUserId = new ObjectId();
+
+    // Create the child record in the database
     await prisma.child.create({
       data: {
         id: newUserId.toString(),
-        clerkId: user.id ,
+        clerkId: user.id,
         username: data.username,
         name: data.name,
         surname: data.surname,
@@ -323,20 +338,22 @@ export const createChild = async (
         phone: data.phone || null,
         address: data.address,
         img: data.img || null,
-        // gradeId: data.gradeId.toString(),
-        // tribeId: data.tribeId.toString(),
-        //parentId: data.parentId ,
+        tribeId: tribeId, // Assign the father's tribe ID
+        gradeId: gradeId, // Assign the father's grade ID
         fatherId: data.fatherId,
       },
     });
 
+    // Optionally revalidate the path here
     // revalidatePath("/list/childs");
+
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
     return { success: false, error: true };
   }
 };
+
 
 export const updateChild = async (
   currentState: CurrentState,
@@ -534,3 +551,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+

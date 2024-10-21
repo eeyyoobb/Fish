@@ -1,20 +1,20 @@
-import Announcements from "../components/Announcements";
- import BigCalendarContainer from "../components/BigCalendarContainer";
- import BigCalendar from "../components/BigCalender";
-import EventCalendar from "../components/EventCalendar";
+import Announcements from "../components/Components/Announcements";
+ import BigCalendarContainer from "../components/Components/BigCalendarContainer";
+ import BigCalendar from "../components/Components/BigCalender";
+import EventCalendar from "../components/Components/EventCalendar";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 const StudentPage = async () => {
   const { userId } = auth();
 
-  const classItem = await prisma.tribe.findMany({
-    where: {
-      children: { some: { id: userId! } },
-    },
-  });
+  // const classItem = await prisma.tribe.findMany({
+  //   where: {
+  //     children: { some: { id: userId! } },
+  //   },
+  // });
 
-  console.log(classItem);
+  //console.log(classItem);
   return (
     <div className="p-4 flex gap-4 flex-col xl:flex-row">
       {/* LEFT */}

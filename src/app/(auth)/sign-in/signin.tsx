@@ -12,25 +12,20 @@ export default function SignInPage() {
     const [isModalOpen, setIsModalOpen] = useState(true);
 
     useEffect(() => {
-        const role = user?.publicMetadata?.role;
-      
+        const role = user?.publicMetadata.role;
+
         if (role) {
-          // If role is 'admin', redirect to '/admin', otherwise to '/income/[role]'
-          const path = role === "admin" ? "/admin" : `/income/${role}`;
-          router.push(path);
+            router.push(`/${role}`);
         }
-      }, [user, router]);
+    }, [user, router]);
 
     const handleClose = () => {
-        setIsModalOpen(false); 
+        setIsModalOpen(false); // Close the modal when the function is called
     };
 
     if (!isModalOpen) {
         return null; // Render nothing if the modal is closed
     }
-   
-   
-
 
     return (
          <div className="grid w-full flex-grow items-center px-4 sm:justify-center">
@@ -38,11 +33,11 @@ export default function SignInPage() {
                 <SignIn.Step
                     name="start"
                     className="w-full space-y-6 rounded-2xl glass px-4 py-10 shadow-md ring-1 ring-black/5 sm:w-96 sm:px-8"
-                >  
+                >   <button onClick={handleClose} className="relative ml-2">x</button>
                     <header className="text-center flex flex-col items-center ">
                         <AvatarImg src={"/brandlogo.png"} />
                         <h1 className="mt-4 text-xl font-medium tracking-tight">
-                            Sign in Maya
+                            Sign in to Clover
                         </h1>
                     </header>
                     <Clerk.GlobalError className="block text-sm text-red-400" />

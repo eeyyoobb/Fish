@@ -13,32 +13,37 @@ interface Task {
   day: Day;
   startTime: Date;
   endTime: Date;
-  subjectId: string;
-  tribeId: string;
-  CreatorId: string;
-  exams: any; // replace with actual type
-  assignments: any; // replace with actual type
-  attendances: any; // replace with actual type
-  title: string;
+  categoryId: string;
+  //tribeId: string;
+  creatorId: string;
+  //exams: any; // replace with actual type
+  //assignments: any; // replace with actual type
+  //attendances: any; // replace with actual type
+  title: string | null;
   description: string | null; // Allow null here
-  isImportant: boolean;
-  link: string;
+  //isImportant: boolean;
+  link: string | null;
   reward: number;
-  code: string;
+  code: string | null;
   createdAt: Date;
   updatedAt: Date;
-  childId: string;
-  completions: Completion[]; 
+  //childId: string;
+  completions:  TaskCompletion[];
+  isCompleted: boolean;
+  
 }
-type Completion = {
-  userId: string;        // ID of the user who completed the task
-  id: string;            // Unique ID of the completion record
-  createdAt: Date;       // Date when the completion record was created
-  updatedAt: Date;       // Date when the completion record was last updated
-  taskId: string;        // ID of the task that was completed
+
+type TaskCompletion = {
+  userId: string; // ID of the user who completed the task
+  id: string; // Unique ID of the completion record
+  createdAt: Date; // Date when the completion record was created
+  updatedAt: Date; // Date when the completion record was last updated
+  taskId: string; // ID of the task that was completed
   completedAt: Date | null; // Date when the task was completed, null if not completed
+  isCompleted: boolean;
 };
-type Day = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
+
+type Day = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY';
 
 
 interface Props {
@@ -46,7 +51,7 @@ interface Props {
   tasks: Task[]; // Use the Task type instead of any[]
 }
 
-const handleVerify = async (taskId: string, code: string) => {
+const handleVerify = async (taskId: string, code: string,) => {
   try {
     const response = await axios.post('/api/rewards', {
       taskId,
@@ -73,23 +78,25 @@ const handleVerify = async (taskId: string, code: string) => {
   }
 };
 
-function Tasks({ title, tasks }: Props) {
-  const [modal, setModal] = useState(false);
+function Tasks({ title, tasks, }: Props) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
-    setModal(true);
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setModal(false);
+    setIsModalOpen(false);
   };
 
   const { user } = useUser();
   const role = user?.publicMetadata.role as string;
 
   return (
-    <main className="relative p-8 w-full bg-gray-500 bg-opacity-10 border-2 border-gray-400 rounded-lg h-full overflow-y-auto">
-      {modal && <Modal content={<CreateContent /*closeModal={closeModal}*/ />} />} 
+    <main className="p-8 w-full bg-gray-500 bg-opacity-10 border-2 border-gray-400 rounded-lg h-full overflow-y-auto">
+      {isModalOpen && (
+        <Modal content={<CreateContent closeModal={closeModal} />} closeModal={closeModal} />
+      )}
       <h1 className="text-2xl font-bold relative mb-8">
         {title}
         <span className="absolute bottom-[-0.6rem] left-0 w-12 h-1 bg-brand rounded"></span>
@@ -106,15 +113,15 @@ function Tasks({ title, tasks }: Props) {
           <TaskItem
             id={task.id} 
             key={task.id}
-            title={task.title}
+            title={task.title || ''}
             description={task.description || ''} 
             link={task.link || ''}
             reward={task.reward || 0}
             taskId={task.id}
-            onVerify={handleVerify} // Pass the handleVerify function
-            isCompleted={task.isCompleted || false}
-            isOwner={task.isOwner || false }
-            code={task.code || ''} // Ensure task code is passed for verification
+            onVerify={handleVerify} 
+            code={task.code || ''} 
+            completions={ task.completions}
+            isCompleted= {task.isCompleted}
           />
         ))}
         {(role === "creator" || role === "admin") && (

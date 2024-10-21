@@ -23,12 +23,10 @@ export const admin = <i className="fa-solid fa-lock"></i>;
 export const linked = <i className="fa-brands fa-linkedin"></i>;
 export const mailIcon = <i className="fa-solid fa-envelope"></i>;
 export const plus = <i className="fa-solid fa-plus fa-beat-fade"></i>;
-export const Message = <i class="fa-regular fa-envelope-open"></i>
-export const Announce = <i class="fa-solid fa-bullhorn"></i>
-export const Creator = <i class="fa-solid fa-user-plus"></i>
-export const Child = <i class="fa-regular fa-user"></i>
-export const Auditor = <i class="fa-solid fa-user-pen"></i>
-export const Parent= <i class="fa-solid fa-user-tie"></i>
-export const Admin= <i class="fa-solid fa-user-secret"></i>
-
-
+export const Message = <i className="fa-regular fa-envelope-open"></i>;
+export const Announce = <i className="fa-solid fa-bullhorn"></i>;
+export const Creator = <i className="fa-solid fa-user-plus"></i>;
+export const Child = <i className="fa-regular fa-user"></i>;
+export const Auditor = <i className="fa-solid fa-user-pen"></i>;
+export const Parent = <i className="fa-solid fa-user-tie"></i>;
+export const Admin = <i className="fa-solid fa-user-secret"></i>;
