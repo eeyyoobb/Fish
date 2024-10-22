@@ -7,6 +7,7 @@ import { ModeToggle } from "./theme";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
+import Flag from "./flag"
 
 
 const Navbar = async () => {
@@ -85,7 +86,9 @@ const Navbar = async () => {
              )}
          
       
-
+         <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
+         <Flag/>
+        </div>
         <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
           {Message}
         </div>

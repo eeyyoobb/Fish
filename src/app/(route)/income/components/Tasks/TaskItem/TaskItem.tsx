@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { edit, trash } from "@/utils/Icons";
 import Image from "next/image";
 import { Toaster, toast } from "sonner";
@@ -18,7 +18,7 @@ interface Props {
   code: string;
   completions: TaskCompletion[];
   isCompleted: boolean;
-  categoryName: string; // Include the category object with the 'name' field
+  categoryName: string;
 }
 
 interface TaskCompletion {
@@ -52,6 +52,31 @@ function TaskItem({
   const router = useRouter();
   const { user } = useUser();
   const [isClaiming, setIsClaiming] = useState(false);
+  const [country, setCountry] = useState<string | null>(null);
+  const [countryCode, setCountryCode] = useState<string | null>(null); // Store the country code
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCountry = async () => {
+      try {
+        const response = await fetch("http://ip-api.com/json/");
+        const data = await response.json();
+        setCountry(data.country);
+        setCountryCode(data.countryCode); // Set country code
+        setLoading(false);
+      } catch (err) {
+        //@ts-ignore
+        setError("Unable to fetch country");
+        setLoading(false);
+      }
+    };
+
+    fetchCountry();
+  }, []);
+
+  // Adjust reward if the user is in Ethiopia
+  const adjustedReward = countryCode === "ET" ? reward / 5 : reward;
 
   const handleEarnClick = async () => {
     if (isClaiming) return; // Prevent multiple clicks during the claim process
@@ -105,7 +130,7 @@ function TaskItem({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ taskId, reward, isCompleted: true }),
+        body: JSON.stringify({ taskId, reward: adjustedReward, isCompleted: true }),
       });
 
       if (!res.ok) {
@@ -116,7 +141,7 @@ function TaskItem({
       const result = await res.json();
       setCompleted(true); // Mark task as completed after claiming reward
       setButtonState("completed");
-      toast.success(`${title} reward claimed! You have earned ${reward} BT!`);
+      toast.success(`${title} reward claimed! You have earned ${adjustedReward} BT!`);
     } catch (error) {
       console.error("Error claiming reward:", error);
       toast.error("Failed to claim reward.");
@@ -141,10 +166,20 @@ function TaskItem({
     switch (category.toLowerCase()) {
       case 'youtube':
         return <Image width="40" height="40" src="https://img.icons8.com/nolan/64/youtube-play.png" alt="youtube-play" />;
-      case 'twitter':
-        return <Image src="/twitter.png" alt="Twitter" width={24} height={24} />;
+      case 'telegram':
+        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=63306&format=png&color=000000" alt="telegram" />;
+      case 'instagram':
+        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=32323&format=png&color=000000" alt="instagram" />;
       case 'facebook':
-        return <Image src="/facebook.png" alt="Facebook" width={24} height={24} />;
+        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=118497&format=png&color=000000" alt="facebook" />;
+      case 'linkedin':
+        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=MR3dZdlA53te&format=png&color=000000" alt="linkedin" />;
+      case 'x':
+        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=A4DsujzAX4rw&format=png&color=000000" alt="x" />;
+      case 'tiktok':
+        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=lTkH3THtr7SL&format=png&color=000000" alt="tiktok" />;
+      case 'custom':
+        return <Image width="40" height="40" src="/brandlogo.png" alt="custom" />;
       default:
         return null;
     }
@@ -159,7 +194,7 @@ function TaskItem({
         </span>
         <div className="flex items-center text-brand">
           <Image src="/coin.png" alt="" width={40} height={40} />
-          <span className="ml-1">{reward} BT</span>
+          <span className="ml-1">{adjustedReward} BT</span>
         </div>
       </div>
       <p>{description}</p>
@@ -190,25 +225,20 @@ function TaskItem({
       >
         {isClaiming
           ? "Loading..."
-          : buttonState === "completed"
-          ? "Completed"
-          : buttonState === "failed"
-          ? "Fail"
           : buttonState === "claim"
           ? "Claim"
           : buttonState === "verifying"
-          ? "Verify"
+          ? "Verify Code"
+          : completed
+          ? "Completed"
+          : buttonState === "failed"
+          ? "Failed"
           : "Earn"}
       </button>
-      <div className="flex items-center gap-5 mt-auto">
-        <button className="ml-auto text-blue-500 hover:text-blue-700">{edit}</button>
-        <button
-          className="bg-red-600 rounded-lg py-1 px-3 text-white transition-colors duration-200 hover:bg-red-700"
-          onClick={handleDelete}
-        >
-          {trash}
-        </button>
-      </div>
+      <button onClick={handleDelete}>
+        {trash}
+      </button>
+      <Toaster />
     </div>
   );
 }
