@@ -25,6 +25,11 @@ const HomePage = async () => {
       },
       include: {
         completions: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
         
         
       },

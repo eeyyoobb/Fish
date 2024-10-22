@@ -128,7 +128,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
       <h1 className="text-xl font-semibold mb-4">Create a Task</h1>
 
       <div className="mb-4">
-        <label htmlFor="categoryId" className="block mb-2 font-medium">
+        <label htmlFor="categoryName" className="block mb-2 font-medium">
           Category
         </label>
         <select
@@ -139,7 +139,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
         >
           <option value="">Select a category</option>
           {categories.map((category) => (
-            <option key={category.id} value={category.id}>
+            <option key={category.id} value={category.name}>
               {category.name}
             </option>
           ))}
@@ -186,7 +186,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
         <input
           type="text"
           id="title"
-          value={title}
+          value={categoryId}
           name="title"
           onChange={handleChange("title")}
           placeholder="e.g., Watch a video from Fireship."
@@ -264,10 +264,6 @@ function CreateContent({ closeModal }: CreateContentProps) {
           className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
         />
       </div>
-
-      <button type="button" onClick={closeModal} className="bg-gray-600 hover:bg-gray-500">
-        Cancel
-      </button>
       <div className="flex justify-end px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-green-600">
         <Button icon={add} name="Create Task" />
       </div>

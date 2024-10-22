@@ -5,7 +5,7 @@ const nextConfig = {
           return config;
       },
       images: {
-        domains: ['img.clerk.com'], // Add this line
+        domains: ['img.clerk.com',"img.icons8.com"], // Add this line
       },
       
 };

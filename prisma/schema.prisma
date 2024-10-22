@@ -61,7 +61,6 @@ model Creator {
   sex       UserSex
   createdAt DateTime @default(now())
   categories CategoryCreator[]
-  tasks     Task[]
   birthday  DateTime
   wallet      Int    @default(0) 
 }
@@ -124,24 +123,17 @@ model CategoryCreator {
 }
 
 model Task{
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  day              Day
-  startTime        DateTime
-  endTime          DateTime
-
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
   categoryId        String    @db.ObjectId
   category          Category   @relation(fields: [categoryId], references: [id])
-  creatorId         String    @db.ObjectId
-  creator           Creator   @relation(fields: [creatorId], references: [id])
-  //exams           Exam[]  
-  //assignments     Assignment[] 
-  //attendances     Attendance[]
-  title             String?
-  description       String?
-  //isImportant      Boolean   @default(false)
+  title              String?
+  description        String
+  ads                String
+  isUnderstand       Boolean   @default(false)
   link               String?
   reward             Int
-  code               String?
+  code               String
+  duration           DateTime ? 
   threshold          Int
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @default(now()) @updatedAt @map("updated_at")

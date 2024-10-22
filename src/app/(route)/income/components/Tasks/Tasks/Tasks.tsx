@@ -10,40 +10,32 @@ import { useUser } from "@clerk/nextjs";
 
 interface Task {
   id: string;
-  day: Day;
-  startTime: Date;
-  endTime: Date;
   categoryId: string;
-  //tribeId: string;
-  creatorId: string;
-  //exams: any; // replace with actual type
-  //assignments: any; // replace with actual type
-  //attendances: any; // replace with actual type
   title: string | null;
-  description: string | null; // Allow null here
-  //isImportant: boolean;
+  description: string | null; 
+  isUnderstand: boolean;
   link: string | null;
   reward: number;
   code: string | null;
   createdAt: Date;
   updatedAt: Date;
-  //childId: string;
   completions:  TaskCompletion[];
   isCompleted: boolean;
-  
+  categoryName: {
+    name: string;
+  }; // 
 }
 
 type TaskCompletion = {
-  userId: string; // ID of the user who completed the task
-  id: string; // Unique ID of the completion record
-  createdAt: Date; // Date when the completion record was created
-  updatedAt: Date; // Date when the completion record was last updated
-  taskId: string; // ID of the task that was completed
-  completedAt: Date | null; // Date when the task was completed, null if not completed
+  userId: string; 
+  id: string; 
+  createdAt: Date; 
+  updatedAt: Date; 
+  taskId: string; 
+  completedAt: Date | null; 
   isCompleted: boolean;
 };
 
-type Day = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY';
 
 
 interface Props {
@@ -122,6 +114,7 @@ function Tasks({ title, tasks, }: Props) {
             code={task.code || ''} 
             completions={ task.completions}
             isCompleted= {task.isCompleted}
+            categoryName={task.category?.name || 'Unknown'}
           />
         ))}
         {(role === "creator" || role === "admin") && (
