@@ -2,53 +2,60 @@ import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// API route to handle task completion
 export async function POST(req: Request) {
   try {
-    const { userId } = auth(); // Get userId from Clerk
+    const { userId } = auth();
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized", status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { taskId, reward ,isCompleted} = await req.json(); // Parse request body
+    const { taskId, reward, isCompleted, platformUserId } = await req.json();
+    
+    if (!taskId || reward === undefined || isCompleted === undefined) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
 
-    // Create task completion entry and store the userId
     const taskCompletion = await prisma.taskCompletion.create({
       data: {
-        taskId, // Associate the task being completed
-        userId, // Save the userId directly
-        isCompleted,
-        completedAt: new Date(), // Track when the task was completed
-      },
-    });
-
-    const completionCount = await prisma.taskCompletion.count({
-      where: {
         taskId,
-        isCompleted: true,
+        userId,
+        isCompleted,
+        platformUserId,
       },
     });
 
-    const task = await prisma.task.findUnique({
-      where: { id: taskId },
-      select: { threshold: true },
-    });
-    
-    if (completionCount >= (task?.threshold || 10)) {
-      await prisma.task.update({
-        where: { id: taskId },
-        data: { isCompleted: true },
+    if (isCompleted) {
+      const completionCount = await prisma.taskCompletion.count({
+        where: {
+          taskId,
+          isCompleted: true,
+        },
       });
+
+      const task = await prisma.task.findUnique({
+        where: { id: taskId },
+        select: { threshold: true },
+      });
+      
+      if (completionCount >= (task?.threshold || 10)) {
+        await prisma.task.update({
+          where: { id: taskId },
+          data: { isCompleted: true },
+        });
+      }
+
+      // Only add reward if task was completed successfully
+      await addRewardToUserWallet(userId, reward);
     }
 
-    // Update user wallet based on role
-    await addRewardToUserWallet(userId, reward); // Call to update the user's wallet
-
-    return NextResponse.json({ message: "Task completed and reward claimed!", taskCompletion });
+    return NextResponse.json({ 
+      message: isCompleted ? "Task completed and reward claimed!" : "Task marked as failed", 
+      taskCompletion 
+    });
   } catch (error) {
-    console.error("ERROR CREATING TASK: ", error);
-    return NextResponse.json({ error: "Error creating task", status: 500 });
+    console.error("ERROR PROCESSING TASK: ", error);
+    return NextResponse.json({ error: "Error processing task" }, { status: 500 });
   }
 }
 

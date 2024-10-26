@@ -1,152 +1,97 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { edit, trash } from "@/utils/Icons";
-import Image from "next/image";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-
-interface Props {
-  title: string;
-  description: string;
-  id: string;
-  link: string;
-  reward: number;
-  taskId: string;
-  onVerify: (taskId: string, code: string) => void;
-  code: string;
-  completions: TaskCompletion[];
-  isCompleted: boolean;
-  categoryName: string;
-}
-
-interface TaskCompletion {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isCompleted: boolean;
-  userId: string;
-  taskId: string;
-  completedAt: Date | null;
-}
+import crypto from 'crypto';
+import { TaskHeader } from "../Tasks/taskHeader";
+import { QuestionForm } from "../form";
+import { useCountry } from "@/hooks/location";
+import { useTaskVerification } from "@/hooks/taskVerify";
+import { TaskItemProps, Question } from "@/types/task";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 function TaskItem({
-  title,
   description,
   link,
   reward,
   taskId,
   onVerify,
   id,
-  code,
+  ownerId, 
+  ad1,
+  ad2,
+  ad3,
   completions,
   isCompleted,
   categoryName,
-}: Props) {
+  track,
+  trackmin,
+  trackmin2,
+  track2,
+  duration
+}: TaskItemProps) {
   const [completed, setCompleted] = useState(isCompleted);
-  const [inputCode, setInputCode] = useState("");
-  const [buttonState, setButtonState] = useState("initial");
-  const [attempts, setAttempts] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+  const [platform, setPlatform] = useState("");
   const router = useRouter();
   const { user } = useUser();
-  const [isClaiming, setIsClaiming] = useState(false);
-  const [country, setCountry] = useState<string | null>(null);
-  const [countryCode, setCountryCode] = useState<string | null>(null); // Store the country code
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { countryCode } = useCountry();
 
-  useEffect(() => {
-    const fetchCountry = async () => {
-      try {
-        const response = await fetch("http://ip-api.com/json/");
-        const data = await response.json();
-        setCountry(data.country);
-        setCountryCode(data.countryCode); // Set country code
-        setLoading(false);
-      } catch (err) {
-        //@ts-ignore
-        setError("Unable to fetch country");
-        setLoading(false);
-      }
-    };
+  const role = user?.publicMetadata.role as string;
+  const userId = user?.id;
 
-    fetchCountry();
-  }, []);
-
-  // Adjust reward if the user is in Ethiopia
   const adjustedReward = countryCode === "ET" ? reward / 5 : reward;
 
+  const { buttonState, isLoading, isClaiming, handleVerification } = useTaskVerification({
+    taskId,
+    reward: adjustedReward,
+    onComplete: () => {
+      setCompleted(true);
+      router.refresh();
+    }
+  });
+
+  const getDeterministicQuestions = (username: string, userId: string): Question[] => {
+    const hash = crypto.createHash('md5').update(username + userId).digest('hex');
+    const index = parseInt(hash.slice(0, 2), 16) % 5;
+
+    const questions: Question[] = [
+      { key: "ad1", value: String(ad1), prompt: "the first ad?" },
+      { key: "duration", value: String(duration), prompt: "the duration of the video?" },
+      { key: "ad2", value: String(ad2), prompt: "the second ad?" },
+      { key: "ad3", value: String(ad3), prompt: "the third ad?" },
+      { key: "track", value: trackmin, prompt: `you see the ${track}?` },
+      { key: "track2", value: trackmin2, prompt: `you see the ${track2}?` },
+    ];
+
+    return [
+      questions[(index + 0) % questions.length],
+      questions[(index + 1) % questions.length],
+      questions[(index + 2) % questions.length],
+    ];
+  };
+
+  useEffect(() => {
+    if (user && user.username) {
+      const questions = getDeterministicQuestions(user.username, user.id);
+      setSelectedQuestions(questions);
+    }
+  }, [user]);
+
   const handleEarnClick = async () => {
-    if (isClaiming) return; // Prevent multiple clicks during the claim process
-
-    if (buttonState === "initial") {
-      setButtonState("verifying");
-    } else if (buttonState === "verifying") {
-      if (inputCode === code) {
-        setButtonState("claim");
-        toast.success("Code verified! You can now claim your reward.");
-      } else {
-        setAttempts((prev) => prev + 1);
-        if (attempts < 1) {
-          toast.error("Incorrect code. Please try again.");
-        } else {
-          handleTaskFailure(); // Mark task as completed without reward
-        }
-        setInputCode("");
+    if (categoryName === "youtube") {
+      await handleVerification(userAnswers, selectedQuestions);
+    } else {
+      if (!platform.trim()) {
+        toast.error("Please enter your user ID");
+        return;
       }
-    } else if (buttonState === "claim") {
-      setIsClaiming(true); // Set loading state
-
-      try {
-        await handleClaimReward(); // Wait for the claim process to finish
-        router.refresh(); // Refresh the page after claiming
-      } finally {
-        setIsClaiming(false); // Reset loading state once the claim is done
-      }
-    }
-  };
-
-  const handleTaskFailure = async () => {
-    setButtonState("failed");
-    setCompleted(true);
-    try {
-      await axios.post("/api/tasks/complete", {
-        taskId,
-        reward: 0, // No reward given on failure
-      });
-      toast.error("Task failed due to incorrect code.");
-    } catch (error) {
-      console.error("Error updating task failure:", error);
-    }
-  };
-
-  const handleClaimReward = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/tasks/complete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ taskId, reward: adjustedReward, isCompleted: true }),
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Failed to claim reward");
-      }
-
-      const result = await res.json();
-      setCompleted(true); // Mark task as completed after claiming reward
-      setButtonState("completed");
-      toast.success(`${title} reward claimed! You have earned ${adjustedReward} BT!`);
-    } catch (error) {
-      console.error("Error claiming reward:", error);
-      toast.error("Failed to claim reward.");
-    } finally {
-      setIsLoading(false);
+      await handleVerification({}, [], platform.trim());
     }
   };
 
@@ -155,6 +100,7 @@ function TaskItem({
       const res = await axios.delete(`/api/tasks/${id}`);
       if (res.status === 200) {
         toast.success("Task deleted");
+        router.refresh();
       }
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -162,83 +108,119 @@ function TaskItem({
     }
   };
 
-  const getLogo = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'youtube':
-        return <Image width="40" height="40" src="https://img.icons8.com/nolan/64/youtube-play.png" alt="youtube-play" />;
-      case 'telegram':
-        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=63306&format=png&color=000000" alt="telegram" />;
-      case 'instagram':
-        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=32323&format=png&color=000000" alt="instagram" />;
-      case 'facebook':
-        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=118497&format=png&color=000000" alt="facebook" />;
-      case 'linkedin':
-        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=MR3dZdlA53te&format=png&color=000000" alt="linkedin" />;
-      case 'x':
-        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=A4DsujzAX4rw&format=png&color=000000" alt="x" />;
-      case 'tiktok':
-        return <Image width="40" height="40" src="https://img.icons8.com/?size=100&id=lTkH3THtr7SL&format=png&color=000000" alt="tiktok" />;
-      case 'custom':
-        return <Image width="40" height="40" src="/brandlogo.png" alt="custom" />;
-      default:
-        return null;
+  const handleUpdate = async () => {
+    try {
+      const res = await axios.put(`/api/tasks/${id}`);
+      if (res.status === 200) {
+        toast.success("Task updated");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+      toast.error("Failed to update task");
     }
   };
 
   return (
-    <div className="relative p-4 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 h-64 flex flex-col gap-2">
-      <div className="flex justify-between items-center">
-        {getLogo(categoryName)}
-        <span>
-          <h1 className="text-xl font-bold text-brand uppercase">{categoryName}</h1>
-        </span>
-        <div className="flex items-center text-brand">
-          <Image src="/coin.png" alt="" width={40} height={40} />
-          <span className="ml-1">{adjustedReward} BT</span>
-        </div>
-      </div>
-      <p>{description}</p>
-      {buttonState === "verifying" && (
-        <input
-          type="text"
-          value={inputCode}
-          onChange={(e) => setInputCode(e.target.value)}
-          maxLength={6}
-          placeholder="Enter code"
-          className="border rounded p-1"
-        />
-      )}
-      <button
-        className={`py-2 px-4 font-bold uppercase rounded-full text-white transition-all duration-300 shadow-md ${
-          buttonState === "claim"
-            ? 'bg-green-500 hover:bg-green-600'
-            : buttonState === "verifying"
-            ? 'bg-orange-500 hover:bg-orange-600'
-            : buttonState === "failed"
-            ? 'bg-red-500 cursor-not-allowed'
-            : completed
-            ? 'bg-gray-500 cursor-not-allowed'
-            : 'bg-red-500 hover:bg-red-600'
-        }`}
-        onClick={handleEarnClick}
-        disabled={completed || buttonState === "failed" || isClaiming}
-      >
-        {isClaiming
-          ? "Loading..."
-          : buttonState === "claim"
-          ? "Claim"
-          : buttonState === "verifying"
-          ? "Verify Code"
-          : completed
-          ? "Completed"
-          : buttonState === "failed"
-          ? "Failed"
-          : "Earn"}
-      </button>
-      <button onClick={handleDelete}>
-        {trash}
-      </button>
+    <div className="relative p-4 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 h-auto min-h-[16rem] flex flex-col gap-2">
       <Toaster />
+      <TaskHeader categoryName={categoryName} reward={adjustedReward} />
+      
+      {categoryName === "youtube" ? (
+        <p className="text-sm text-gray-700 dark:text-gray-300">
+          To get your reward, write the minute of{" "}
+          {selectedQuestions.map((question, index) => (
+            <span key={question.key} className="text-brand">
+              {question.prompt} {question.value}
+              {index < selectedQuestions.length - 1 ? ", " : ""}
+            </span>
+          ))}
+        </p>
+      ) : (
+        <p className="text-sm text-gray-700 dark:text-gray-300">
+          To complete this task, please enter your user ID
+        </p>
+      )}
+
+      <p className="text-sm">{description}</p>
+
+      <div className="flex-grow">
+        {categoryName === "youtube" ? (
+          buttonState === "verifying" && (
+            <QuestionForm
+              selectedQuestions={selectedQuestions}
+              userAnswers={userAnswers}
+              setUserAnswers={setUserAnswers}
+              isLoading={isLoading}
+              onSubmit={handleEarnClick}
+            />
+          )
+        ) : (
+          <div className="mt-2">
+            <Input
+              type="text"
+              placeholder="Enter your user ID"
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+              className="w-full"
+              disabled={completed || isLoading}
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-between gap-5 mt-4">
+        <Button
+          className={`py-1 px-4 font-bold uppercase rounded-full text-white transition-all duration-300 shadow-md w-3/4 ${
+            buttonState === "claim"
+              ? 'bg-green-500 hover:bg-green-600'
+              : buttonState === "verifying"
+              ? 'bg-orange-500 hover:bg-orange-600'
+              : buttonState === "failed"
+              ? 'bg-red-500 cursor-not-allowed'
+              : completed
+              ? 'bg-gray-500 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
+          }`}
+          onClick={handleEarnClick}
+          disabled={completed || buttonState === "failed" || isClaiming}
+        >
+          {isClaiming
+            ? "Processing..."
+            : buttonState === "claim"
+            ? "Claim"
+            : buttonState === "verifying"
+            ? "Verify"
+            : completed
+            ? "Completed"
+            : buttonState === "failed"
+            ? "Failed"
+            : categoryName === "youtube"
+            ? "Earn"
+            : "Complete Task"}
+        </Button>
+
+        {(role === "admin" || ownerId === userId) && (
+          <div className="flex justify-center w-1/4 gap-1">
+            <Button
+              variant="destructive"
+              size="icon"
+              onClick={handleDelete}
+              disabled={completed || isLoading}
+            >
+              {trash}
+            </Button>
+            <Button
+              variant="default"
+              size="icon"
+              onClick={handleUpdate}
+              disabled={completed || isLoading}
+            >
+              {edit}
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

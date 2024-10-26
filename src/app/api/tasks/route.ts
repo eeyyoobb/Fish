@@ -28,12 +28,8 @@ export async function POST(req: Request) {
 
     const task = await prisma.task.create({
       data: {
-        title,
         description,
-        date,
         isCompleted: completed,
-        isImportant: important,
-        userId,
       },
     });
 

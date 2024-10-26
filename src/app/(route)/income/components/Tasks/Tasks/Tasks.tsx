@@ -7,40 +7,11 @@ import { add, plus } from "@/utils/Icons";
 import Modal from "../Modals/Modal";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
-
-interface Task {
-  id: string;
-  categoryId: string;
-  title: string | null;
-  description: string | null; 
-  isUnderstand: boolean;
-  link: string | null;
-  reward: number;
-  code: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  completions:  TaskCompletion[];
-  isCompleted: boolean;
-  categoryName: {
-    name: string;
-  }; // 
-}
-
-type TaskCompletion = {
-  userId: string; 
-  id: string; 
-  createdAt: Date; 
-  updatedAt: Date; 
-  taskId: string; 
-  completedAt: Date | null; 
-  isCompleted: boolean;
-};
-
-
+import { Task,TaskCompletion } from "@/types/task";
 
 interface Props {
   title: string;
-  tasks: Task[]; // Use the Task type instead of any[]
+  tasks: Task[]; 
 }
 
 const handleVerify = async (taskId: string, code: string,) => {
@@ -101,22 +72,31 @@ function Tasks({ title, tasks, }: Props) {
       )}
 
       <div className="grid tasks gap-4 mt-8">
-        {tasks.map((task) => (
+      {tasks.map((task) => (
           <TaskItem
             id={task.id} 
             key={task.id}
-            title={task.title || ''}
             description={task.description || ''} 
-            link={task.link || ''}
-            reward={task.reward || 0}
-            taskId={task.id}
-            onVerify={handleVerify} 
-            code={task.code || ''} 
-            completions={ task.completions}
-            isCompleted= {task.isCompleted}
-            categoryName={task.category?.name || 'Unknown'}
+            link={task.link || ''} // Task link (can be null)
+            reward={task.reward || 0} // Task reward (number)
+            taskId={task.id} // Task ID
+            onVerify={handleVerify} // Verify function triggered by the task
+            completions={ task.completions} // Task completions (array of TaskCompletion)
+            isCompleted={task.isCompleted} // Whether the task is completed
+            //@ts-ignore
+            categoryName={task.category?.name || 'Unknown'} // Category name (from relation)
+            ad1={task.ad1} 
+            ad2={task.ad2} 
+            ad3={task.ad3} 
+            track={task.track || ''} // Task track
+            trackmin={task.trackmin } // Minimum track
+            track2={task.track2 || ''} // Additional track
+            trackmin2={task.trackmin2 } // Additional minimum track
+            duration={task.duration}
+            ownerId={task.ownerId}
           />
         ))}
+
         {(role === "creator" || role === "admin") && (
           <button className="flex items-center justify-center gap-2 h-70 bg-gray-800 bg-opacity-30 text-white font-semibold cursor-pointer border-3 border-dashed border-gray-400 rounded-lg transition hover:bg-gray-600 hover:text-white" onClick={openModal}>
             {add}

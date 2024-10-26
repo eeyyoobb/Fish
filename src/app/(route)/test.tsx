@@ -1,133 +1,233 @@
 "use client";
-
-import { useForm } from "react-hook-form";
-import InputField from "../components/Components/InputField";
+import React, { useEffect, useState } from "react";
+import { edit, trash } from "@/utils/Icons";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { ChildSchema } from "@/lib/formValidationSchemas";
-import { createChild } from "@/lib/actions";
-import { useRouter, useSearchParams } from "next/navigation";
-import { CldUploadWidget } from "next-cloudinary";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
-const ChildForm = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ChildSchema>();
+interface Props {
+  description: string;
+  id: string;
+  link: string;
+  reward: number;
+  taskId: string;
+  onVerify: (taskId: string, code: string) => void;
+  code: string;
+  completions: TaskCompletion[];
+  isCompleted: boolean;
+  categoryName: string;
+  
 
-  const [img, setImg] = useState<string | null>(null);
-  const [parentId, setParentId] = useState<string | null>(null);
+}
+
+interface TaskCompletion {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isCompleted: boolean;
+  userId: string;
+  taskId: string;
+  completedAt: Date | null;
+}
+
+function TaskItem({
+  description,
+  link,
+  reward,
+  taskId,
+  onVerify,
+  id,
+  code,
+  completions,
+  isCompleted,
+  categoryName,
+}: Props) {
+  const [completed, setCompleted] = useState(isCompleted);
+  const [inputCode, setInputCode] = useState("");
+  const [buttonState, setButtonState] = useState("initial");
+  const [attempts, setAttempts] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const { user } = useUser();
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [country, setCountry] = useState<string | null>(null);
+  const [countryCode, setCountryCode] = useState<string | null>(null); // Store the country code
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleParentId = () => {
-    const referral = searchParams.get('referral');
-    if (referral) {
-      setParentId(referral);
-    }
-  };
+
 
   useEffect(() => {
-    handleParentId();
-  }, [searchParams]);
+    const fetchCountry = async () => {
+      try {
+        const response = await fetch("http://ip-api.com/json/");
+        const data = await response.json();
+        setCountry(data.country);
+        setCountryCode(data.countryCode); // Set country code
+        setLoading(false);
+      } catch (err) {
+        //@ts-ignore
+        setError("Unable to fetch country");
+        setLoading(false);
+      }
+    };
 
-  const onSubmit = async (formData: ChildSchema) => {
-    const finalFormData = { ...formData, img, parentId };
+    fetchCountry();
+  }, []);
 
-    try {
-      await createChild(finalFormData);
-      toast("Child has been created!");
-      router.refresh();
-    } catch (error) {
-      toast("Something went wrong!", { type: "error" });
+
+
+  // Adjust reward if the user is in Ethiopia
+  const adjustedReward = countryCode === "ET" ? reward / 5 : reward;
+
+
+  
+  const handleEarnClick = async () => {
+    if (isClaiming) return; // Prevent multiple clicks during the claim process
+
+    if (buttonState === "initial") {
+      setButtonState("verifying");
+    } else if (buttonState === "verifying") {
+      if (inputCode === code) {
+        setButtonState("claim");
+        toast.success("Code verified! You can now claim your reward.");
+      } else {
+        setAttempts((prev) => prev + 1);
+        if (attempts < 1) {
+          toast.error("Incorrect code. Please try again.");
+        } else {
+          handleTaskFailure(); // Mark task as completed without reward
+        }
+        setInputCode("");
+      }
+    } else if (buttonState === "claim") {
+      setIsClaiming(true); // Set loading state
+
+      try {
+        await handleClaimReward(); // Wait for the claim process to finish
+        router.refresh(); // Refresh the page after claiming
+      } finally {
+        setIsClaiming(false); // Reset loading state once the claim is done
+      }
     }
   };
 
+  const handleTaskFailure = async () => {
+    setButtonState("failed");
+    setCompleted(true);
+    try {
+      await axios.post("/api/tasks/complete", {
+        taskId,
+        reward: 0, // No reward given on failure
+      });
+      toast.error("Task failed due to incorrect code.");
+    } catch (error) {
+      console.error("Error updating task failure:", error);
+    }
+  };
+
+  const handleClaimReward = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/tasks/complete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ taskId, reward: adjustedReward, isCompleted: true }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Failed to claim reward");
+      }
+
+      const result = await res.json();
+      setCompleted(true); // Mark task as completed after claiming reward
+      setButtonState("completed");
+      toast.success(`${title} reward claimed! You have earned ${adjustedReward} BT!`);
+    } catch (error) {
+      console.error("Error claiming reward:", error);
+      toast.error("Failed to claim reward.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const res = await axios.delete(`/api/tasks/${id}`);
+      if (res.status === 200) {
+        toast.success("Task deleted");
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      toast.error("Failed to delete task");
+    }
+  };
+
+
+
   return (
-    <form className="flex flex-col gap-8" onSubmit={handleSubmit(onSubmit)}>
-      <h1 className="text-xl font-semibold">Create a new child</h1>
-
-      <span className="text-xs text-gray-400 font-medium">Authentication Information</span>
-      <div className="flex justify-between flex-wrap gap-4">
-        <InputField
-          label="Username"
-          name="username"
-          register={register}
-          error={errors.username}
-        />
-        <InputField
-          label="Email"
-          name="email"
-          register={register}
-          error={errors.email}
-        />
-        <InputField
-          label="Password"
-          name="password"
-          type="password"
-          register={register}
-          error={errors.password}
-        />
+    <div className="relative p-4 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 h-64 flex flex-col gap-2">
+      <div className="flex justify-between items-center">
+        {getLogo(categoryName)}
+        <span>
+          <h1 className="text-xl font-bold text-brand uppercase">{categoryName}</h1>
+        </span>
+        <div className="flex items-center text-brand">
+          <Image src="/coin.png" alt="" width={40} height={40} />
+          <span className="ml-1">{adjustedReward} BT</span>
+        </div>
       </div>
-
-      <span className="text-xs text-gray-400 font-medium">Personal Information</span>
-      <CldUploadWidget
-        uploadPreset="income"
-        onSuccess={(result, { widget }) => {
-          setImg(result.info.secure_url);
-          widget.close();
-        }}
+      <p>{description}</p>
+      {buttonState === "verifying" && (
+        <input
+          type="text"
+          value={inputCode}
+          onChange={(e) => setInputCode(e.target.value)}
+          maxLength={6}
+          placeholder="Enter code"
+          className="border rounded p-1"
+        />
+      )}
+      <button
+        className={`py-2 px-4 font-bold uppercase rounded-full text-white transition-all duration-300 shadow-md ${
+          buttonState === "claim"
+            ? 'bg-green-500 hover:bg-green-600'
+            : buttonState === "verifying"
+            ? 'bg-orange-500 hover:bg-orange-600'
+            : buttonState === "failed"
+            ? 'bg-red-500 cursor-not-allowed'
+            : completed
+            ? 'bg-gray-500 cursor-not-allowed'
+            : 'bg-red-500 hover:bg-red-600'
+        }`}
+        onClick={handleEarnClick}
+        disabled={completed || buttonState === "failed" || isClaiming}
       >
-        {({ open }) => (
-          <div className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer" onClick={open}>
-            <Image src="/upload.png" alt="Upload icon" width={28} height={28} />
-            <span>Upload a photo</span>
-          </div>
-        )}
-      </CldUploadWidget>
-
-      <div className="flex justify-between flex-wrap gap-4">
-        <InputField
-          label="First Name"
-          name="name"
-          register={register}
-          error={errors.name}
-        />
-        <InputField
-          label="Last Name"
-          name="surname"
-          register={register}
-          error={errors.surname}
-        />
-        <InputField
-          label="Phone"
-          name="phone"
-          register={register}
-          error={errors.phone}
-        />
-        <InputField
-          label="Address"
-          name="address"
-          register={register}
-          error={errors.address}
-        />
-        <InputField
-          label="Parent ID"
-          name="parentId"
-          defaultValue={parentId || ''}
-          register={register}
-          error={errors.parentId}
-          disabled
-        />
-      </div>
-
-      <button type="submit" className="bg-blue-400 text-white p-2 rounded-md">
-        Create
+        {isClaiming
+          ? "Loading..."
+          : buttonState === "claim"
+          ? "Claim"
+          : buttonState === "verifying"
+          ? "Verify Code"
+          : completed
+          ? "Completed"
+          : buttonState === "failed"
+          ? "Failed"
+          : "Earn"}
       </button>
-    </form>
+      <button onClick={handleDelete}>
+        {trash}
+      </button>
+      <Toaster />
+    </div>
   );
-};
+}
 
-export default ChildForm;
+export default TaskItem;
+
+

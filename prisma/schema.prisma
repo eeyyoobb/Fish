@@ -126,33 +126,38 @@ model Task{
   id                String    @id @default(auto()) @map("_id") @db.ObjectId
   categoryId        String    @db.ObjectId
   category          Category   @relation(fields: [categoryId], references: [id])
-  title              String?
   description        String
-  ads                String
+  ad1                String
+  ad2                String
+  ad3                String
+  track              String
+  trackmin           String
+  track2             String
+  trackmin2          String
   isUnderstand       Boolean   @default(false)
   link               String?
   reward             Int
-  code               String
-  duration           DateTime ? 
+  duration           Int 
   threshold          Int
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @default(now()) @updatedAt @map("updated_at")
   
-  completionCount    Int         @default(0) // Track how many users have completed the task
+  completionCount    Int             @default(0) // Track how many users have completed the task
   isCompleted        Boolean         @default(false)
   completions        TaskCompletion[] 
   ownerId            String 
+
 }
 
 model TaskCompletion {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  taskId   String   @db.ObjectId
-  task     Task     @relation(fields: [taskId], references: [id])
-  userId   String   
-  completedAt DateTime? 
-  isCompleted Boolean         @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  taskId         String   @db.ObjectId
+  task           Task     @relation(fields: [taskId], references: [id])
+  userId         String
+  isCompleted    Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+  platformUserId String?
 }
 
 model Exam {
