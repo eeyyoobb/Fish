@@ -158,6 +158,7 @@ model TaskCompletion {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
   platformUserId String?
+  approved       Boolean  @default(false)
 }
 
 model Exam {
