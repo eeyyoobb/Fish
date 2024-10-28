@@ -1,233 +1,274 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { edit, trash } from "@/utils/Icons";
-import Image from "next/image";
-import { Toaster, toast } from "sonner";
 import axios from "axios";
-import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import React, { useEffect, useState } from "react";
+import { add } from "@/utils/Icons";
+import { toast } from "sonner";
+import Button from "../Button/Button";
 
-interface Props {
-  description: string;
-  id: string;
-  link: string;
-  reward: number;
-  taskId: string;
-  onVerify: (taskId: string, code: string) => void;
-  code: string;
-  completions: TaskCompletion[];
-  isCompleted: boolean;
-  categoryName: string;
-  
-
+interface CreateContentProps {
+  closeModal: () => void;
 }
 
-interface TaskCompletion {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isCompleted: boolean;
-  userId: string;
-  taskId: string;
-  completedAt: Date | null;
+interface Category {
+  id: string;  // Adjust the type if necessary
+  name: string;
 }
 
-function TaskItem({
-  description,
-  link,
-  reward,
-  taskId,
-  onVerify,
-  id,
-  code,
-  completions,
-  isCompleted,
-  categoryName,
-}: Props) {
-  const [completed, setCompleted] = useState(isCompleted);
-  const [inputCode, setInputCode] = useState("");
-  const [buttonState, setButtonState] = useState("initial");
-  const [attempts, setAttempts] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const { user } = useUser();
-  const [isClaiming, setIsClaiming] = useState(false);
-  const [country, setCountry] = useState<string | null>(null);
-  const [countryCode, setCountryCode] = useState<string | null>(null); // Store the country code
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+function CreateContent({ closeModal }: CreateContentProps) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [day, setDay] = useState(""); 
+  const [startTime, setStartTime] = useState(""); 
+  const [endTime, setEndTime] = useState(""); 
+  const [categoryId, setCategoryId] = useState(""); 
+  const [creatorId] = useState(""); 
+  const [link, setLink] = useState(""); 
+  const [reward, setReward] = useState(0); 
+  const [code, setCode] = useState(""); 
+  const [threshold, setThreshold] = useState(0); 
+  const [duration, setDuration] = useState(""); // New field for video duration
+  const [ads, setAds] = useState(0); // New field for number of ads
+  const [categories, setCategories] = useState<Category[]>([]); 
 
-
-
+  // Fetch categories from the API when the component mounts
   useEffect(() => {
-    const fetchCountry = async () => {
+    const fetchCategories = async () => {
       try {
-        const response = await fetch("http://ip-api.com/json/");
-        const data = await response.json();
-        setCountry(data.country);
-        setCountryCode(data.countryCode); // Set country code
-        setLoading(false);
-      } catch (err) {
-        //@ts-ignore
-        setError("Unable to fetch country");
-        setLoading(false);
+        const response = await axios.get("/api/categories");
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
       }
     };
 
-    fetchCountry();
+    fetchCategories();
   }, []);
 
+  const handleChange = (name: string) => (e: any) => {
+    switch (name) {
+      case "title":
+        setTitle(e.target.value);
+        break;
+      case "description":
+        setDescription(e.target.value);
+        break;
+      case "day":
+        setDay(e.target.value);
+        break;
+      case "startTime":
+        setStartTime(e.target.value);
+        break;
+      case "endTime":
+        setEndTime(e.target.value);
+        break;
+      case "categoryId":
+        setCategoryId(e.target.value);
+        break;
+      case "link":
+        setLink(e.target.value);
+        break;
+      case "reward":
+        setReward(Number(e.target.value));
+        break;
+      case "code":
+        setCode(e.target.value);
+        break;
+      case "threshold":
+        setThreshold(Number(e.target.value));
+        break;
+      case "duration":
+        setDuration(e.target.value);
+        break;
+      case "ads":
+        setAds(Number(e.target.value));
+        break;
+      default:
+        break;
+    }
+  };
 
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
 
-  // Adjust reward if the user is in Ethiopia
-  const adjustedReward = countryCode === "ET" ? reward / 5 : reward;
+    const task = {
+      title,
+      description,
+      day,
+      startTime,
+      endTime,
+      categoryId,
+      creatorId,
+      link,
+      reward,
+      code,
+      threshold,
+      duration, // Include duration if applicable
+      ads, // Include ads if applicable
+      completionCount: 0, 
+      isCompleted: false,
+    };
 
+    try {
+      const res = await axios.post("/api/tasks", task);
 
-  
-  const handleEarnClick = async () => {
-    if (isClaiming) return; // Prevent multiple clicks during the claim process
-
-    if (buttonState === "initial") {
-      setButtonState("verifying");
-    } else if (buttonState === "verifying") {
-      if (inputCode === code) {
-        setButtonState("claim");
-        toast.success("Code verified! You can now claim your reward.");
+      if (res.data.error) {
+        toast.error(res.data.error);
       } else {
-        setAttempts((prev) => prev + 1);
-        if (attempts < 1) {
-          toast.error("Incorrect code. Please try again.");
-        } else {
-          handleTaskFailure(); // Mark task as completed without reward
-        }
-        setInputCode("");
-      }
-    } else if (buttonState === "claim") {
-      setIsClaiming(true); // Set loading state
-
-      try {
-        await handleClaimReward(); // Wait for the claim process to finish
-        router.refresh(); // Refresh the page after claiming
-      } finally {
-        setIsClaiming(false); // Reset loading state once the claim is done
-      }
-    }
-  };
-
-  const handleTaskFailure = async () => {
-    setButtonState("failed");
-    setCompleted(true);
-    try {
-      await axios.post("/api/tasks/complete", {
-        taskId,
-        reward: 0, // No reward given on failure
-      });
-      toast.error("Task failed due to incorrect code.");
-    } catch (error) {
-      console.error("Error updating task failure:", error);
-    }
-  };
-
-  const handleClaimReward = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/tasks/complete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ taskId, reward: adjustedReward, isCompleted: true }),
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Failed to claim reward");
-      }
-
-      const result = await res.json();
-      setCompleted(true); // Mark task as completed after claiming reward
-      setButtonState("completed");
-      toast.success(`${title} reward claimed! You have earned ${adjustedReward} BT!`);
-    } catch (error) {
-      console.error("Error claiming reward:", error);
-      toast.error("Failed to claim reward.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      const res = await axios.delete(`/api/tasks/${id}`);
-      if (res.status === 200) {
-        toast.success("Task deleted");
+        toast.success("Task created successfully.");
+        closeModal(); 
       }
     } catch (error) {
-      console.error("Error deleting task:", error);
-      toast.error("Failed to delete task");
+      toast.error("Something went wrong.");
+      console.log(error);
     }
   };
-
-
 
   return (
-    <div className="relative p-4 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 h-64 flex flex-col gap-2">
-      <div className="flex justify-between items-center">
-        {getLogo(categoryName)}
-        <span>
-          <h1 className="text-xl font-bold text-brand uppercase">{categoryName}</h1>
-        </span>
-        <div className="flex items-center text-brand">
-          <Image src="/coin.png" alt="" width={40} height={40} />
-          <span className="ml-1">{adjustedReward} BT</span>
-        </div>
+    <form onSubmit={handleSubmit} className="text-gray-300">
+      <h1 className="text-xl font-semibold mb-4">Create a Task</h1>
+
+      <div className="mb-4">
+        <label htmlFor="categoryName" className="block mb-2 font-medium">
+          Category
+        </label>
+        <select
+          id="categoryId"
+          value={categoryId}
+          onChange={handleChange("categoryId")}
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+        >
+          <option value="">Select a category</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.name}>
+              {category.name}
+            </option>
+          ))}
+        </select>
       </div>
-      <p>{description}</p>
-      {buttonState === "verifying" && (
+
+      {/* Conditionally render fields based on selected category */}
+      {categoryId === "youtube" && ( // Replace "youtube" with the actual ID for YouTube category
+        <>
+          <div className="mb-4">
+            <label htmlFor="duration" className="block mb-2 font-medium">
+              Video Duration
+            </label>
+            <input
+              type="text"
+              id="duration"
+              value={duration}
+              onChange={handleChange("duration")}
+              placeholder="e.g., 10:30"
+              className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="ads" className="block mb-2 font-medium">
+              Number of Ads
+            </label>
+            <input
+              type="number"
+              id="ads"
+              value={ads}
+              onChange={handleChange("ads")}
+              placeholder="Number of ads"
+              className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+            />
+          </div>
+        </>
+      )}
+
+      <div className="mb-4">
+        <label htmlFor="title" className="block mb-2 font-medium">
+          Title
+        </label>
         <input
           type="text"
-          value={inputCode}
-          onChange={(e) => setInputCode(e.target.value)}
-          maxLength={6}
-          placeholder="Enter code"
-          className="border rounded p-1"
+          id="title"
+          value={title}
+          name="title"
+          onChange={handleChange("title")}
+          placeholder="e.g., Watch a video from Fireship."
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
         />
-      )}
-      <button
-        className={`py-2 px-4 font-bold uppercase rounded-full text-white transition-all duration-300 shadow-md ${
-          buttonState === "claim"
-            ? 'bg-green-500 hover:bg-green-600'
-            : buttonState === "verifying"
-            ? 'bg-orange-500 hover:bg-orange-600'
-            : buttonState === "failed"
-            ? 'bg-red-500 cursor-not-allowed'
-            : completed
-            ? 'bg-gray-500 cursor-not-allowed'
-            : 'bg-red-500 hover:bg-red-600'
-        }`}
-        onClick={handleEarnClick}
-        disabled={completed || buttonState === "failed" || isClaiming}
-      >
-        {isClaiming
-          ? "Loading..."
-          : buttonState === "claim"
-          ? "Claim"
-          : buttonState === "verifying"
-          ? "Verify Code"
-          : completed
-          ? "Completed"
-          : buttonState === "failed"
-          ? "Failed"
-          : "Earn"}
-      </button>
-      <button onClick={handleDelete}>
-        {trash}
-      </button>
-      <Toaster />
-    </div>
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="description" className="block mb-2 font-medium">
+          Description
+        </label>
+        <textarea
+          value={description}
+          onChange={handleChange("description")}
+          name="description"
+          id="description"
+          rows={4}
+          placeholder="e.g., Watch a video about Next.js Auth"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+        ></textarea>
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="link" className="block mb-2 font-medium">
+          Link
+        </label>
+        <input
+          type="url"
+          id="link"
+          value={link}
+          onChange={handleChange("link")}
+          placeholder="e.g., https://example.com"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="reward" className="block mb-2 font-medium">
+          Reward
+        </label>
+        <input
+          type="number"
+          id="reward"
+          value={reward}
+          onChange={handleChange("reward")}
+          placeholder="Reward amount"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="code" className="block mb-2 font-medium">
+          Code
+        </label>
+        <input
+          type="text"
+          id="code"
+          value={code}
+          onChange={handleChange("code")}
+          placeholder="Enter code"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="threshold" className="block mb-2 font-medium">
+          Threshold
+        </label>
+        <input
+          type="number"
+          id="threshold"
+          value={threshold}
+          onChange={handleChange("threshold")}
+          placeholder="Threshold value"
+          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
+        />
+      </div>
+      <div className="flex justify-end px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-green-600">
+        <Button icon={add} name="Create Task" />
+      </div>
+    </form>
   );
 }
 
-export default TaskItem;
-
-
+export default CreateContent;

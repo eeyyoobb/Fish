@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { clerkId, role, amount } = req.body; // Get userId, role, and amount to add
+    const { clerkId, role, amount } = req.body;
 
     if (!clerkId || !role || !amount) {
       return res.status(400).json({ error: 'User ID, role, and amount are required' });
@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           where: { id: String(clerkId) },
           data: {
             wallet: {
-              increment: Number(amount), // Increment wallet by the given amount
+              increment: Number(amount),
             },
           },
         });
