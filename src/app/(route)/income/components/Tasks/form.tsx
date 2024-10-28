@@ -84,7 +84,7 @@ export function QuestionForm({
         </p> */}
       </div>
 
-      <div className="space-y-2 glass">
+      {/* <div className="space-y-2 glass">
         {selectedQuestions.map((question, index) => (
           <div key={question.key} className="text-sm text-muted-foreground text-black glass">
             <span className="font-medium text-black">Q{index + 1}:</span> {question.prompt} -{" "}
@@ -93,7 +93,7 @@ export function QuestionForm({
             </span>
           </div>
         ))}
-      </div>
+      </div> */}
 
       <Button
         type="submit"

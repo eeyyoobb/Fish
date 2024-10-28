@@ -46,7 +46,6 @@ export interface Task{
             link: string;
             reward: number;
             taskId: string;
-            onVerify: (taskId: string, code: string) => void;
             completions: TaskCompletion[];
             isCompleted: boolean;
             ad1:string;

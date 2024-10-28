@@ -44,7 +44,6 @@ model Child {
   results     Result[]
   wallet      Int           @default(0)
   
-   
 }
 
 model Creator {
@@ -137,7 +136,7 @@ model Task{
   isUnderstand       Boolean   @default(false)
   link               String?
   reward             Int
-  duration           Int 
+  duration           String 
   threshold          Int
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @default(now()) @updatedAt @map("updated_at")

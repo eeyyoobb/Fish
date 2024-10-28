@@ -26,7 +26,24 @@ export async function POST(req: Request) {
       },
     });
 
-    // Find the task and update completion count
+    const { sessionClaims } = auth();
+    const role = (sessionClaims?.metadata as { role?: string })?.role;
+
+    if (!role) {
+      throw new Error("User role not found");
+    }
+
+    //@ts-ignore
+    await prisma[role].update({
+      where: { clerkId: userId }, 
+      data: {
+        wallet: {
+          increment: reward, 
+        },
+      },
+    });
+
+    // Find the task and update its completion count
     const task = await prisma.task.findUnique({
       where: { id: taskId },
     });
@@ -52,13 +69,12 @@ export async function POST(req: Request) {
         });
         
         if (completionCount >= task.threshold) {
-          // Only add reward if the threshold is reached
           await addRewardToUserWallet(userId, reward);
         }
       }
 
       return NextResponse.json({ 
-        message: updatedTask.isCompleted ? "Task completed and reward claimed!" : "Task marked as failed", 
+        message: updatedTask.isCompleted ? "Task completed and reward claimed!" : "Task marked as incomplete", 
         taskCompletion 
       });
     }
@@ -75,18 +91,17 @@ async function addRewardToUserWallet(userId: string, reward: number) {
   const { sessionClaims } = auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
-  try {
-    if (!role) {
-      throw new Error("User role not found");
-    }
+  if (!role) {
+    throw new Error("User role not found");
+  }
 
-    // Update the wallet based on the user role
+  try {
     //@ts-ignore
     await prisma[role].update({
-      where: { clerkId: userId }, // Match by Clerk ID or relevant identifier
+      where: { clerkId: userId }, 
       data: {
         wallet: {
-          increment: reward, // Increment wallet balance by the reward amount
+          increment: reward, 
         },
       },
     });

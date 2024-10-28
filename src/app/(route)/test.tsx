@@ -1,274 +1,229 @@
 "use client";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { add } from "@/utils/Icons";
-import { toast } from "sonner";
-import Button from "../Button/Button";
+import { edit, trash } from "@/utils/Icons";
+import { Toaster, toast } from "sonner";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import crypto from 'crypto';
+import { TaskHeader } from "../Tasks/taskHeader";
+import { QuestionForm } from "../form";
+import { useCountry } from "@/hooks/location";
+import { useTaskVerification } from "@/hooks/taskVerify";
+import { TaskItemProps, Question } from "@/types/task";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-interface CreateContentProps {
-  closeModal: () => void;
-}
+function TaskItem({
+  description,
+  link,
+  reward,
+  taskId,
+  onVerify,
+  id,
+  ownerId, 
+  ad1,
+  ad2,
+  ad3,
+  completions,
+  isCompleted,
+  categoryName,
+  track,
+  trackmin,
+  trackmin2,
+  track2,
+  duration
+}: TaskItemProps) {
+  const [completed, setCompleted] = useState(isCompleted);
+  const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+  const [platform, setPlatform] = useState("");
+  const [hasVisitedLink, setHasVisitedLink] = useState(false);
+  const router = useRouter();
+  const { user } = useUser();
+  const { countryCode } = useCountry();
 
-interface Category {
-  id: string;  // Adjust the type if necessary
-  name: string;
-}
+  const role = user?.publicMetadata.role as string;
+  const userId = user?.id;
 
-function CreateContent({ closeModal }: CreateContentProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [day, setDay] = useState(""); 
-  const [startTime, setStartTime] = useState(""); 
-  const [endTime, setEndTime] = useState(""); 
-  const [categoryId, setCategoryId] = useState(""); 
-  const [creatorId] = useState(""); 
-  const [link, setLink] = useState(""); 
-  const [reward, setReward] = useState(0); 
-  const [code, setCode] = useState(""); 
-  const [threshold, setThreshold] = useState(0); 
-  const [duration, setDuration] = useState(""); // New field for video duration
-  const [ads, setAds] = useState(0); // New field for number of ads
-  const [categories, setCategories] = useState<Category[]>([]); 
+  const adjustedReward = countryCode === "ET" ? reward / 5 : reward;
 
-  // Fetch categories from the API when the component mounts
+  const { buttonState, isLoading, isClaiming, handleVerification } = useTaskVerification({
+    taskId,
+    reward: adjustedReward,
+    onComplete: () => {
+      setCompleted(true);
+      router.refresh();
+    }
+  });
+
+  const getDeterministicQuestions = (username: string, userId: string): Question[] => {
+    const hash = crypto.createHash('md5').update(username + userId).digest('hex');
+    const index = parseInt(hash.slice(0, 2), 16) % 5;
+
+    const questions: Question[] = [
+      { key: "ad1", value: String(ad1), prompt: "the first ad?" },
+      { key: "duration", value: String(duration), prompt: "the duration of the video?" },
+      { key: "ad2", value: String(ad2), prompt: "the second ad?" },
+      { key: "ad3", value: String(ad3), prompt: "the third ad?" },
+      { key: "track", value: trackmin, prompt: `you see the ${track}?` },
+      { key: "track2", value: trackmin2, prompt: `you see the ${track2}?` },
+    ];
+
+    return [
+      questions[(index + 0) % questions.length],
+      questions[(index + 1) % questions.length],
+      questions[(index + 2) % questions.length],
+    ];
+  };
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("/api/categories");
-        setCategories(response.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
+    if (user && user.username) {
+      const questions = getDeterministicQuestions(user.username, user.id);
+      setSelectedQuestions(questions);
+    }
+  }, [user]);
+
+  const handleEarnClick = async () => {
+    if (!hasVisitedLink) {
+      // Open link in new tab
+      window.open(link, '_blank');
+      setHasVisitedLink(true);
+      return;
+    }
+
+    if (categoryName === "youtube") {
+      await handleVerification(userAnswers, selectedQuestions);
+    } else {
+      if (!platform.trim()) {
+        toast.error("Please enter your user ID");
+        return;
       }
-    };
-
-    fetchCategories();
-  }, []);
-
-  const handleChange = (name: string) => (e: any) => {
-    switch (name) {
-      case "title":
-        setTitle(e.target.value);
-        break;
-      case "description":
-        setDescription(e.target.value);
-        break;
-      case "day":
-        setDay(e.target.value);
-        break;
-      case "startTime":
-        setStartTime(e.target.value);
-        break;
-      case "endTime":
-        setEndTime(e.target.value);
-        break;
-      case "categoryId":
-        setCategoryId(e.target.value);
-        break;
-      case "link":
-        setLink(e.target.value);
-        break;
-      case "reward":
-        setReward(Number(e.target.value));
-        break;
-      case "code":
-        setCode(e.target.value);
-        break;
-      case "threshold":
-        setThreshold(Number(e.target.value));
-        break;
-      case "duration":
-        setDuration(e.target.value);
-        break;
-      case "ads":
-        setAds(Number(e.target.value));
-        break;
-      default:
-        break;
+      await handleVerification({}, [], platform.trim());
     }
   };
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-
-    const task = {
-      title,
-      description,
-      day,
-      startTime,
-      endTime,
-      categoryId,
-      creatorId,
-      link,
-      reward,
-      code,
-      threshold,
-      duration, // Include duration if applicable
-      ads, // Include ads if applicable
-      completionCount: 0, 
-      isCompleted: false,
-    };
-
+  const handleDelete = async () => {
     try {
-      const res = await axios.post("/api/tasks", task);
-
-      if (res.data.error) {
-        toast.error(res.data.error);
-      } else {
-        toast.success("Task created successfully.");
-        closeModal(); 
+      const res = await axios.delete(`/api/tasks/${id}`);
+      if (res.status === 200) {
+        toast.success("Task deleted");
+        router.refresh();
       }
     } catch (error) {
-      toast.error("Something went wrong.");
-      console.log(error);
+      console.error("Error deleting task:", error);
+      toast.error("Failed to delete task");
     }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const res = await axios.put(`/api/tasks/${id}`);
+      if (res.status === 200) {
+        toast.success("Task updated");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+      toast.error("Failed to update task");
+    }
+  };
+
+  const getButtonText = () => {
+    if (isClaiming) return "Processing...";
+    if (completed) return "Completed";
+    if (buttonState === "failed") return "Failed";
+    if (!hasVisitedLink) return "Earn";
+    return "Verify";
+  };
+
+  const getButtonStyle = () => {
+    if (completed) return "bg-gray-500 cursor-not-allowed";
+    if (buttonState === "failed") return "bg-red-500 cursor-not-allowed";
+    if (buttonState === "claim") return "bg-green-500 hover:bg-green-600";
+    if (hasVisitedLink) return "bg-orange-500 hover:bg-orange-600";
+    return "bg-blue-500 hover:bg-blue-600";
   };
 
   return (
-    <form onSubmit={handleSubmit} className="text-gray-300">
-      <h1 className="text-xl font-semibold mb-4">Create a Task</h1>
-
-      <div className="mb-4">
-        <label htmlFor="categoryName" className="block mb-2 font-medium">
-          Category
-        </label>
-        <select
-          id="categoryId"
-          value={categoryId}
-          onChange={handleChange("categoryId")}
-          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
-        >
-          <option value="">Select a category</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.name}>
-              {category.name}
-            </option>
+    <div className="relative p-4 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 h-auto min-h-[16rem] flex flex-col gap-2">
+      <Toaster />
+      <TaskHeader categoryName={categoryName} reward={adjustedReward} />
+      
+      {categoryName === "youtube" ? (
+        <p className="text-sm text-gray-700 dark:text-gray-300">
+          To get your reward, write the minute of{" "}
+          {selectedQuestions.map((question, index) => (
+            <span key={question.key} className="text-brand">
+              {question.prompt} {question.value}
+              {index < selectedQuestions.length - 1 ? ", " : ""}
+            </span>
           ))}
-        </select>
-      </div>
-
-      {/* Conditionally render fields based on selected category */}
-      {categoryId === "youtube" && ( // Replace "youtube" with the actual ID for YouTube category
-        <>
-          <div className="mb-4">
-            <label htmlFor="duration" className="block mb-2 font-medium">
-              Video Duration
-            </label>
-            <input
-              type="text"
-              id="duration"
-              value={duration}
-              onChange={handleChange("duration")}
-              placeholder="e.g., 10:30"
-              className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="ads" className="block mb-2 font-medium">
-              Number of Ads
-            </label>
-            <input
-              type="number"
-              id="ads"
-              value={ads}
-              onChange={handleChange("ads")}
-              placeholder="Number of ads"
-              className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
-            />
-          </div>
-        </>
+        </p>
+      ) : (
+        <p className="text-sm text-gray-700 dark:text-gray-300">
+          To complete this task, please enter your user ID
+        </p>
       )}
 
-      <div className="mb-4">
-        <label htmlFor="title" className="block mb-2 font-medium">
-          Title
-        </label>
-        <input
-          type="text"
-          id="title"
-          value={title}
-          name="title"
-          onChange={handleChange("title")}
-          placeholder="e.g., Watch a video from Fireship."
-          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
-        />
+      <p className="text-sm">{description}</p>
+
+      <div className="flex-grow">
+        {categoryName === "youtube" && hasVisitedLink && (
+          <QuestionForm
+            selectedQuestions={selectedQuestions}
+            userAnswers={userAnswers}
+            setUserAnswers={setUserAnswers}
+            isLoading={isLoading}
+            onSubmit={handleEarnClick}
+          />
+        )}
+        {categoryName !== "youtube" && (
+          <div className="mt-2">
+            <Input
+              type="text"
+              placeholder="Enter your user ID"
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+              className="w-full"
+              disabled={completed || isLoading || !hasVisitedLink}
+            />
+          </div>
+        )}
       </div>
 
-      <div className="mb-4">
-        <label htmlFor="description" className="block mb-2 font-medium">
-          Description
-        </label>
-        <textarea
-          value={description}
-          onChange={handleChange("description")}
-          name="description"
-          id="description"
-          rows={4}
-          placeholder="e.g., Watch a video about Next.js Auth"
-          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
-        ></textarea>
-      </div>
+      <div className="flex justify-between gap-5 mt-4">
+        <Button
+          className={`py-1 px-4 font-bold uppercase rounded-full text-white transition-all duration-300 shadow-md w-3/4 ${getButtonStyle()}`}
+          onClick={handleEarnClick}
+          disabled={completed || buttonState === "failed" || isClaiming}
+        >
+          {getButtonText()}
+        </Button>
 
-      <div className="mb-4">
-        <label htmlFor="link" className="block mb-2 font-medium">
-          Link
-        </label>
-        <input
-          type="url"
-          id="link"
-          value={link}
-          onChange={handleChange("link")}
-          placeholder="e.g., https://example.com"
-          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
-        />
+        {(role === "admin" || ownerId === userId) && (
+          <div className="flex justify-center w-1/4 gap-1">
+            <Button
+              variant="destructive"
+              size="icon"
+              onClick={handleDelete}
+              disabled={completed || isLoading}
+            >
+              {trash}
+            </Button>
+            <Button
+              variant="default"
+              size="icon"
+              onClick={handleUpdate}
+              disabled={completed || isLoading}
+            >
+              {edit}
+            </Button>
+          </div>
+        )}
       </div>
-
-      <div className="mb-4">
-        <label htmlFor="reward" className="block mb-2 font-medium">
-          Reward
-        </label>
-        <input
-          type="number"
-          id="reward"
-          value={reward}
-          onChange={handleChange("reward")}
-          placeholder="Reward amount"
-          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor="code" className="block mb-2 font-medium">
-          Code
-        </label>
-        <input
-          type="text"
-          id="code"
-          value={code}
-          onChange={handleChange("code")}
-          placeholder="Enter code"
-          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor="threshold" className="block mb-2 font-medium">
-          Threshold
-        </label>
-        <input
-          type="number"
-          id="threshold"
-          value={threshold}
-          onChange={handleChange("threshold")}
-          placeholder="Threshold value"
-          className="w-full p-3 bg-gray-900 text-gray-200 rounded-md"
-        />
-      </div>
-      <div className="flex justify-end px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-green-600">
-        <Button icon={add} name="Create Task" />
-      </div>
-    </form>
+    </div>
   );
 }
 
-export default CreateContent;
+export default TaskItem;

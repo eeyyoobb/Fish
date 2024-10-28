@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
           },
         });
-      } else if (role === 'parent') { // Fixed the role string from '/parent' to 'parent'
+      } else if (role === 'parent') { 
         await prisma.parent.update({
           where: { id: String(clerkId) },
           data: {

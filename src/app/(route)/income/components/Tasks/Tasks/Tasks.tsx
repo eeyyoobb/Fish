@@ -14,32 +14,6 @@ interface Props {
   tasks: Task[]; 
 }
 
-const handleVerify = async (taskId: string, code: string,) => {
-  try {
-    const response = await axios.post('/api/rewards', {
-      taskId,
-      code,
-    });
-
-    const data = response.data;
-
-    if (response.status === 200) {
-      alert(data.message);
-    } else {
-      alert(data.error);
-    }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        alert(error.response.data.error || 'An error occurred');
-      } else {
-        alert('No response from the server');
-      }
-    } else {
-      alert('An unexpected error occurred');
-    }
-  }
-};
 
 function Tasks({ title, tasks, }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,21 +51,20 @@ function Tasks({ title, tasks, }: Props) {
             id={task.id} 
             key={task.id}
             description={task.description || ''} 
-            link={task.link || ''} // Task link (can be null)
-            reward={task.reward || 0} // Task reward (number)
-            taskId={task.id} // Task ID
-            onVerify={handleVerify} // Verify function triggered by the task
-            completions={ task.completions} // Task completions (array of TaskCompletion)
-            isCompleted={task.isCompleted} // Whether the task is completed
+            link={task.link || ''} 
+            reward={task.reward || 0} 
+            taskId={task.id} 
+            completions={ task.completions} 
+            isCompleted={task.isCompleted} 
             //@ts-ignore
-            categoryName={task.category?.name || 'Unknown'} // Category name (from relation)
+            categoryName={task.category?.name || 'Unknown'}
             ad1={task.ad1} 
             ad2={task.ad2} 
             ad3={task.ad3} 
-            track={task.track || ''} // Task track
-            trackmin={task.trackmin } // Minimum track
-            track2={task.track2 || ''} // Additional track
-            trackmin2={task.trackmin2 } // Additional minimum track
+            track={task.track || ''} 
+            trackmin={task.trackmin } 
+            track2={task.track2 || ''} 
+            trackmin2={task.trackmin2 } 
             duration={task.duration}
             ownerId={task.ownerId}
           />

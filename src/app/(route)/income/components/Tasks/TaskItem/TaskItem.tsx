@@ -19,7 +19,6 @@ function TaskItem({
   link,
   reward,
   taskId,
-  onVerify,
   id,
   ownerId, 
   ad1,

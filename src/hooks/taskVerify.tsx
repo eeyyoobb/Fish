@@ -22,7 +22,8 @@ export function useTaskVerification({ taskId, reward, onComplete }: UseTaskVerif
     selectedQuestions: Question[],
     platformUserId?: string
   ) => {
-    if (isClaiming) return false;
+    if (isClaiming) 
+      return false;
 
     try {
       if (buttonState === "initial") {
