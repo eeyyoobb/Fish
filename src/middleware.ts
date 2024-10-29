@@ -9,7 +9,6 @@ const matchers = Object.keys(routeAccessMap).map((route) => ({
 
 export default clerkMiddleware((auth, req) => {
   const { sessionClaims } = auth();
-
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
   // Check each route matcher against the incoming request
@@ -18,7 +17,7 @@ export default clerkMiddleware((auth, req) => {
       // If the role is not allowed for the matched route
       if (!allowedRoles.includes(role!)) {
         // Redirect to a page based on role or a default page
-        return NextResponse.redirect(new URL(`/${role}`, req.url));
+        return NextResponse.redirect(new URL(`/unauthorized`, req.url)); // Adjust as necessary
       }
     }
   }

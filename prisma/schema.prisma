@@ -15,7 +15,8 @@ datasource db {
 model Admin {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   username    String   @unique
-  wallet      Int      @default(0) 
+  wallet      Int      @default(0)
+  balance     Int      @default(0)  
   clerkId     String   @unique
   tribeId     String   @db.ObjectId
   tribe       Tribe    @relation(fields: [tribeId], references: [id])
@@ -43,6 +44,7 @@ model Child {
   attendances Attendance[]
   results     Result[]
   wallet      Int           @default(0)
+  balance    Int           @default(0)
   
 }
 
@@ -62,6 +64,7 @@ model Creator {
   categories CategoryCreator[]
   birthday  DateTime
   wallet      Int    @default(0) 
+  balance     Int    @default(0)
 }
 
 model Parent {
@@ -76,7 +79,9 @@ model Parent {
   createdAt DateTime  @default(now())
   // children   Child[]
   tribes    Tribe[]
-  wallet      Int    @default(0) 
+  wallet      Int    @default(0)
+  balance    Int    @default(0)
+  account     Int    @default(0)
 }
 
 model Grade {
@@ -157,7 +162,8 @@ model TaskCompletion {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
   platformUserId String?
-  approved       Boolean  @default(false)
+  approvalStatus ApprovalStatus @default(PENDING) 
+  reward         Int
 }
 
 model Exam {
@@ -238,6 +244,12 @@ enum Day {
   WEDNESDAY
   THURSDAY
   FRIDAY
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  DECLINED
 }
 
 

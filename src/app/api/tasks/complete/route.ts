@@ -23,6 +23,7 @@ export async function POST(req: Request) {
         userId,
         isCompleted,
         platformUserId,
+        reward,
       },
     });
 

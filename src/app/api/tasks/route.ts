@@ -85,27 +85,81 @@ export async function POST(req: Request) {
 }
 
 
-export async function PUT(req: Request) {
+
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
   try {
-    const { userId } = auth();
-    const { isCompleted, id } = await req.json();
+    // Get the task ID from the request parameters
+    const taskId = params.id;
+
+    // Parse the JSON body of the request
+    const {
+      description,
+      ad1,
+      ad2,
+      ad3,
+      track,
+      trackmin,
+      track2,
+      trackmin2,
+      isUnderstand,
+      link,
+      reward,
+      duration,
+      threshold,
+      categoryId,
+    } = await req.json();
+
+    // Authenticate the user
+    const { userId, sessionClaims } = auth();
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized", status: 401 });
     }
 
-    const task = await prisma.task.update({
-      where: {
-        id,
-      },
+    const role = (sessionClaims?.metadata as { role?: string })?.role;
+    if (!role) {
+      return NextResponse.json({ error: "Role not found in session claims" });
+    }
+
+    //@ts-ignore
+    const creator = await prisma[role].findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!creator) {
+      return NextResponse.json({ error: "Creator not found", status: 404 });
+    }
+
+    // Validate required fields
+    if (!description || !categoryId || threshold < 10) {
+      return NextResponse.json({ error: "Missing required fields or invalid data", status: 400 });
+    }
+
+    // Update the Task in the database
+    const updatedTask = await prisma.task.update({
+      where: { id: taskId },
       data: {
-        isCompleted,
+        description,
+        ad1,
+        ad2,
+        ad3,
+        track,
+        trackmin,
+        track2,
+        trackmin2,
+        isUnderstand,
+        link,
+        reward,
+        duration,
+        threshold,
+        categoryId,
+        // Optionally update other fields as necessary
       },
     });
 
-    return NextResponse.json(task);
+    return NextResponse.json(updatedTask, { status: 200 }); // Return the updated task with a 200 status
   } catch (error) {
-    console.log("ERROR UPDATING TASK: ", error);
-    return NextResponse.json({ error: "Error deleting task", status: 500 });
+    console.error("ERROR UPDATING TASK: ", error);
+    return NextResponse.json({ error: "Error updating task", status: 500 });
   }
 }

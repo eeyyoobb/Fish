@@ -37,6 +37,7 @@ function TaskItem({
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [platform, setPlatform] = useState("");
+  const [hasVisitedLink, setHasVisitedLink] = useState(false);
   const router = useRouter();
   const { user } = useUser();
   const { countryCode } = useCountry();
@@ -83,6 +84,13 @@ function TaskItem({
   }, [user]);
 
   const handleEarnClick = async () => {
+    if (!hasVisitedLink) {
+      // Open link in new tab
+      window.open(link, '_blank');
+      setHasVisitedLink(true);
+      return;
+    }
+
     if (categoryName === "youtube") {
       await handleVerification(userAnswers, selectedQuestions);
     } else {
@@ -109,7 +117,7 @@ function TaskItem({
 
   const handleUpdate = async () => {
     try {
-      const res = await axios.put(`/api/tasks/${id}`);
+      const res = await axios.put(`/api/tasks`);
       if (res.status === 200) {
         toast.success("Task updated");
         router.refresh();
@@ -118,6 +126,22 @@ function TaskItem({
       console.error("Error updating task:", error);
       toast.error("Failed to update task");
     }
+  };
+
+  const getButtonText = () => {
+    if (isClaiming) return "Processing...";
+    if (completed) return "Completed";
+    if (buttonState === "failed") return "Failed";
+    if (!hasVisitedLink) return "Earn";
+    return "Verify";
+  };
+
+  const getButtonStyle = () => {
+    if (completed) return "bg-gray-500 cursor-not-allowed";
+    if (buttonState === "failed") return "bg-red-500 cursor-not-allowed";
+    if (buttonState === "claim") return "bg-green-500 hover:bg-green-600";
+    if (hasVisitedLink) return "bg-orange-500 hover:bg-orange-600";
+    return "bg-brand hover:bg-orange-600";
   };
 
   return (
@@ -144,17 +168,16 @@ function TaskItem({
       <p className="text-sm">{description}</p>
 
       <div className="flex-grow">
-        {categoryName === "youtube" ? (
-          buttonState === "verifying" && (
-            <QuestionForm
-              selectedQuestions={selectedQuestions}
-              userAnswers={userAnswers}
-              setUserAnswers={setUserAnswers}
-              isLoading={isLoading}
-              onSubmit={handleEarnClick}
-            />
-          )
-        ) : (
+        {categoryName === "youtube" && hasVisitedLink && (
+          <QuestionForm
+            selectedQuestions={selectedQuestions}
+            userAnswers={userAnswers}
+            setUserAnswers={setUserAnswers}
+            isLoading={isLoading}
+            onSubmit={handleEarnClick}
+          />
+        )}
+        {categoryName !== "youtube" && (
           <div className="mt-2">
             <Input
               type="text"
@@ -162,7 +185,7 @@ function TaskItem({
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
               className="w-full"
-              disabled={completed || isLoading}
+              disabled={completed || isLoading || !hasVisitedLink}
             />
           </div>
         )}
@@ -170,33 +193,11 @@ function TaskItem({
 
       <div className="flex justify-between gap-5 mt-4">
         <Button
-          className={`py-1 px-4 font-bold uppercase rounded-full text-white transition-all duration-300 shadow-md w-3/4 ${
-            buttonState === "claim"
-              ? 'bg-green-500 hover:bg-green-600'
-              : buttonState === "verifying"
-              ? 'bg-orange-500 hover:bg-orange-600'
-              : buttonState === "failed"
-              ? 'bg-red-500 cursor-not-allowed'
-              : completed
-              ? 'bg-gray-500 cursor-not-allowed'
-              : 'bg-blue-500 hover:bg-blue-600'
-          }`}
+          className={`py-1 px-4 font-bold uppercase rounded-full text-white transition-all duration-300 shadow-md w-3/4 ${getButtonStyle()}`}
           onClick={handleEarnClick}
           disabled={completed || buttonState === "failed" || isClaiming}
         >
-          {isClaiming
-            ? "Processing..."
-            : buttonState === "claim"
-            ? "Claim"
-            : buttonState === "verifying"
-            ? "Verify"
-            : completed
-            ? "Completed"
-            : buttonState === "failed"
-            ? "Failed"
-            : categoryName === "youtube"
-            ? "Earn"
-            : "Complete Task"}
+          {getButtonText()}
         </Button>
 
         {(role === "admin" || ownerId === userId) && (
@@ -208,9 +209,12 @@ function TaskItem({
               disabled={completed || isLoading}
             >
               {trash}
-            </Button>
+            </Button> 
+            </div>
+             )} {(role === "admin") && (
+             <div className="flex justify-center w-1/4 gap-1">
             <Button
-              variant="default"
+              variant="secondary"
               size="icon"
               onClick={handleUpdate}
               disabled={completed || isLoading}

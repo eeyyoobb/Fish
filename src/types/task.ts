@@ -6,6 +6,7 @@ export interface TaskCompletion {
     platformUserId?: string;
     userId: string;
     taskId: string;
+    reward:number;
     }
     
 export interface Question {
@@ -35,7 +36,7 @@ export interface Task{
     trackmin: string; // Minimum value for track (assumed context)
     track2: string; // Additional tracking field
     trackmin2: string; // Additional minimum value for tracking
-    duration:number;
+    duration:string;
     ownerId:string;
     
     }
@@ -56,7 +57,7 @@ export interface Task{
             track2: string;
             trackmin2: string;
             categoryName: string;
-            duration:number;
+            duration:string;
             ownerId:string;
     }
 
@@ -77,7 +78,7 @@ export interface Task{
         trackmin2: string;
         link: string;
         reward: number;
-        duration: number;
+        duration: string;
         threshold: number;
     }
 

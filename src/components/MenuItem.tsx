@@ -2,6 +2,7 @@
 
 import {  Assignment, Attendance, Calendar, Class, Exam, Home, Lesson,  Audit, Result, Subject, } from "./Icons";
 import { Creator,Admin,Child, Auditor, } from "@/utils/Icons"
+import { FaTablets } from "react-icons/fa";
 
 export const menuItems = [
     {
@@ -51,6 +52,12 @@ export const menuItems = [
           visible: ["admin", "creator"],
         },
         {
+          icon: <Lesson/>,
+          label: "Approval",
+          href: "/income/list/taskApproval",
+          visible: ["admin", "creator"],
+        },
+        {
           icon: <Exam/>,
           label: "Exams",
           href: "/income/list/exams",
@@ -78,6 +85,12 @@ export const menuItems = [
           icon: <Calendar/>,
           label: "Events",
           href: "/income/list/events",
+          visible: ["admin", "creator", "child", "audit"],
+        },
+        {
+          icon: <FaTablets/>,
+          label: "Pool",
+          href: "/game",
           visible: ["admin", "creator", "child", "audit"],
         },
       ],

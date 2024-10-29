@@ -286,6 +286,49 @@
   -webkit-mask-composite: xor;
 }
 
+.container {
+  margin:auto;
+  display: flex;
+  align-items: start;
+}
+
+#coin {
+  position: relative;
+  width: 3rem;
+  height: 3rem;
+  margin: 1rem 0;
+  transform-style: preserve-3d;
+  animation: rotateCoin 3s infinite linear; /* Continuous rotation */
+}
+
+#coin div {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  backface-visibility: hidden;
+  background-size: contain;
+  position: absolute;
+}
+
+.heads {
+  background-image: url(/coin.png);
+}
+
+.tails {
+  background-image: url(/coin.png);
+  transform: rotateY(180deg);
+}
+
+@keyframes rotateCoin {
+  from {
+      transform: rotateY(0deg);
+  }
+  to {
+      transform: rotateY(360deg); /* Complete rotation */
+  }
+}
+
+
 
 
 
