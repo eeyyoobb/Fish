@@ -1,10 +1,10 @@
 // Import necessary components and libraries
-import { MdFilterList, MdOutlineSort } from "react-icons/md";
+
 import FormContainer from "../../components/FormContainer";
 import Pagination from "../../components/Pagination";
 import Table from "../../components/Table"; // Uncomment if using Table component
 import TableSearch from "../../components/TableSearch"; // Uncomment if using TableSearch component
-import { Avatar, Delete, View } from "@/components/Icons";
+import { Avatar, Delete, View ,Filter,Sort} from "@/components/Icons";
 import { AvatarImg } from "@/components/image";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
@@ -113,7 +113,7 @@ const ChildListPage = async ({
             query.tribe = {
               tasks: {
                 some: {
-                  creatorId: value,
+                 supervisorId: value,
                 },
               },
             };
@@ -148,10 +148,10 @@ const ChildListPage = async ({
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              <MdFilterList />
+              <Filter />
             </button>
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              <MdOutlineSort />
+              <Sort />
             </button>
             {role === "admin" && <FormContainer table="child" type="create" />}
           </div>

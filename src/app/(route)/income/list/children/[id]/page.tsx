@@ -1,6 +1,5 @@
-import { Avatar, Calendar } from "@/components/Icons";
+import { Avatar, CalendarIcon } from "@/components/Icons";
 import Announcements from "../../../components/Announcements";
-import BigCalendarContainer from "../../../components/BigCalendarContainer";
 import FormContainer from "../../../components/FormContainer";
 import Performance from "../../../components/Performance";
 import ChildAttendanceCard from "../../../components/StudentAttendanceCard";
@@ -11,8 +10,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { MdBloodtype, MdMail } from "react-icons/md";
+import { Send } from 'lucide-react';
 import { Phone } from "lucide-react";
+
+
 
 const SingleChildPage = async ({
   params: { id },
@@ -21,7 +22,9 @@ const SingleChildPage = async ({
 }) => {
   const { sessionClaims } = auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
-
+ 
+  
+//@ts-ignore
   const child:
     | (Child & {
         tribe: Tribe & { _count: { tasks: number } };
@@ -29,6 +32,7 @@ const SingleChildPage = async ({
     | null = await prisma.child.findUnique({
     where: { id },
     include: {
+      //@ts-ignore
       tribe: { include: { _count: { select: { tasks: true } } } },
     },
   });
@@ -56,7 +60,7 @@ const SingleChildPage = async ({
               />
             ):(
               <div style={{ transform: 'scale(3)', display: 'inline-block' }}>
-                 <Avatar/>
+                <Avatar/>
               </div>
               )}
             </div>
@@ -73,18 +77,18 @@ const SingleChildPage = async ({
                 Lorem ipsum, dolor sit amet consectetur adipisicing elit.
               </p>
               <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
-                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
+                {/* <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   <MdBloodtype/>
                   <span>{child.bloodType}</span>
-                </div>
+                </div> */}
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <Calendar/>
-                  <span>
+                  <CalendarIcon/>
+                  {/* <span>
                     {new Intl.DateTimeFormat("en-GB").format(child.birthday)}
-                  </span>
+                  </span> */}
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  < MdMail/>
+                  <Send/>
                   <span>{child.email || "-"}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">

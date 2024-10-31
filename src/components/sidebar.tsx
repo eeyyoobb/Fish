@@ -11,7 +11,7 @@ import { dark } from '@clerk/themes'
 import { PencilIcon } from "lucide-react";
 import GenerateLinkButton from './Refer';
 import { motion } from 'framer-motion';
-import { TfiDashboard } from "react-icons/tfi";
+import { Gauge } from 'lucide-react';
 
 
 
@@ -106,7 +106,7 @@ const Menu = () => {
       }}
     >
       <span className="text-brand-100 brand tracking-wide font-light h-full w-full block relative linear-mask  items-center justify-center">
-      <span className="text-brand items-center justify-center" style={{width:250, height:250}}><TfiDashboard /></span>
+      <span className="text-brand items-center justify-center" style={{width:250, height:250}}><Gauge /></span>
       <span className="hidden md:inline">Dashboard</span>
       </span>
       <span className="block absolute inset-0 rounded-md p-px linear-overlay" />

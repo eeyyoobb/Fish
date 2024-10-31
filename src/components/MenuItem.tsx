@@ -1,15 +1,15 @@
 
 
-import {  Assignment, Attendance, Calendar, Class, Exam, Home, Lesson,  Audit, Result, Subject, } from "./Icons";
+import {  Assignment, Attendance,  Class,  Lesson, Result, Subject, } from "./Icons";
 import { Creator,Admin,Child, Auditor, } from "@/utils/Icons"
-import { FaTablets } from "react-icons/fa";
+import {House ,BookOpenCheck,CalendarDays,Volleyball } from 'lucide-react'
 
 export const menuItems = [
     {
       title: "MENU",
       items: [
         {
-          icon: <Home/>,
+          icon: <House/>,
           label: "Home",
           href: "/income",
           visible: ["admin", "creater", "child", "audit"],
@@ -58,7 +58,7 @@ export const menuItems = [
           visible: ["admin", "creator"],
         },
         {
-          icon: <Exam/>,
+          icon: <BookOpenCheck/>,
           label: "Exams",
           href: "/income/list/exams",
           visible: ["admin", "creator", "child", "audit"],
@@ -82,13 +82,13 @@ export const menuItems = [
           visible: ["admin", "creator", "child", "audit"],
         },
         {
-          icon: <Calendar/>,
+          icon: <CalendarDays/>,
           label: "Events",
           href: "/income/list/events",
           visible: ["admin", "creator", "child", "audit"],
         },
         {
-          icon: <FaTablets/>,
+          icon: <Volleyball/>,
           label: "Pool",
           href: "/game",
           visible: ["admin", "creator", "child", "audit"],

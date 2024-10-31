@@ -1,10 +1,10 @@
 
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
-import { FaWallet } from 'react-icons/fa'; // Importing an icon
+import { Wallet } from 'lucide-react';
 
 
-const Wallet = async () => {
+const MyWallet = async () => {
   const { userId, sessionClaims } = auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
@@ -35,7 +35,7 @@ const Wallet = async () => {
                 <div className="tails" />
             </div>
             <span className="text-xl font-bold text-brand flex items-center mt-5"> {/* Ensure text is centered vertically */}
-                <FaWallet className="ml-2" /> {/* Wallet Icon */}
+                <Wallet className="ml-2" /> 
                 {wallet} MTC
             </span>
         </div>
@@ -63,6 +63,6 @@ const Wallet = async () => {
   );
 };
 
-export default Wallet;
+export default MyWallet;
 
 
