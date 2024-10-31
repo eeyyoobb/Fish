@@ -16,11 +16,21 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CldUploadWidget } from "next-cloudinary";
 import { toast } from "sonner";
 
+interface RegistrationData {
+  username?: string;
+  email?: string;
+  password?: string;
+  name?: string;
+  surname?: string;
+  phone?: string;
+  address?: string;
+  id?: string;
+}
 
 const Registration= ({
   data,
 }: {
-  data?: any;
+   data?: RegistrationData
 }) => {
   const {
     register,
