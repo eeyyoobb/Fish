@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 import Announcements from "../../../components/Announcements";
 import BigCalendarContainer from "../../../components/BigCalendarContainer";
-import BigCalendar from "../../../components/BigCalender";
 import FormContainer from "../../../components/FormContainer";
 import Performance from "../../../components/Performance";
 import { auth } from "@clerk/nextjs/server";
@@ -9,10 +8,8 @@ import { Creator } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Avatar, View } from "@/components/Icons";
-import { MdBloodtype, MdDateRange } from "react-icons/md";
-import { IoIosMail } from "react-icons/io";
-import { FaPhoneAlt } from "react-icons/fa";
+import { Avatar,Mail,PhoneIcon } from "@/components/Icons";
+
 
 const SingleCreatorPage = async ({
   params: { id },
@@ -32,7 +29,7 @@ const SingleCreatorPage = async ({
       _count: {
         select: {
           categories: true,
-          tasks: true,
+          //tasks: true,
           // tribes: true,
         },
       },
@@ -61,7 +58,7 @@ const SingleCreatorPage = async ({
                   />
                   ):(
                     <div style={{ transform: 'scale(3)', display: 'inline-block' }}>
-                       <Avatar/>
+                      <Avatar/>
                     </div>
                   )}
             </div>
@@ -70,32 +67,32 @@ const SingleCreatorPage = async ({
                 <h1 className="text-xl font-semibold">
                   {creator.name + " " + creator.surname}
                 </h1>
-                 {role === "income/admin" && (
+                  {role === "income/admin" && (
                   <> 
                   <FormContainer  table="creator" type="update" data={creator} />
                   </> 
-               )} 
+                )} 
               </div>
               <p className="text-sm ">
                 Lorem ipsum, dolor sit amet consectetur adipisicing elit.
               </p>
               <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <MdBloodtype />
+                  {/* <MdBloodtype /> */}
                   <span>{creator.bloodType}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <MdDateRange/>
+                  {/* <MdDateRange/> */}
                   <span>
                     {new Intl.DateTimeFormat("en-GB").format(creator.birthday)}
                   </span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                <IoIosMail />
+                <Mail/>
                   <span>{creator.email || "-"}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <FaPhoneAlt />
+                  <PhoneIcon />
                   <span>{creator.phone || "-"}</span>
                 </div>
               </div>
@@ -160,7 +157,7 @@ const SingleCreatorPage = async ({
               />
               <div className="">
                 <h1 className="text-xl font-semibold">
-                   {creator._count.tribes} 
+                  {creator._count.tribes} 
                 </h1>
                 <span className="text-sm ">Classes</span>
               </div>

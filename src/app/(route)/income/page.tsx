@@ -1,7 +1,7 @@
 import Announcements from "./components/Announcements";
 import EventCalendar from "./components/EventCalendar";
 import prisma from "@/lib/prisma";
-import Tasks from "./components/Tasks/Tasks/Tasks";
+import Tasks from "./components/Tasks/Tasks";
 import { auth } from "@clerk/nextjs/server";
 
 

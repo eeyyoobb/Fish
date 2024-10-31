@@ -17,6 +17,8 @@ import {
   Eye,
   Plus,
   User,
+  Send,
+  Phone,
   Search,
   Bell,
   MessageSquare,
@@ -180,6 +182,24 @@ export const CalendarIcon: React.FC = () => {
     <Calendar onClick={() => setIsActive(false)} style={iconActiveStyle} />
   ) : (
     <Calendar onClick={() => setIsActive(true)} style={iconStyle} />
+  );
+};
+
+export const PhoneIcon: React.FC = () => {
+  const [isActive, setIsActive] = useState(false);
+  return isActive ? (
+    <Phone onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <Phone onClick={() => setIsActive(true)} style={iconStyle} />
+  );
+};
+
+export const Mail: React.FC = () => {
+  const [isActive, setIsActive] = useState(false);
+  return isActive ? (
+    <Send onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <Send onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 

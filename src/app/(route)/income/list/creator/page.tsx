@@ -7,8 +7,7 @@ import { Tribe, Prisma, Category, Creator } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { MdFilterList, MdOutlineSort } from "react-icons/md";
-import { Avatar, View } from "@/components/Icons";
+import { Avatar, View ,Filter,Sort} from "@/components/Icons";
 import { auth } from "@clerk/nextjs/server";
 
 type CreatorList = Creator & { categories: Category[] } & { tribes: Tribe[] };
@@ -120,10 +119,10 @@ const CreatorListPage = async ({ searchParams }: { searchParams: { [key: string]
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
             <button className="w-8 h-8 flex items-center justify-center rounded-full">
-              <MdFilterList />
+              <Filter />
             </button>
             <button className="w-8 h-8 flex items-center justify-center rounded-full">
-              <MdOutlineSort />
+              <Sort />
             </button>
             <FormContainer table="creator" type="create" />
           </div>
