@@ -344,10 +344,18 @@ export const ParentIcon = () => (
 export const WalletIcon = () => (
   <i className="fa-solid fa-wallet text-xs" />
 );
- 
 
-  
+export const Man = () => (
+<i className="fa-solid fa-person"></i>
+);
 
+export const Woman = () => (
+<i className="fa-solid fa-person-dress"></i>
+);
+
+export const Close = () => (
+  <i className="fa-solid  fa-circle-xmark"></i>
+  );
 
   
 

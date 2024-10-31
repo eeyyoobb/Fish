@@ -5,7 +5,7 @@ import {
   RadialBar,
   ResponsiveContainer,
 } from "recharts";
-import { IoIosWoman, IoIosMan } from "react-icons/io";
+import {Woman, Man } from "@/components/Icons";
 
 const CountChart = ({ child, parent, creator }: { child: number; parent: number; creator: number }) => {
   const data = [
@@ -48,8 +48,8 @@ const CountChart = ({ child, parent, creator }: { child: number; parent: number;
         </RadialBarChart>
       </ResponsiveContainer>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-        <IoIosMan style={{ width: 50, height: 50, color: "orange" }} />
-        <IoIosWoman style={{ width: 50, height: 50, color: "orange" }} />
+        <Man/>
+        <Woman />
       </div>
     </div>
   );

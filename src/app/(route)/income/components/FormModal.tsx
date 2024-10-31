@@ -12,10 +12,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useFormState } from "react-dom";
-import { toast } from "react-toastify";
 import { FormContainerProps } from "./FormContainer";
 import {Delete,Plus,View} from "@/components/Icons"
-import { MdOutlineClose } from "react-icons/md";
+import {Close} from "@/components/Icons"
+import { toast } from 'sonner'
 
 const deleteActionMap = {
   subject: deleteCategory,
@@ -189,7 +189,7 @@ const FormModal = ({
                 className="absolute top-4 right-4 cursor-pointer"
                 onClick={() => setOpen(false)}
               >
-                <MdOutlineClose />
+                <Close/>
               </div>
               <div className="flex-grow flex items-center justify-center">
                 <Form />
