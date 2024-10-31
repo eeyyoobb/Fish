@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import CreateContent from "../Modals/CreateContent";
-import TaskItem from "../TaskItem/TaskItem";
+import CreateContent from "../Tasks/CreateContent";
+import TaskItem from "../Tasks/TaskItem";
 import { add, plus } from "@/utils/Icons";
-import Modal from "../Modals/Modal";
+import Modal from "../Modal";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import { Task,TaskCompletion } from "@/types/task";
