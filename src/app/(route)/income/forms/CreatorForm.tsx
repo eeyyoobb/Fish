@@ -2,13 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputField from "../Components/InputField";
+import InputField from "../components/InputField";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { creatorSchema, CreatorSchema } from "@/lib/formValidationSchemas";
 import { useFormState } from "react-dom";
 import { createCreator, updateCreator } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { CldUploadWidget } from "next-cloudinary";
 import { MdOutlineCloudUpload } from "react-icons/md";
 

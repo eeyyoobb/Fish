@@ -2,7 +2,7 @@
 
 
 import { useForm } from "react-hook-form";
-import InputField from "../Components/InputField";
+import InputField from "../components/InputField";
 import {  CategorySchema } from "@/lib/formValidationSchemas";
 import { createCategory, updateCategory } from "@/lib/actions";
 import { useFormState } from "react-dom";

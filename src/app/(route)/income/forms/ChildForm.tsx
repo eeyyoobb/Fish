@@ -2,7 +2,7 @@
 
 // import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputField from "../Components/InputField";
+import InputField from "../components/InputField";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 
 import { CldUploadWidget } from "next-cloudinary";
 import { toast } from "sonner";
-import { Creator } from '../../../../../components/Icons';
+
 
 const ChildForm = ({
   type,
