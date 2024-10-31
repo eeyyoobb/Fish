@@ -1,7 +1,7 @@
 // components/Card.tsx
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { ChildIcon, ParentIcon, WalletIcon } from "@/components/Icons";
+import { UsersIcon, Parent, WalletIcon} from "@/components/Icons";
 import { clerkClient } from "@clerk/nextjs/server"; // Import clerkClient for server-side
 
 const Card = async ({ type }: { type: "child" | "parent" | "wallet" }) => {
@@ -54,8 +54,8 @@ const Card = async ({ type }: { type: "child" | "parent" | "wallet" }) => {
 
   // Icon mapping based on type
   const iconMap = {
-    child: <ChildIcon />,
-    parent: <ParentIcon />,
+    child: <UsersIcon />,
+    parent: <Parent />,
     wallet: <WalletIcon />,
   };
 

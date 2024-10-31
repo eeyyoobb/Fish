@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 import { FormContainerProps } from "./FormContainer";
-import {Delete,Plus,View} from "@/components/Icons"
+import {Delete,PlusIcon,View} from "@/components/Icons"
 import {Close} from "@/components/Icons"
 import { toast } from 'sonner'
 

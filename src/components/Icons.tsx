@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import {
   Home,
   HomeIcon,
-  Users,
   UserPlus,
   UsersRound,
   BookOpen,
@@ -18,13 +17,17 @@ import {
   Eye,
   Plus,
   User,
+  Users,
   Send,
   Phone,
   Search,
   Bell,
   MessageSquare,
   SlidersHorizontal,
-  ArrowDownNarrowWide
+  ArrowDownNarrowWide,
+  CircleX,
+  CloudDownload,
+  Wallet,
 } from 'lucide-react';
 
 declare global {
@@ -204,6 +207,39 @@ export const Mail: React.FC = () => {
   );
 };
 
+
+export const UsersIcon: React.FC = () => {
+  const [isActive, setIsActive] = useState(false);
+  return isActive ? (
+    <Users onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <Users onClick={() => setIsActive(true)} style={iconStyle} />
+  );
+};
+
 export const More: React.FC = () => (
   <MoreVertical style={iconStyle} />
 );
+
+export const Close: React.FC = () => (
+  <CircleX style={iconStyle} />
+);
+
+export const Man: React.FC = () => (
+  <i className="fa-solid fa-person text-xl"></i>
+);
+
+export const Woman: React.FC = () => (
+ <i className="fa-solid fa-person-dress"></i>
+);
+
+export const Cloud: React.FC = () => (
+  <CloudDownload style={iconStyle} />
+ );
+
+ export const WalletIcon: React.FC = () => (
+  <Wallet style={iconStyle} />
+ );
+ 
+
+
