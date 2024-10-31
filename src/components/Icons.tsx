@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from 'react';
-import { FiFilter } from "react-icons/fi";
+// import { FiFilter } from "react-icons/fi";
 import { PiChalkboardTeacherFill, PiChalkboardTeacherLight, PiNewspaperDuotone, PiNewspaperFill, PiSortAscending, PiStudentFill ,PiStudentLight} from 'react-icons/pi';
 import { AiFillHome, AiOutlineHome } from "react-icons/ai";
 import { RiParentFill, RiParentLine ,} from "react-icons/ri";
@@ -357,8 +357,10 @@ export const Close = () => (
   <i className="fa-solid  fa-circle-xmark"></i>
   );
 
-  
 
+export const Cloud = () => (
+  <i className="fa-solid  fa-cloud-arrow-up" ></i>
+  );
 
 
 

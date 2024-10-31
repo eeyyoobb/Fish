@@ -10,7 +10,7 @@ import { createCreator, updateCreator } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CldUploadWidget } from "next-cloudinary";
-import { MdOutlineCloudUpload } from "react-icons/md";
+import { Cloud} from "@/components/Icons";
 
 const CreatorForm = ({
   type,
@@ -196,7 +196,7 @@ const CreatorForm = ({
                 className="text-xs text-gray-500 flex items-center gap-2 cursor-pointer"
                 onClick={() => open()}
               > 
-                 <MdOutlineCloudUpload style={{ width: '100%', height: '100%' }} />
+                 <Cloud/>
                 <span>Upload a photo</span>
               </div>
             );
