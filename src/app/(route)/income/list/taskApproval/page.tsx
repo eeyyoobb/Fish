@@ -1,13 +1,13 @@
-import FormContainer from "../../components/Components/FormContainer";
-import Pagination from "../../components/Components/Pagination";
-import Table from "../../components/Components/Table";
-import TableSearch from "../../components/Components/TableSearch";
+import FormContainer from "../../components/FormContainer";
+import Pagination from "../../components/Pagination";
+import Table from "../../components/Table";
+import TableSearch from "../../components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { TaskCompletion, Prisma, Task,Category } from "@prisma/client";
 import { Filter, Sort } from "@/components/Icons";
 import { auth } from "@clerk/nextjs/server";
-import TaskRowActions from "../../components/Components/approval"; // Adjust the import path if necessary
+import TaskRowActions from "../../components/approval"; // Adjust the import path if necessary
 
 type TaskCompletionWithTask = TaskCompletion & { task: Task  &{ category: Category } };
 

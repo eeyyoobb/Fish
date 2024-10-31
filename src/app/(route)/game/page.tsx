@@ -101,7 +101,7 @@ const GamePage = () => {
   return (
     <div className="p-4">
       <h1 className="text-2xl mb-4">Game Page</h1>
-      <div className="grid grid-cols-5 gap-4 mb-4">
+      <div className="grid grid-cols-15 mb-4">
         {boxValues.map((box, index) => (
           <div
             key={box.id}

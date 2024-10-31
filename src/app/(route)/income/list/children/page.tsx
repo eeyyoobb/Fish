@@ -1,9 +1,9 @@
 // Import necessary components and libraries
 import { MdFilterList, MdOutlineSort } from "react-icons/md";
-import FormContainer from "../../components/Components/FormContainer";
-import Pagination from "../../components/Components/Pagination";
-import Table from "../../components/Components/Table"; // Uncomment if using Table component
-import TableSearch from "../../components/Components/TableSearch"; // Uncomment if using TableSearch component
+import FormContainer from "../../components/FormContainer";
+import Pagination from "../../components/Pagination";
+import Table from "../../components/Table"; // Uncomment if using Table component
+import TableSearch from "../../components/TableSearch"; // Uncomment if using TableSearch component
 import { Avatar, Delete, View } from "@/components/Icons";
 import { AvatarImg } from "@/components/image";
 import prisma from "@/lib/prisma";

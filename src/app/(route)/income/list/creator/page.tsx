@@ -1,7 +1,7 @@
-import FormContainer from "../../components/Components/FormContainer";
-import Pagination from "../../components/Components/Pagination";
-import Table from "../../components/Components/Table";
-import TableSearch from "../../components/Components/TableSearch";
+import FormContainer from "../../components/FormContainer";
+import Pagination from "../../components/Pagination";
+import Table from "../../components/Table";
+import TableSearch from "../../components/TableSearch";
 import prisma from "@/lib/prisma";
 import { Tribe, Prisma, Category, Creator } from "@prisma/client";
 import Image from "next/image";

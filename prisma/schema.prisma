@@ -252,4 +252,29 @@ enum ApprovalStatus {
   DECLINED
 }
 
+model Transaction {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  amount          Float
+  type            TransactionType
+  status          TransactionStatus @default(PENDING)
+  description     String?
+  serviceFee      Float?    // For transfer transactions
+  fromUserId      String?   // For transfer transactions
+  toUserId        String?   // For transfer transactions
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+enum TransactionType {
+  WITHDRAWAL
+  TOPUP
+  TRANSFER
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
 

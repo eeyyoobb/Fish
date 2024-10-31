@@ -159,7 +159,7 @@ export const Filter: React.FC = () => {
       );
      };
 
-     export const Creator: React.FC = () => {
+     export const Teacher: React.FC = () => {
       const [isActive, setIsActive] = useState(false);
       return ( 
         <>
@@ -174,7 +174,7 @@ export const Filter: React.FC = () => {
       </>
       );
      };
-     export const Child: React.FC = () => {
+     export const Student: React.FC = () => {
       const [isActive, setIsActive] = useState(false);
       return ( 
         <>
@@ -190,7 +190,7 @@ export const Filter: React.FC = () => {
       );
      };
 
-     export const Audit: React.FC = () => {
+     export const Parent: React.FC = () => {
       const [isActive, setIsActive] = useState(false);
       return ( 
         <>
@@ -331,6 +331,20 @@ export const Filter: React.FC = () => {
      export const More: React.FC = () => {
      
       return (<CgMoreVerticalR />)}
+
+     // components/Icons.tsx
+export const ChildIcon = () => (
+  <i className="fa-solid fa-children text-xs" />
+);
+
+export const ParentIcon = () => (
+  <i className="fa-solid fa-user-tie text-xs" />
+);
+
+export const WalletIcon = () => (
+  <i className="fa-solid fa-wallet text-xs" />
+);
+ 
 
   
 

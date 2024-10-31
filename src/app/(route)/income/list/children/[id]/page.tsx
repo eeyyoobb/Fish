@@ -1,9 +1,9 @@
 import { Avatar, Calendar } from "@/components/Icons";
-import Announcements from "../../../components/Components/Announcements";
-import BigCalendarContainer from "../../../components/Components/BigCalendarContainer";
-import FormContainer from "../../../components/Components/FormContainer";
-import Performance from "../../../components/Components/Performance";
-import ChildAttendanceCard from "../../../components/Components/StudentAttendanceCard";
+import Announcements from "../../../components/Announcements";
+import BigCalendarContainer from "../../../components/BigCalendarContainer";
+import FormContainer from "../../../components/FormContainer";
+import Performance from "../../../components/Performance";
+import ChildAttendanceCard from "../../../components/StudentAttendanceCard";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { Tribe, Child } from "@prisma/client";

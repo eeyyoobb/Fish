@@ -1,9 +1,9 @@
 import prisma from "@/lib/prisma";
-import Announcements from "../../../components/Components/Announcements";
-import BigCalendarContainer from "../../../components/Components/BigCalendarContainer";
-import BigCalendar from "../../../components/Components/BigCalender";
-import FormContainer from "../../../components/Components/FormContainer";
-import Performance from "../../../components/Components/Performance";
+import Announcements from "../../../components/Announcements";
+import BigCalendarContainer from "../../../components/BigCalendarContainer";
+import BigCalendar from "../../../components/BigCalender";
+import FormContainer from "../../../components/FormContainer";
+import Performance from "../../../components/Performance";
 import { auth } from "@clerk/nextjs/server";
 import { Creator } from "@prisma/client";
 import Image from "next/image";
