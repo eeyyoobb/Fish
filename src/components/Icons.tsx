@@ -1,31 +1,28 @@
-"use client";
-
 import React, { useState } from 'react';
-// import { 
-//   PiChalkboardTeacherFill, 
-//   PiChalkboardTeacherLight, 
-//   PiNewspaperDuotone, 
-//   PiNewspaperFill, 
-//   PiSortAscending, 
-//   PiStudentFill, 
-//   PiStudentLight 
-// } from 'react-icons/pi';
-import { AiFillHome, AiOutlineHome } from "react-icons/ai";
-import { RiParentFill, RiParentLine } from "react-icons/ri";
-import { 
-  MdAssignmentAdd, 
-  MdClass, 
-  MdGrade, 
-  MdMeetingRoom, 
-  MdOutlineAssignment, 
-  MdOutlineClass, 
-  MdOutlineGrade, 
-  MdOutlineMeetingRoom 
-} from 'react-icons/md';
-import { FaCheckSquare } from "react-icons/fa";
-import { CiSquareCheck } from "react-icons/ci";
-import { IoCalendarOutline, IoCalendarSharp } from "react-icons/io5";
-import { CgMoreVerticalR } from "react-icons/cg";
+import {
+  Home,
+  HomeIcon,
+  Users,
+  UserPlus,
+  UsersRound,
+  BookOpen,
+  School,
+  Briefcase,
+  ClipboardList,
+  GraduationCap,
+  CheckSquare,
+  Calendar,
+  MoreVertical,
+  Trash2,
+  Eye,
+  Plus,
+  User,
+  Search,
+  Bell,
+  MessageSquare,
+  SlidersHorizontal,
+  ArrowDownNarrowWide
+} from 'lucide-react';
 
 declare global {
   namespace JSX {
@@ -39,7 +36,7 @@ declare global {
 const iconStyle = { width: '25px', height: '25px' };
 const iconActiveStyle = { ...iconStyle, color: "orange" };
 
-const SchoolLogo: React.FC = () => (
+export const SchoolLogo: React.FC = () => (
   <div>
     <h1>School</h1>
     <lord-icon
@@ -52,219 +49,140 @@ const SchoolLogo: React.FC = () => (
 );
 
 export const Delete: React.FC = () => (
-  <lord-icon
-    src="https://cdn.lordicon.com/vlnvqvew.json"
-    trigger="hover"
-    colors="primary:#e8b730,secondary:#915110"
-    style={{ width: '30px', height: '30px' }}
-  />
+  <Trash2 className="w-6 h-6 text-orange-500 hover:text-orange-600" />
 );
 
 export const View: React.FC = () => (
-  <lord-icon
-    src="https://cdn.lordicon.com/lxwurnrr.json"
-    trigger="hover"
-    colors="primary:#e8b730,secondary:#915110"
-    style={{ width: '30px', height: '30px' }}
-  />
+  <Eye className="w-6 h-6 text-orange-500 hover:text-orange-600" />
 );
 
-export const Plus: React.FC = () => (
-  <lord-icon
-    src="https://cdn.lordicon.com/zrkkrrpl.json"
-    trigger="hover"
-    colors="primary:#e8b730,secondary:#915110"
-    style={{ width: '35px', height: '35px' }}
-  />
+export const PlusIcon: React.FC = () => (
+  <Plus className="w-7 h-7 text-orange-500 hover:text-orange-600" />
 );
 
 export const Avatar: React.FC = () => (
-  <lord-icon
-    src="https://cdn.lordicon.com/bgebyztw.json"
-    trigger="hover"
-    colors="primary:#e8b730,secondary:#915110"
-    style={{ width: '50px', height: '50px' }}
-  />
+  <User className="w-10 h-10 text-orange-500 hover:text-orange-600" />
 );
 
-export const Search: React.FC = () => (
-  <lord-icon
-    src="https://cdn.lordicon.com/wjyqkiew.json"
-    trigger="hover"
-    colors="primary:#e8b730,secondary:#915110"
-    style={{ width: '25px', height: '25px' }}
-  />
+export const SearchIcon: React.FC = () => (
+  <Search className="w-5 h-5 text-orange-500 hover:text-orange-600" />
 );
 
 export const Announcements: React.FC = () => (
-  <lord-icon
-    src="https://cdn.lordicon.com/mhjhxcxu.json"
-    trigger="hover"
-    colors="primary:#e8b730,secondary:#915110"
-    style={{ width: '30px', height: '30px' }}
-  />
+  <Bell className="w-6 h-6 text-orange-500 hover:text-orange-600" />
 );
 
 export const Message: React.FC = () => (
-  <lord-icon
-    src="https://cdn.lordicon.com/motnbmtz.json"
-    trigger="hover"
-    colors="primary:#e8b730,secondary:#915110"
-    style={{ width: '35px', height: '35px' }}
-  />
+  <MessageSquare className="w-7 h-7 text-orange-500 hover:text-orange-600" />
 );
 
 export const Filter: React.FC = () => (
-  <i className="fa-solid fa-filter"></i>
+  <SlidersHorizontal className="w-5 h-5" />
 );
 
 export const Sort: React.FC = () => (
-  <><i className="fa-solid fa-arrow-up-wide-short"></i> style={iconStyle} </>
+  <ArrowDownNarrowWide className="w-5 h-5" />
 );
 
-export const Home: React.FC = () => {
+export const HomeNav: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <AiFillHome onClick={() => setIsActive(false)} style={iconActiveStyle} />
-      ) : (
-        <AiOutlineHome onClick={() => setIsActive(true)} style={iconStyle} />
-      )}
-    </>
+  return isActive ? (
+    <Home onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <HomeIcon onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const Teacher: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <><i className="fa-solid fa-user-plus"></i> onClick={() => setIsActive(false)} style={iconActiveStyle} </>
-      ) : (
-        <><i className="fa-solid fa-user-plus"></i> onClick={() => setIsActive(true)} style={iconStyle} </>
-      )}
-    </>
+  return isActive ? (
+    <UserPlus onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <UserPlus onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const Student: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <><i className="fa-solid fa-users-rectangle"></i>l onClick={() => setIsActive(false)} style={iconActiveStyle} </>
-      ) : (
-        <><i className="fa-solid fa-users-rectangle"></i> onClick={() => setIsActive(true)} style={iconStyle} </>
-      )}
-    </>
+  return isActive ? (
+    <Users onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <Users onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const Parent: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <RiParentFill onClick={() => setIsActive(false)} style={iconActiveStyle} />
-      ) : (
-        <RiParentLine onClick={() => setIsActive(true)} style={iconStyle} />
-      )}
-    </>
+  return isActive ? (
+    <UsersRound onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <UsersRound onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const Subject: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <MdOutlineClass onClick={() => setIsActive(false)} style={iconActiveStyle} />
-      ) : (
-        <MdClass onClick={() => setIsActive(true)} style={iconStyle} />
-      )}
-    </>
+  return isActive ? (
+    <BookOpen onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <BookOpen onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const Class: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <MdMeetingRoom onClick={() => setIsActive(false)} style={iconActiveStyle} />
-      ) : (
-        <MdOutlineMeetingRoom onClick={() => setIsActive(true)} style={iconStyle} />
-      )}
-    </>
+  return isActive ? (
+    <School onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <School onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const Lesson: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <><i className="fa-solid fa-suitcase"></i> onClick={() => setIsActive(false)} style={iconActiveStyle} </>
-      ) : (
-        <><i className="fa-solid fa-suitcase"></i> onClick={() => setIsActive(true)} style={iconStyle} </>
-      )}
-    </>
+  return isActive ? (
+    <Briefcase onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <Briefcase onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const Assignment: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <MdAssignmentAdd onClick={() => setIsActive(false)} style={iconActiveStyle} />
-      ) : (
-        <MdOutlineAssignment onClick={() => setIsActive(true)} style={iconStyle} />
-      )}
-    </>
+  return isActive ? (
+    <ClipboardList onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <ClipboardList onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const Result: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <MdGrade onClick={() => setIsActive(false)} style={iconActiveStyle} />
-      ) : (
-        <MdOutlineGrade onClick={() => setIsActive(true)} style={iconStyle} />
-      )}
-    </>
+  return isActive ? (
+    <GraduationCap onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <GraduationCap onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const Attendance: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <FaCheckSquare onClick={() => setIsActive(false)} style={iconActiveStyle} />
-      ) : (
-        <CiSquareCheck onClick={() => setIsActive(true)} style={iconStyle} />
-      )}
-    </>
+  return isActive ? (
+    <CheckSquare onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <CheckSquare onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
-export const Calendar: React.FC = () => {
+export const CalendarIcon: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
-  return (
-    <>
-      {isActive ? (
-        <IoCalendarSharp onClick={() => setIsActive(false)} style={iconActiveStyle} />
-      ) : (
-        <IoCalendarOutline onClick={() => setIsActive(true)} style={iconStyle} />
-      )}
-    </>
+  return isActive ? (
+    <Calendar onClick={() => setIsActive(false)} style={iconActiveStyle} />
+  ) : (
+    <Calendar onClick={() => setIsActive(true)} style={iconStyle} />
   );
 };
 
 export const More: React.FC = () => (
-  <CgMoreVerticalR style={iconStyle} />
+  <MoreVertical style={iconStyle} />
 );
