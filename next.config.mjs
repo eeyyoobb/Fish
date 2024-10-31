@@ -7,9 +7,9 @@ const nextConfig = {
       images: {
         domains: ['img.clerk.com',"img.icons8.com"], // Add this line
       },
-      eslint:{
-        ignoreDuringBuilds:true,
-      },
+      // eslint:{
+      //   ignoreDuringBuilds:true,
+      // },
       
 };
 
