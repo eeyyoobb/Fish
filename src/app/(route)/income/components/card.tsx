@@ -31,6 +31,7 @@ const Card = async ({ type }: { type: "child" | "parent" | "wallet" }) => {
       });
       data = userRecord?.wallet ?? "No wallet found";
     } else if (type === "parent" && role) {
+      //@ts-ignore
       const userRecord = await prisma[role].findUnique({
         where: {
           clerkId: userId,
