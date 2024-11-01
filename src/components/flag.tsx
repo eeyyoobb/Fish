@@ -48,7 +48,6 @@ const CountryPage = () => {
       ) : (
         <p>No flag available</p>
       )}
-      <ToastContainer /> {/* Add ToastContainer to your component */}
     </div>
   );
 };
