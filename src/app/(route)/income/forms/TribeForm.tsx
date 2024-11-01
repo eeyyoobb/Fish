@@ -36,7 +36,7 @@ const TribeForm = ({
     handleSubmit,
     formState: { errors },
   } = useForm<TribeSchema>({
-     resolver: zodResolver(tribeSchema),
+      resolver: zodResolver(tribeSchema),
   });
 
   // AFTER REACT 19 IT'LL BE USEACTIONSTATE

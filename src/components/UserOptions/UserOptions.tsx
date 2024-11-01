@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import SignInButton from "./SignInButton";
 // import { CurrentUserContext } from "@/context/CurrentUserContext";
 // import IconButton from "@/Common/IconButton";
-import { MdOutlineVideoCall } from "react-icons/md";
+import { Video } from 'lucide-react';
 // import Avatar, { AvatarSize } from "@/Common/Avatar";
 import UserMenu from "./UserMenu";
 // import { CurrentChannelContext } from "@/context/CurrentChannelContext";
@@ -34,7 +34,7 @@ const UserOptions = () => {
       <div className="flex items-center gap-4 mr-4">
          {/* <IconButton onClick={handleUploadClick} */}
          {/* > */}
-          <MdOutlineVideoCall className="h-7 w-7" />
+          <Video /*className="h-7 w-7" *//>
           
         {/* </IconButton>  */}
         <ModeToggle/>

@@ -3,8 +3,8 @@
 import { signOut } from "next-auth/react";
 import MenuItem from "./MenuItem";
 
-import { PiUserSquareFill, PiYoutubeLogo, PiSignOut } from "react-icons/pi";
-import { useContext } from "react";
+import { UsersIcon, YoutubeIcon, SignOut } from "@/components/Icons";
+// import { useContext } from "react";
 // import { CreateChannelModalContext } from "@/context/CreateChannelModalContext";
 // import { CurrentChannelContext } from "@/context/CurrentChannelContext";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ onClose }) => {
       <div className="h-screen w-screen fixed z-30 " onClick={onClose} />
       <div className="absolute rounded-md shadow-md w-72 bg-zinc-800 right-2 top-16 text-sm flex flex-col overflow-hidden z-40">
         <MenuItem
-          logo={<PiUserSquareFill className="h-7 w-7 mr-4" />}
+          logo={<UsersIcon />}
           label="Your channel"
           onClick={() => {
             // if (!currentChannel) {
@@ -38,7 +38,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ onClose }) => {
           }}
         />
         <MenuItem
-          logo={<PiYoutubeLogo className="h-7 w-7 mr-4" />}
+          logo={<YoutubeIcon />}
           label="YouTube Studio"
           onClick={() => {
             // if (!currentChannel) {
@@ -51,7 +51,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ onClose }) => {
           }}
         />
         <MenuItem
-          logo={<PiSignOut className="h-7 w-7 mr-4" />}
+          logo={<SignOut/>}
           label="Sign out"
           onClick={() => {
             signOut();
