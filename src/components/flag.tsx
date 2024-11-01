@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify"; // Import toast components
-import "react-toastify/dist/ReactToastify.css"; // Import CSS for toast notifications
+import { ToastContainer, toast } from "sonner"; 
 import Flag from "react-world-flags"; // Import Flag component
 
 const CountryPage = () => {
