@@ -1,4 +1,4 @@
-import { PiSortAscending } from "react-icons/pi";
+
 import FormContainer from "../../components/FormContainer";
 import Pagination from "../../components/Pagination";
 import Table from "../../components/Table";
@@ -7,7 +7,6 @@ import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Parent, Prisma, Child } from "@prisma/client";
 import Image from "next/image";
-import { MdFilter, MdFilter2 } from "react-icons/md";
 import { Filter,Sort} from "@/components/Icons";
 
 import { auth } from "@clerk/nextjs/server";
@@ -109,7 +108,7 @@ const renderRow = (item: ParentList) => (
     prisma.parent.findMany({
       where: query,
       include: {
-        children: true,
+        // children: true,
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),

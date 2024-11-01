@@ -1,42 +1,55 @@
 "use client";
+
 import { useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify"; // Import toast components
+import "react-toastify/dist/ReactToastify.css"; // Import CSS for toast notifications
 import Flag from "react-world-flags"; // Import Flag component
 
 const CountryPage = () => {
-  const [country, setCountry] = useState(null);
-  const [countryCode, setCountryCode] = useState(null); // Store the country code
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [country, setCountry] = useState<string | null>(null);
+  const [countryCode, setCountryCode] = useState<string | null>(null); // State for the country code
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    let isMounted = true; // Track if the component is mounted
+
     const fetchCountry = async () => {
       try {
         const response = await fetch("http://ip-api.com/json/");
+        if (!response.ok) throw new Error("Failed to fetch");
+
         const data = await response.json();
-        setCountry(data.country);
-        setCountryCode(data.countryCode); // Set country code
-        setLoading(false);
+        if (isMounted) { // Only update state if still mounted
+          setCountry(data.country);
+          setCountryCode(data.countryCode); // Set country code
+          setLoading(false);
+        }
       } catch (err) {
-        setError("Unable to fetch country");
-        setLoading(false);
+        if (isMounted) {
+          toast.error("country"); // Display error as toast
+          setLoading(false);
+        }
       }
     };
 
     fetchCountry();
+
+    return () => {
+      isMounted = false; // Clean up if component unmounts
+    };
   }, []);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
 
   return (
     <div>
-      {country ? (
-        <>
-          <Flag code={countryCode} alt={`Flag of ${country}`} width="100" /> {/* Display flag using react-world-flags */}
-        </>
+      <h1>Country: {country}</h1>
+      {countryCode ? ( // Conditionally render the Flag component
+        <Flag code={countryCode}  width="100" />
       ) : (
-        <p>Country not found</p>
+        <p>No flag available</p>
       )}
+      <ToastContainer /> {/* Add ToastContainer to your component */}
     </div>
   );
 };

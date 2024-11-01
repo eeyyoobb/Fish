@@ -160,7 +160,7 @@ const FormModal = ({
 
   const iconMapping = {
     delete: Delete,
-    create: Plus,
+    create: PlusIcon,
     view:View,
   };
 

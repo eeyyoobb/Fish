@@ -125,7 +125,7 @@ const EventListPage = async ({
   query.OR = [
     { tribeId: null },
     {
-      tribe: roleConditions[role as keyof typeof roleConditions] || {},
+      // tribe: roleConditions[role as keyof typeof roleConditions] || {},
     },
   ];
 
@@ -150,14 +150,14 @@ const EventListPage = async ({
           <TableSearch />
           <div className="flex items-center gap-4 self-end">
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-             <Filter/>
+            <Filter/>
             </button>
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Sort/>
             </button>
-             {role === "admin" && 
+            {role === "admin" && 
             <FormContainer table="event" type="create" />
-             } 
+            } 
           </div>
         </div>
       </div>

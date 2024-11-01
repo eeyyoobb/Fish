@@ -470,8 +470,8 @@ export const updateExam = async (
     if (role === "creator") {
       const creatorLesson = await prisma.task.findFirst({
         where: {
-          creatorId: userId!,
-          id: data.taskId,
+          ownerId: userId!,
+          // id: data.taskId,
         },
       });
 
@@ -488,7 +488,7 @@ export const updateExam = async (
         title: data.title,
         startTime: data.startTime,
         endTime: data.endTime,
-        taskId: data.taskId.toString(),
+        // taskId: data.taskId.toString(),
       },
     });
 

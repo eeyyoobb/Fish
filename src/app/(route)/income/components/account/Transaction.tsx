@@ -221,17 +221,14 @@ export default function TransactionPage() {
         isOpen={activeSheet === "withdraw"}
         onClose={() => setActiveSheet(null)}
         userAccountNumber={userAccountNumber}
-        userId={mockUserId}
       />
       <TransferSheet
         isOpen={activeSheet === "transfer"}
         onClose={() => setActiveSheet(null)}
-        userId={mockUserId}
       />
       <TopUpSheet
         isOpen={activeSheet === "topup"}
         onClose={() => setActiveSheet(null)}
-        userId={mockUserId}
       />
     </div>
   );

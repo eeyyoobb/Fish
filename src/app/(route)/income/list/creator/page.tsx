@@ -12,8 +12,7 @@ import { auth } from "@clerk/nextjs/server";
 
 type CreatorList = Creator & { categories: Category[] } & { tribes: Tribe[] };
 
-const { sessionClaims } = auth();
-const role = (sessionClaims?.metadata as { role?: string })?.role || "";
+const CreatorListPage = async ({ searchParams }: { searchParams: { [key: string]: string | undefined } }) => {
 
 const columns = [
   { header: "Info", accessor: "info" },
@@ -59,7 +58,7 @@ const renderRow = (item: CreatorList) => (
             <View />
           </button>
         </Link>
-        {role === "admin" && (
+        {role === "admin" && ( 
           <>
             <FormContainer table="creator" type="delete" id={item.id} />
           </>
@@ -69,7 +68,7 @@ const renderRow = (item: CreatorList) => (
   </tr>
 );
 
-const CreatorListPage = async ({ searchParams }: { searchParams: { [key: string]: string | undefined } }) => {
+
   const { sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
@@ -82,13 +81,13 @@ const CreatorListPage = async ({ searchParams }: { searchParams: { [key: string]
     for (const [key, value] of Object.entries(queryParams)) {
       if (value !== undefined) {
         switch (key) {
-          case "tribeId":
-            query.tasks = {
-              some: {
-                tribeId: `${parseInt(value)}`,
-              },
-            };
-            break;
+          // case "tribeId":
+          //   query.tasks = {
+          //     some: {
+          //       tribeId: `${parseInt(value)}`,
+          //     },
+          //   };
+          //   break;
           case "search":
             query.name = { contains: value, mode: "insensitive" };
             break;

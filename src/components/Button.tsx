@@ -1,5 +1,5 @@
 "use client";
-import { useTaskState } from "@/context/TaskProvider";
+//import { useTaskState } from "@/context/TaskProvider";
 
 import React from "react";
 import styled from "styled-components";
@@ -31,7 +31,7 @@ function Button({
   border,
   color,
 }: Props) {
-  const { theme } = useTaskState();
+  // const { theme } = useTaskState();
 
   return (
     <ButtonStyled
@@ -43,9 +43,8 @@ function Button({
         fontWeight: fw || "500",
         fontSize: fs,
         border: border || "none",
-        color: color || theme.colorGrey0,
+        color: "#f8f8f8",
       }}
-      theme={theme}
       onClick={click}
     >
       {icon && icon}
@@ -58,7 +57,7 @@ const ButtonStyled = styled.button`
   position: relative;
   display: flex;
   align-items: center;
-  color: ${(props) => props.theme.colorGrey2};
+  color: "#b2becd";
   z-index: 5;
   cursor: pointer;
 
@@ -66,15 +65,15 @@ const ButtonStyled = styled.button`
 
   i {
     margin-right: 1rem;
-    color: ${(props) => props.theme.colorGrey2};
+    color:"#b2becd";
     font-size: 1.5rem;
     transition: all 0.55s ease-in-out;
   }
 
   &:hover {
-    color: ${(props) => props.theme.colorGrey0};
+    color:"#f8f8f8";
     i {
-      color: ${(props) => props.theme.colorGrey0};
+      color: "#f8f8f8";
     }
   }
 `;

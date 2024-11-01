@@ -1,38 +1,29 @@
-// pages/api/invitations.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
+// src/app/api/invite/route.ts
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 import { auth } from '@clerk/nextjs/server';
 
-const prisma = new PrismaClient();
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { method } = req;
-
+export async function POST(req: Request) {
   // Ensure the user is authenticated
   const { userId } = auth();
   if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  if (method === 'POST') {
-    const { invitorUserId }: { invitorUserId: string } = req.body;
+  try {
+    // Parse the request body
+   // const { invitorUserId }: { invitorUserId: string } = await req.json();
 
-    try {
-      // Save the invitation in the database
-      const invitation = await prisma.invitation.create({
-        data: {
-          invitorUserId: invitorUserId, // The Clerk ID from the referral code
-          invitedUserId: userId, // The Clerk ID of the logged-in user
-        },
-      });
-      return res.status(201).json(invitation);
-    } catch (error) {
-      console.error("Error saving invitation:", error);
-      return res.status(500).json({ message: 'Error saving invitation' });
-    }
+    // Save the invitation in the database
+    // const invitation = await prisma.invitation.create({
+    //   data: {
+    //     invitorUserId, // The Clerk ID from the referral code
+    //     invitedUserId: userId, // The Clerk ID of the logged-in user
+    //   },
+    // });
+    //return NextResponse.json(invitation, { status: 200 });
+  } catch (error) {
+    console.error("Error saving invitation:", error);
+    return NextResponse.json({ message: 'Error saving invitation' }, { status: 500 });
   }
-
-  // Handle any other HTTP methods
-  res.setHeader('Allow', ['POST']);
-  res.status(405).end(`Method ${method} Not Allowed`);
 }

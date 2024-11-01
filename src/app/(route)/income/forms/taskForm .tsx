@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputField from "../Components/InputField";
+import InputField from "../components/InputField";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { creatorSchema, CreatorSchema } from "@/lib/formValidationSchemas";
 import { useFormState } from "react-dom";

@@ -5,8 +5,8 @@ import MenuItem from "./MenuItem";
 
 import { PiUserSquareFill, PiYoutubeLogo, PiSignOut } from "react-icons/pi";
 import { useContext } from "react";
-import { CreateChannelModalContext } from "@/context/CreateChannelModalContext";
-import { CurrentChannelContext } from "@/context/CurrentChannelContext";
+// import { CreateChannelModalContext } from "@/context/CreateChannelModalContext";
+// import { CurrentChannelContext } from "@/context/CurrentChannelContext";
 import { useRouter } from "next/navigation";
 
 interface UserMenuProps {
@@ -14,9 +14,9 @@ interface UserMenuProps {
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({ onClose }) => {
-  const createChannelModal = useContext(CreateChannelModalContext);
+  // const createChannelModal = useContext(CreateChannelModalContext);
 
-  const currentChannel = useContext(CurrentChannelContext);
+  // const currentChannel = useContext(CurrentChannelContext);
 
   const router = useRouter();
   
@@ -28,24 +28,24 @@ const UserMenu: React.FC<UserMenuProps> = ({ onClose }) => {
           logo={<PiUserSquareFill className="h-7 w-7 mr-4" />}
           label="Your channel"
           onClick={() => {
-            if (!currentChannel) {
-              createChannelModal?.onOpen();
-            } else {
-              router.push(`/channel/${currentChannel.id}`);
-            }
+            // if (!currentChannel) {
+            //   createChannelModal?.onOpen();
+            // } else {
+            //   router.push(`/channel/${currentChannel.id}`);
+            // }
 
-            onClose();
+            // onClose();
           }}
         />
         <MenuItem
           logo={<PiYoutubeLogo className="h-7 w-7 mr-4" />}
           label="YouTube Studio"
           onClick={() => {
-            if (!currentChannel) {
-              createChannelModal?.onOpen();
-            } else {
-              router.push(`/studio`);
-            }
+            // if (!currentChannel) {
+            //   createChannelModal?.onOpen();
+            // } else {
+            //   router.push(`/studio`);
+            // }
 
             onClose();
           }}

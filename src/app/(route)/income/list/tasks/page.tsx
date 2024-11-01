@@ -83,16 +83,16 @@ const renderRow = (item: TaskList) => (
     for (const [key, value] of Object.entries(queryParams)) {
       if (value !== undefined) {
         switch (key) {
-          case "tribeId":
-            query.tribeId = value;
-            break;
+          // case "tribeId":
+          //   query.tribeId = value;
+          //   break;
           case "creatorId":
-            query.creatorId = value;
+            query.ownerId = value;
             break;
           case "search":
             query.OR = [
               { category: { name: { contains: value, mode: "insensitive" } } },
-              { creator: { name: { contains: value, mode: "insensitive" } } },
+              // { creator: { name: { contains: value, mode: "insensitive" } } },
             ];
             break;
           default:
@@ -130,9 +130,9 @@ const renderRow = (item: TaskList) => (
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Sort/>
             </button>
-             {role === "admin" &&  
+            {role === "admin" &&  
             <FormContainer table="task" type="create" />
-           } 
+            } 
           </div>
         </div>
       </div>

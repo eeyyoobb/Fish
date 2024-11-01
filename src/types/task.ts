@@ -3,7 +3,7 @@ export interface TaskCompletion {
     createdAt: Date;
     updatedAt: Date;
     isCompleted: boolean;
-    platformUserId?: string;
+    platformUserId: string | null;
     userId: string;
     taskId: string;
     reward:number;
@@ -19,8 +19,7 @@ export interface Question {
 export interface Task{
     id: string;
     categoryId: string;
-    title: string | null; // Nullable
-    description: string | null; // Nullable
+    description: string; // Nullable
     isUnderstand: boolean; // A flag to check understanding
     link: string | null; // Nullable URL
     reward: number; // Numeric reward for the task
@@ -28,7 +27,7 @@ export interface Task{
     updatedAt: Date; // Task last update timestamp
     completions: TaskCompletion[]; // Array of task completion records
     isCompleted: boolean; // Completion status
-    categoryName: {name: string; }; // Object containing the category name
+    category: {name: string; }; // Object containing the category name
     ad1:string;
     ad2:string;
     ad3:string;

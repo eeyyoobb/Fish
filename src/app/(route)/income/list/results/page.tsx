@@ -146,7 +146,7 @@ const renderRow = (item: ResultList) => (
 
     case "parent":
       query.child = {
-        parentId: currentUserId!,
+        fatherId: currentUserId!,
       };
       break;
     default:
@@ -219,7 +219,7 @@ const renderRow = (item: ResultList) => (
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-mayacard">
               <Sort/>
             </button>
-             {(role === "school/admin" || role === "school/creator") && ( 
+            {(role === "school/admin" || role === "school/creator") && ( 
               <FormContainer table="result" type="create" />
             )} 
           </div>

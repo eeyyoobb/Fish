@@ -1,5 +1,5 @@
 import Announcements from "../components/Announcements";
-import BigCalendarContainer from "../components/BigCalendarContainer";
+//import BigCalendarContainer from "../components/BigCalendarContainer";
 import { auth } from "@clerk/nextjs/server";
 
 const TeacherPage = () => {
@@ -10,7 +10,7 @@ const TeacherPage = () => {
       <div className="w-full xl:w-2/3">
         <div className="h-full glass p-4 rounded-md">
           <h1 className="text-xl font-semibold">Schedule</h1>
-          <BigCalendarContainer type="teacherId" id={userId!}/>
+          {/* <BigCalendarContainer type="teacherId" id={userId!}/> */}
         </div>
       </div>
       {/* RIGHT */}

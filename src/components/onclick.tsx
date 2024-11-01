@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Modal from "@/components/Modal";
-import Signin from "../(auth)/sign-in/signin";
+import Signin from "@/app/(auth)/sign-in/signin";
 
 function Clickme() {
   const [modalOpen, setModalOpen] = useState(false);
