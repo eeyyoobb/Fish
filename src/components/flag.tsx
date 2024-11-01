@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ToastContainer, toast } from "sonner"; 
+import { toast} from "sonner";
 import Flag from "react-world-flags"; // Import Flag component
 
 const CountryPage = () => {
