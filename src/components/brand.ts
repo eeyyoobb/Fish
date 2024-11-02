@@ -1,1 +1,1 @@
-export const brandname ="Bold"
+export const brandname ="TheFish"

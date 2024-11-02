@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -327,6 +330,83 @@
       transform: rotateY(360deg); /* Complete rotation */
   }
 }
+
+
+/* pool */
+.pool {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  background-color: white; /* Main pool ball color */
+  border-radius: 50%; /* Full circle shape */
+  overflow: hidden;
+}
+
+.pool::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  background-color: #009245; /* Inner circle color */
+  /* border-radius: 50%; */
+}
+
+.pool::after {
+  content: '14'; /* Pool ball number */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background-color: white; /* Mini circle background */
+  color: black; /* Text color for the number */
+  border-radius: 50%; /* Mini circle shape */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.brand-name {
+  font-family: 'Bebas Neue', sans-serif; 
+  color: #2c3e50; 
+  text-align: center; 
+  margin: 20px 0; 
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+}
+
+
+/*loader*//* HTML: <div class="loader"></div> */
+.loader {
+  width: 40px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(farthest-side,#ED303C 94%,#0000),
+    radial-gradient(farthest-side,#3B8183 94%,#0000),
+    radial-gradient(farthest-side,#FAD089 94%,#0000),
+    radial-gradient(farthest-side,#FF9C5B 94%,#0000),
+    #ED303C;
+  background-size: 105% 105%;
+  background-repeat: no-repeat;
+  animation: l5 2s infinite; 
+}
+@keyframes l5 {
+  0%  {background-position: 50% -50px,-40px 50%, 50% calc(100% + 50px),calc(100% + 50px) 50%}
+  20%,
+  25% {background-position: 50% -50px,-50px 50%, 50% calc(100% + 50px),50% 50%}
+  45%,
+  50% {background-position: 50% -50px,-50px 50%, 50% 50%              ,50% 50%}
+  75%,
+  75% {background-position: 50% -50px, 50%  50%, 50% 50%              ,50% 50%}
+  95%,
+  100%{background-position: 50%  50% , 50%  50%, 50% 50%              ,50% 50%}
+}
+
 
 
 

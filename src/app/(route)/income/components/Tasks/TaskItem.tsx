@@ -145,16 +145,16 @@ function TaskItem({
   };
 
   return (
-    <div className="relative p-4 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 h-auto min-h-[16rem] flex flex-col gap-2">
-      <Toaster />
+    <div className="relative p-3 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 h-auto min-h-[16rem] flex flex-col gap-1">
       <TaskHeader categoryName={categoryName} reward={adjustedReward} />
       
       {categoryName === "youtube" ? (
         <p className="text-sm text-gray-700 dark:text-gray-300">
           To get your reward, write the minute of{" "}
           {selectedQuestions.map((question, index) => (
-            <span key={question.key} className="text-brand">
-              {question.prompt} {question.value}
+            <span key={question.key} >
+              <span className="text-brand">{question.prompt} </span>
+              {/* {question.value} */}
               {index < selectedQuestions.length - 1 ? ", " : ""}
             </span>
           ))}

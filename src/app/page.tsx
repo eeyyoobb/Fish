@@ -7,6 +7,7 @@ function page() {
     <div>
      <Withdraw/>
      <Game/>
+     <div className="pool"></div>
     </div>
   )
 }

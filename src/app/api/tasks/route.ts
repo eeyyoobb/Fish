@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         isUnderstand,
         link,
         reward,
-        duration,
+        duration: String(duration),
         threshold,
         categoryId,
         ownerId: userId, // Set ownerId to the authenticated user's ID

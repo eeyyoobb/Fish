@@ -6,25 +6,23 @@ import { menuItems } from "./MenuItem";
 import { useAuth, useClerk, useUser } from "@clerk/nextjs"; 
 import { useRouter, usePathname } from "next/navigation"; 
 import { logout } from "@/utils/Icons";
-import { useState } from "react";
-import { dark } from '@clerk/themes'
+import { useState, useEffect } from "react";
+import { dark } from '@clerk/themes';
 import { PencilIcon } from "lucide-react";
 import GenerateLinkButton from './Refer';
 import { motion } from 'framer-motion';
 import { Gauge } from 'lucide-react';
-
-
+import FishLoader from "@/components/FishLoader";
 
 const Menu = () => {
   const { isSignedIn, user, isLoaded } = useUser();
   const role = user?.publicMetadata.role as string;
   const { signOut, openUserProfile } = useClerk(); 
-  const { userId } = useAuth()
+  const { userId } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   const initials = `${user?.firstName?.charAt(0)}${user?.lastName?.charAt(0) || user?.firstName?.charAt(1) || ''}${user?.lastName ? '' : user?.firstName?.charAt(2) || ''}`;
-  
 
   const referralId = userId;
 
@@ -36,14 +34,25 @@ const Menu = () => {
     }
   };
 
-  if (!isLoaded) {
-    return <div className="loader">Loading...</div>;
+  // Local loading state
+  const [loading, setLoading] = useState(true);
+
+  // Simulate loading effect
+  useEffect(() => {
+    if (isLoaded) {
+      setLoading(false);
+    }
+  }, [isLoaded]);
+
+  if (loading) {
+    return <FishLoader />; // Show fish loader while loading
   }
 
   return (
-    <div className="flex flex-col items-center p-4 glass">
+    <div className="flex flex-row md:flex-col items-center md:p-4 glass">
       {/* User Profile Section */}
-      <div className="flex items-center mb-4 relative w-full">
+
+      <div className="flex items-center mb-4 relative md:w-full ">
         <div className="profile w-full flex flex-col items-center">
           <div className="profile-overlay absolute inset-0 backdrop-blur-lg bg-black/20 rounded-lg"></div>
           {isSignedIn ? (
@@ -62,14 +71,14 @@ const Menu = () => {
               {/* Conditional First Name or Complete Profile */}
               {!user.firstName ? (
                 <h1 className="mt-1 text-lg capitalize z-10">
-                <span className="cursor-pointer rounded-md border border-red-600 flex items-center justify-center p-2" onClick={() => openUserProfile()}>
-                  {/* Pencil Icon for Small Screens */}
-                  <PencilIcon className="h-5 w-5 text-red-600 block lg:hidden" />
-                  
-                  {/* Text for Larger Screens */}
-                  <span className="text-red-500 hidden lg:inline ml-2">Add Profile</span>
-                </span>
-              </h1>
+                  <span className="cursor-pointer rounded-md border border-red-600 flex items-center justify-center p-2" onClick={() => openUserProfile()}>
+                    {/* Pencil Icon for Small Screens */}
+                    <PencilIcon className="h-5 w-5 text-red-600 block lg:hidden" />
+                    
+                    {/* Text for Larger Screens */}
+                    <span className="text-red-500 hidden lg:inline ml-2">Add Profile</span>
+                  </span>
+                </h1>
               ) : (
                 <>
                   <h1 className="mt-1 text-lg capitalize z-10 hidden lg:block">
@@ -88,32 +97,39 @@ const Menu = () => {
         </div>
       </div>
 
+
+      <div className="flex flex-col">
       {/* Menu Items */}
       <motion.button
-      onClick={handleClick}
-      className="border-brand px-6 py-2 rounded-md relative radial-gradient"
-      initial={{ "--x": "100%" }}
-      animate={{ "--x": "-100%" }}
-      whileTap={{ scale: 0.97 }}
-      transition={{
-        repeat: Infinity,
-        repeatType: "loop",
-        repeatDelay: 3,
-        type: "spring", // Corrected from "string" to "spring"
-        stiffness: 20,
-        damping: 15,
-        mass: 2,
-      }}
-    >
-      <span className="text-brand-100 brand tracking-wide font-light h-full w-full block relative linear-mask  items-center justify-center">
-      <span className="text-brand items-center justify-center" style={{width:250, height:250}}><Gauge /></span>
-      <span className="hidden md:inline">Dashboard</span>
-      </span>
-      <span className="block absolute inset-0 rounded-md p-px linear-overlay" />
-    </motion.button>
+        onClick={handleClick}
+        className="border-brand px-6 py-2 rounded-md relative radial-gradient"
+        initial={{ "--x": "100%" }}
+        animate={{ "--x": "-100%" }}
+        whileTap={{ scale: 0.97 }}
+        transition={{
+          repeat: Infinity,
+          repeatType: "loop",
+          repeatDelay: 3,
+          type: "spring",
+          stiffness: 20,
+          damping: 15,
+          mass: 2,
+        }}
+      >
+        <div className="flex flex-row items-center justify-center text-brand-100 brand tracking-wide font-light relative h-5 w-28">
+            <h1 className="flex items-center justify-center text-brand" style={{ width: 250, height: 50 }}>
+              <Gauge aria-hidden="true" />
+            </h1>
+            <h2 className="text-sm">Dashboard</h2>
+          </div>
+        <span className="block absolute inset-0 rounded-md p-px linear-overlay" />
+      </motion.button>
+      
+
+
       <nav className="mt-4 text-sm w-full">
         {menuItems.map((section) => (
-          <div className="flex flex-col gap-3" key={section.title}>
+          <div className="flex flex-row md:flex-col gap-3 flex-wrap" key={section.title}>
             <span className="hidden lg:block font-light my-4">{section.title}</span>
             {section.items.map((item) => {
               if (item.visible.includes(role)) {
@@ -144,26 +160,24 @@ const Menu = () => {
           </div>
         ))}
       </nav>
-
-
+      </div>
 
       {/* Sign Out Button */}
       <div className="relative m-4">
-          <button
-            className="flex items-center justify-center w-full py-2 rounded-md md-border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition duration-300"
-            onClick={() => {
-              signOut(() => {
-                window.location.href = "/"; 
-              });
-            }}
-          >
-            <span className="mr-2">{logout}</span>
-            <p className="hidden lg:block">Sign Out</p>
-          </button>
+        <button
+          className="flex items-center justify-center w-full py-2 rounded-md md-border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition duration-300"
+          onClick={() => {
+            signOut(() => {
+              window.location.href = "/"; 
+            });
+          }}
+        >
+          <span className="mr-2">{logout}</span>
+          <p className="hidden lg:block">Sign Out</p>
+        </button>
 
-          <GenerateLinkButton referralId={referralId ?? ''} />
-        </div>
-
+        <GenerateLinkButton referralId={referralId ?? ''} />
+      </div>
     </div>
   );
 };

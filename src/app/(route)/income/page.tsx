@@ -13,13 +13,42 @@ const HomePage = async () => {
   }
   
   let tasks = [];
-  
+
   try {
-    tasks = await prisma.task.findMany({
+    // Fetch 3 tasks from the "YouTube" category
+    const youtubeTasks = await prisma.task.findMany({
       where: {
         completions: {
           none: {
             userId: userId, 
+          },
+        },
+        category: {
+          name: "youtube",
+        },
+      },
+      include: {
+        completions: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      take: 3,
+    });
+  
+    // Fetch 2 tasks from other categories
+    const otherCategoryTasks = await prisma.task.findMany({
+      where: {
+        completions: {
+          none: {
+            userId: userId, 
+          },
+        },
+        category: {
+          name: {
+            not: "youtube",
           },
         },
       },
@@ -30,14 +59,18 @@ const HomePage = async () => {
             name: true,
           },
         },
-        
-        
       },
+      take: 2,
     });
+  
+    // Combine the two arrays of tasks
+    tasks = [...youtubeTasks, ...otherCategoryTasks];
+    
   } catch (error) {
     console.error("ERROR GETTING TASKS: ", error);
     return <div>Error fetching tasks</div>;
   }
+  
   
 
   return (
@@ -52,7 +85,10 @@ const HomePage = async () => {
       {/* RIGHT */}
       <div className="w-full xl:w-1/3 flex flex-col gap-8 -z-10">
         {/* <EventCalendar /> */}
-        <Announcements /> 
+        <Announcements />
+        <div className="pool-ball">
+          <div className="pool-number" id="poolNumber">9</div>
+       </div>
       </div>
     </div>
   );

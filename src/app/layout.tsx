@@ -13,13 +13,13 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { dark, neobrutalism } from '@clerk/themes';
 
 
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "All In One",
   description: "We are here for you!",
 };
+
 
 export default function RootLayout({
   children,
@@ -60,19 +60,24 @@ export default function RootLayout({
             {/* <ContextProvider> */}
               <div className="h-screen">
                 <Navbar/>
-                <div className="flex">
-                  { role ? (
-                      <div className="w-[14%] md:w-[8%] lg:w-[16%] xl:w-[14%] p-4">
-                        <Sidebar />
-                      </div>
-                    ) : null}
-                    <div className="w-[84%] md:w-[92%] lg:w-full xl:w-full overflow-scroll flex flex-col">
-                    <div className=" flex-grow">{children}
-                        <Toaster richColors/>
+                <div className="flex flex-col md:flex-row h-full">
+                  {role ? (
+                    <div className="w-full md:w-[8%] lg:w-[16%] xl:w-[14%] p-4 order-2 md:order-none">
+                      <Sidebar />
                     </div>
+                  ) : null}
+                  <div className="w-full md:w-[92%] lg:w-full xl:w-full overflow-scroll flex flex-col order-1 md:order-none">
+                    <div className="flex-grow">
+                      {children}
+                      <Toaster 
+                          richColors 
+                          position="top-right"  
+                        />
+
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
             {/* </ContextProvider> */}
           </ThemeProvider>
         </body>

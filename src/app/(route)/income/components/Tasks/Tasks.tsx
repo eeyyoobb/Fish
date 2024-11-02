@@ -30,7 +30,7 @@ function Tasks({ title, tasks, }: Props) {
   const role = user?.publicMetadata.role as string;
 
   return (
-    <main className="p-8 w-full bg-gray-500 bg-opacity-10 border-2 border-gray-400 rounded-lg h-full overflow-y-auto">
+    <main className="p-2 w-full bg-gray-500 bg-opacity-10 border-2 border-gray-400 rounded-lg h-full overflow-y-auto">
       {isModalOpen && (
         <Modal content={<CreateContent closeModal={closeModal} />} closeModal={closeModal} />
       )}
@@ -40,12 +40,12 @@ function Tasks({ title, tasks, }: Props) {
       </h1>
 
       {(role === "creator" || role === "admin") && (
-        <button className="fixed top-20 right-20 w-12 h-12 rounded-full bg-gray-800 border-2 border-gray-600 shadow-lg text-white text-xl flex items-center justify-center" onClick={openModal}>
+        <button className="fixed top-5 right-20 w-12 h-12 rounded-full bg-gray-800 border-2 border-gray-600 shadow-lg text-white text-xl flex items-center justify-center" onClick={openModal}>
           {plus}
         </button>
       )}
 
-      <div className="grid tasks gap-4 mt-8">
+      <div className="grid tasks gap-3 mt-8">
       {tasks.map((task) => (
           <TaskItem
             id={task.id} 

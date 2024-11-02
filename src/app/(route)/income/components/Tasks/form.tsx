@@ -22,11 +22,13 @@ export function QuestionForm({
   onSubmit
 }: QuestionFormProps) {
   const [formattedCode, setFormattedCode] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleCodeChange = (input: string) => {
     // Remove any non-numeric characters and existing commas
     const numbersOnly = input.replace(/[^0-9]/g, "").slice(0, 6);
     
+
     // Format with commas
     let formatted = numbersOnly;
     if (numbersOnly.length > 2) {
@@ -56,19 +58,22 @@ export function QuestionForm({
       toast.error("Please enter a 6-digit verification code");
       return;
     }
+    setIsSubmitted(true);
     onSubmit();
   };
+
+  if (isSubmitted) return null;
 
   return (
     <form onSubmit={handleSubmit} className="absolute  bg-gray-800 bg-opacity-60  ">
       <div className="glass">
       <div className="space-y-2  rounded">
-        <label
+        {/* <label
           htmlFor="verificationCode"
           className="block text-sm font-medium text-gray-300 brand"
         >
           Enter 6-digit verification code
-        </label>
+        </label> */}
         <Input
           id="verificationCode"
           type="text"

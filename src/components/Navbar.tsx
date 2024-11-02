@@ -7,7 +7,7 @@ import { ModeToggle } from "./theme";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
-import Flag from "./flag"
+import {CountryFlag} from "./flag"
 
 
 const Navbar = async () => {
@@ -35,7 +35,8 @@ const Navbar = async () => {
   });
 
   // Fetch wallet data based on the role
-  let wallet = null; // Initialize wallet variable
+  let wallet = null;
+  let balance = null;
   if (role) {
   //@ts-ignore
     const userData = await prisma[role].findFirst({
@@ -43,22 +44,23 @@ const Navbar = async () => {
         wallet: {gt: 0,}
       },
     });
-    wallet = userData?.wallet || null; // Assuming wallet is a field in your model
+    wallet = userData?.wallet || null;
+    balance = userData?.balance || null; 
   }
 
   return (
-    <div className="flex items-center justify-between p-4">
+    <div className="flex items-center justify-between p-0.5 ">
       {/* Brand Logo */}
       <div className="flex justify-start">
         <Link href={`/${role}`} className="flex items-center gap-2 mb-4">
         <Image
             src="/brandlogo.png" // Your image source
             alt="Brand Logo" // Alternative text for accessibility
-            width={40} // Set the appropriate width
-            height={40} // Set the appropriate height
+            width={70} // Set the appropriate width
+            height={70} // Set the appropriate height
             priority // This is the key property to improve LCP
           />
-          <span className="hidden lg:block font-bold">{brandname}</span>
+          <span className="hidden lg:block font-bold brand-name">{brandname}</span>
         </Link>
       </div>
 
@@ -79,28 +81,42 @@ const Navbar = async () => {
 
             {/* Display Wallet if available */}
             {wallet !== null && (  
-              <div className="flex items-center bold ">
-                <Image src="/coin.png" alt="Coin" width={25} height={25} />
-                <span className="text-lg font-bold text-brand">{wallet} Bt</span>
+              <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+              {/* Desktop View */}
+              <div className="hidden md:flex items-center space-x-2">
+                <h1 className="text-lg font-bold text-green-700">{balance} MBT</h1>
+                <Image src="/coin.png" alt="Coin" width={25} height={25} className="coin" />
+                <span className="text-lg font-bold text-brand">{wallet} MBT</span>
               </div>
-             )}
-         
+            
+              {/* Mobile View */}
+              <div className="flex md:hidden  items-center space-y-1">
+                <Image src="/coin.png" alt="Coin" width={40} height={40} className="coin mb-1" />
+                <div className="text-center">
+                  <h1 className="text-sm font-bold text-green-700 flex">{balance } MBT</h1>
+                  <h1 className="text-sm font-bold text-brand">{wallet} MBT</h1>
+                </div>
+              </div>
+            </div>
+        
+              )}
+          
       
-         <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
-         <Flag/>
+          <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
+          <CountryFlag/>
         </div>
         <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
           {Message}
         </div>
 
-         <Link href="/income/list/announcements" className="relative">
-           <div className="relative rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
+          <Link href="/income/list/announcements" className="relative">
+            <div className="relative rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
               {Announce}
               <div className="absolute -top-3 -right-3 w-5 h-5 flex items-center justify-center bg-purple-500 rounded-full text-xs">
               {count}
               </div>
-           </div>
-           </Link>
+              </div>
+            </Link>
         <ModeToggle />
         </>
       )}
