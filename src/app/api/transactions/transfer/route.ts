@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { TransactionType } from "@prisma/client";
 import { auth } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server"; 
 
 export async function POST(req: Request) {
   try {
@@ -15,26 +16,61 @@ export async function POST(req: Request) {
     const serviceFee = amount * serviceFeePercentage;
     const totalDeduction = amount + serviceFee;
 
+    // Find sender (child)
     const fromUser = await prisma.child.findUnique({
       where: { clerkId: userId },
     });
 
-    const toUser = await prisma.admin.findUnique({
-      where: { username: toUsername },
-    });
-
-     console.log(toUsername)
-     
-    if (!fromUser  || !toUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!fromUser) {
+      return NextResponse.json({ error: "Sender not found" }, { status: 404 });
     }
 
-    if (fromUser.wallet < totalDeduction) {
+    // Search for recipient across all user types
+    const [adminUser, parentUser, childUser] = await Promise.all([
+      prisma.admin.findUnique({
+        where: { username: toUsername },
+      }),
+      prisma.parent.findUnique({
+        where: { username: toUsername },
+      }),
+      prisma.child.findUnique({
+        where: { username: toUsername },
+      }),
+    ]);
+
+    // Find which type of user it is and get their details
+    const toUser = adminUser || parentUser || childUser;
+    if (!toUser) {
+      return NextResponse.json({ error: "Recipient not found" }, { status: 404 });
+    }
+
+    if (fromUser.balance < totalDeduction) {
       return NextResponse.json({ error: "Insufficient funds" }, { status: 400 });
     }
 
-    const transaction = await prisma.$transaction(async (tx) => {
-      const txn = await tx.transaction.create({
+    // Determine the update operation based on recipient type
+    const getUpdateOperation = () => {
+      if (adminUser) {
+        return prisma.admin.update({
+          where: { id: toUser.id },
+          data: { balance: { increment: amount } },
+        });
+      } else if (parentUser) {
+        return prisma.parent.update({
+          where: { id: toUser.id },
+          data: { balance: { increment: amount } },
+        });
+      } else {
+        return prisma.child.update({
+          where: { id: toUser.id },
+          data: { balance: { increment: amount } },
+        });
+      }
+    };
+
+    const transaction = await prisma.$transaction([
+      // Create transaction record
+      prisma.transaction.create({
         data: {
           amount,
           type: TransactionType.TRANSFER,
@@ -44,31 +80,27 @@ export async function POST(req: Request) {
           description: `Transfer to ${toUser.username}`,
           status: "COMPLETED",
         },
-      });
-
-      await tx.child.update({
-        where: { clerkId: fromUser.clerkId },
+      }),
+      // Update sender's balance
+      prisma.child.update({
+        where: { id: fromUser.id },
         data: {
-          wallet: {
+          balance: {
             decrement: totalDeduction,
           },
         },
-      });
+      }),
+      // Update recipient's balance
+      getUpdateOperation(),
+    ]);
 
-      await tx.admin.update({
-        where: { clerkId: toUser.clerkId },
-        data: {
-          wallet: {
-            increment: amount,
-          },
-        },
-      });
-
-      return txn;
+    return NextResponse.json({ 
+      success: true, 
+      transaction: transaction[0], // The first item is the transaction record
+      message: `Successfully transferred ${amount} to ${toUsername}`
     });
-
-    return NextResponse.json({ success: true, transaction });
   } catch (error) {
+    console.error('Transfer error:', error);
     return NextResponse.json(
       { error: "Failed to process transfer" },
       { status: 500 }

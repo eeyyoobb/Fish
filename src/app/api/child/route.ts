@@ -1,31 +1,31 @@
-// src/app/api/child/route.ts
+// pages/api/wallet.ts
 
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma'; // Adjust the import according to your prisma setup
+import { auth } from '@clerk/nextjs/server';
+import { NextResponse,NextRequest } from 'next/server';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const clerkId = searchParams.get('clerkId');
+export async function GET(req: NextRequest) {
+  const { userId, sessionClaims } = auth();
+  const role = (sessionClaims?.metadata as { role?: string })?.role;
 
-  if (!clerkId) {
-    return NextResponse.json({ error: 'Missing clerkId' }, { status: 400 });
+  // Ensure userId and role are defined
+  if (!userId || !role) {
+    return NextResponse.json({ message: 'Unauthorized: Missing user information' });
   }
 
   try {
-    // Use findUnique to find a child by clerkId
-    const child = await prisma.child.findUnique({
-      where: {
-        clerkId: clerkId, // Adjust according to your schema
-      },
+    //@ts-ignore
+    const walletData = await prisma[role].findUnique({
+      where: { clerkId: userId },
     });
 
-    if (!child) {
-      return NextResponse.json({ error: 'Child not found' }, { status: 404 });
+    if (!walletData) {
+      return NextResponse.json({ message: 'Wallet not found' });
     }
 
-    return NextResponse.json(child);
+    return NextResponse.json(walletData);
   } catch (error) {
-    console.error('Error fetching child data:', error);
-    return NextResponse.json({ error: 'Failed to fetch child data' }, { status: 500 });
+    console.error('Error fetching wallet data:', error); // Log the error for debugging
+    return NextResponse.json({ message: 'Internal server error' });
   }
 }

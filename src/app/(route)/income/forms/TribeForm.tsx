@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputField from "../components/InputField";
+import InputField from "../components/ui/InputField";
 import {
   tribeSchema,
   TribeSchema,

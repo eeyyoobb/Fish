@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       where: { clerkId: userId },
     });
 
-    if (!user || user.wallet < parsedAmount) {
+    if (!user || user.balance < parsedAmount) {
       return NextResponse.json({ error: 'Insufficient funds' }, { status: 400 });
     }
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       await tx.child.update({
         where: { id: user.id },
         data: {
-          wallet: {
+          balance: {
             decrement: parsedAmount,
           },
         },

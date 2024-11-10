@@ -1,7 +1,7 @@
 import { Avatar, CalendarIcon } from "@/components/Icons";
-import Announcements from "../../../components/Announcements";
+import Announcements from "../../../components/Dashboard/Announcements";
 import FormContainer from "../../../components/FormContainer";
-import Performance from "../../../components/Performance";
+import Performance from "../../../components/Dashboard/Performance";
 import ChildAttendanceCard from "../../../components/StudentAttendanceCard";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
@@ -27,14 +27,25 @@ const SingleChildPage = async ({
 //@ts-ignore
   const child:
     | (Child & {
-        tribe: Tribe & { _count: { tasks: number } };
+        tribe: Tribe 
+        // & { _count: { tasks: number } }
+        ;
       })
     | null = await prisma.child.findUnique({
     where: { id },
     include: {
-      //@ts-ignore
-      tribe: { include: { _count: { select: { tasks: true } } } },
-    },
+      tribe: 
+      // { 
+      //   include: { 
+      //     _count: 
+      //     { select: 
+      //       { tasks:
+                true 
+              }
+    //       }
+    //     } 
+    //  },
+    // },
   });
 
   if (!child) {
@@ -140,7 +151,7 @@ const SingleChildPage = async ({
               />
               <div className="">
                 <h1 className="text-xl font-semibold">
-                  {child.tribe._count.tasks}
+                  {/* {child.tribe._count.tasks} */}
                 </h1>
                 <span className="text-sm text-gray-400">Lessons</span>
               </div>
@@ -174,31 +185,31 @@ const SingleChildPage = async ({
           <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
             <Link
               className="p-3 rounded-md bg-lamaSkyLight"
-              href={`/school/list/tasks?tribeId=${child.tribe.id}`}
+              href={`/income/list/tasks?tribeId=${child.tribe.id}`}
             >
               Child&apos;s Lessons
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaPurpleLight"
-              href={`/school/list/teachers?tribeId=${child.tribe.id}`}
+              href={`/income/list/teachers?tribeId=${child.tribe.id}`}
             >
               Child&apos;s Teachers
             </Link>
             <Link
               className="p-3 rounded-md bg-pink-50"
-              href={`/school/list/exams?tribeId=${child.tribe.id}`}
+              href={`/income/list/exams?tribeId=${child.tribe.id}`}
             >
               Child&apos;s Exams
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaSkyLight"
-              href={`/school/list/assignments?tribeId=${child.tribe.id}`}
+              href={`/income/list/assignments?tribeId=${child.tribe.id}`}
             >
               Child&apos;s Assignments
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaYellowLight"
-              href={`/school/list/results?childId=${child.id}`}
+              href={`/income/list/results?childId=${child.id}`}
             >
               Child&apos;s Results
             </Link>

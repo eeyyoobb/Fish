@@ -4,7 +4,7 @@ import Table from "../../components/Table";
 import TableSearch from "../../components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { Announcement, Tribe, Prisma } from "@prisma/client";
+import { Announcement, Tribe, Prisma} from "@prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import { Filter, Sort } from "@/components/Icons";
 

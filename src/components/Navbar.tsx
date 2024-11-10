@@ -1,13 +1,12 @@
 
 import { Message,Announce } from "@/utils/Icons";
 import Link from "next/link";
-import { AvatarImg } from "./image";
 import { brandname } from "./brand";
 import { ModeToggle } from "./theme";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
-import {CountryFlag} from "./flag"
+import { NavbarFlag} from '@/components/flag';
 
 
 const Navbar = async () => {
@@ -18,19 +17,19 @@ const Navbar = async () => {
 
 
    const roleConditions: Record<string, any> = {
-    creator: { tasks: { some: { creatorId: userId! } } },
-    child: { children: { some: { clerkId: userId! } } },  
-    parent: { childs: { some: { parentId: userId! } } }, 
+    creator: { creator: { clerkId: userId! } },
+    child: { tribe: { children: { some: { clerkId: userId! } } } },
+    parent: { tribe: { children: { some: { fatherId: userId! } } } },
   };
 
   const count = await prisma.announcement.count({
     where: {
-      // ...(role !== "admin" && {
-      //   OR: [
-      //     { tribeId: null },
-      //     { tribe: roleConditions[role as keyof typeof roleConditions] || {} },
-      //   ],
-      // }),
+      ...(role !== "admin" && {
+        OR: [
+          { tribeId: null },
+          roleConditions[role as keyof typeof roleConditions] || {},
+        ],
+      }),
     },
   });
 
@@ -39,13 +38,12 @@ const Navbar = async () => {
   let balance = null;
   if (role) {
   //@ts-ignore
-    const userData = await prisma[role].findFirst({
-      where: {
-        wallet: {gt: 0,}
-      },
+    const userData = await prisma[role]?.findFirst({
+      where: { clerkId: userId},
     });
-    wallet = userData?.wallet || null;
-    balance = userData?.balance || null; 
+    
+    wallet = userData?.wallet || 0;
+    balance = userData?.balance || 0; 
   }
 
   return (
@@ -103,7 +101,7 @@ const Navbar = async () => {
           
       
           <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
-          <CountryFlag/>
+          <NavbarFlag/>
         </div>
         <div className="rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
           {Message}

@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback  } from "react";
 import { edit, trash } from "@/utils/Icons";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -56,32 +56,36 @@ function TaskItem({
     }
   });
 
-  const getDeterministicQuestions = (username: string, userId: string): Question[] => {
-    const hash = crypto.createHash('md5').update(username + userId).digest('hex');
-    const index = parseInt(hash.slice(0, 2), 16) % 5;
+  const getDeterministicQuestions = useCallback(
+    (username: string, userId: string): Question[] => {
+      const hash = crypto.createHash("md5").update(username + userId).digest("hex");
+      const index = parseInt(hash.slice(0, 2), 16) % 5;
 
-    const questions: Question[] = [
-      { key: "ad1", value: String(ad1), prompt: "the first ad?" },
-      { key: "duration", value: String(duration), prompt: "the duration of the video?" },
-      { key: "ad2", value: String(ad2), prompt: "the second ad?" },
-      { key: "ad3", value: String(ad3), prompt: "the third ad?" },
-      { key: "track", value: trackmin, prompt: `you see the ${track}?` },
-      { key: "track2", value: trackmin2, prompt: `you see the ${track2}?` },
-    ];
+      const questions: Question[] = [
+        { key: "ad1", value: String(ad1), prompt: "the first ad?" },
+        { key: "duration", value: String(duration), prompt: "the duration of the video?" },
+        { key: "ad2", value: String(ad2), prompt: "the second ad?" },
+        { key: "ad3", value: String(ad3), prompt: "the third ad?" },
+        { key: "track", value: trackmin, prompt: `you see the ${track}?` },
+        { key: "track2", value: trackmin2, prompt: `you see the ${track2}?` },
+      ];
 
-    return [
-      questions[(index + 0) % questions.length],
-      questions[(index + 1) % questions.length],
-      questions[(index + 2) % questions.length],
-    ];
-  };
+      return [
+        questions[(index + 0) % questions.length],
+        questions[(index + 1) % questions.length],
+        questions[(index + 2) % questions.length],
+      ];
+    },
+    [ad1, ad2, ad3, duration, track, trackmin, trackmin2,track2]
+  );
 
   useEffect(() => {
     if (user && user.username) {
       const questions = getDeterministicQuestions(user.username, user.id);
       setSelectedQuestions(questions);
     }
-  }, [user]);
+  }, [user, getDeterministicQuestions]);
+
 
   const handleEarnClick = async () => {
     if (!hasVisitedLink) {
@@ -177,7 +181,6 @@ function TaskItem({
             onSubmit={handleEarnClick}
           />
         )}
-        {categoryName !== "youtube" && (
           <div className="mt-2">
             <Input
               type="text"
@@ -188,7 +191,6 @@ function TaskItem({
               disabled={completed || isLoading || !hasVisitedLink}
             />
           </div>
-        )}
       </div>
 
       <div className="flex justify-between gap-5 mt-4">

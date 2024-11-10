@@ -12,7 +12,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useFormState } from "react-dom";
-import { FormContainerProps } from "./FormContainer";
+import { FormContainerProps } from "../FormContainer";
 import {Delete,PlusIcon,View} from "@/components/Icons"
 import {Close} from "@/components/Icons"
 import { toast } from 'sonner'
@@ -38,19 +38,19 @@ const deleteActionMap = {
 // import CreatorForm from "./forms/CreatorForm";
 // import ChildForm from "./forms/ChildForm";
 
-const CreatorForm = dynamic(() => import("../forms/CreatorForm"), {
+const CreatorForm = dynamic(() => import("../../forms/CreatorForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const ChildForm = dynamic(() => import("../forms/ChildForm"), {
+const ChildForm = dynamic(() => import("../../forms/ChildForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const CategoryForm = dynamic(() => import("../forms/CategoryForm"), {
+const CategoryForm = dynamic(() => import("../../forms/CategoryForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const ClassForm = dynamic(() => import("../forms/TribeForm"), {
+const ClassForm = dynamic(() => import("../../forms/TribeForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const ExamForm = dynamic(() => import("../forms/ExamForm"), {
+const ExamForm = dynamic(() => import("../../forms/ExamForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 // TODO: OTHER FORMS
@@ -87,14 +87,14 @@ const forms: {
       relatedData={relatedData}
     />
   ),
-  child: (setOpen, type, data, relatedData) => (
-    <ChildForm
-      type={type}
-      data={data}
-      setOpen={setOpen}
-      relatedData={relatedData}
-    />
-  ),
+  // child: (setOpen, type, data, relatedData) => (
+  //   <ChildForm
+  //     type={type}
+  //     data={data}
+  //     setOpen={setOpen}
+  //     relatedData={relatedData}
+  //   />
+  // ),
   exam: (setOpen, type, data, relatedData) => (
     <ExamForm
       type={type}

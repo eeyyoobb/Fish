@@ -28,7 +28,7 @@ import {
   CircleX,
   CloudDownload,
   Wallet,
-  LogOut
+  LogOut,
 } from 'lucide-react';
 
 declare global {
@@ -244,6 +244,10 @@ export const Cloud: React.FC = () => (
 
  export const YoutubeIcon: React.FC = () => (
   <i className="fa-brands fa-youtube"></i>
+ );
+
+ export const People: React.FC = () => (
+  <i className="fa-solid fa-people-roof"></i>
  );
 
  export const SignOut: React.FC = () => (

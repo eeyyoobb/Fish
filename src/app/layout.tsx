@@ -12,7 +12,6 @@ import Sidebar from "@/components/sidebar";
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { dark, neobrutalism } from '@clerk/themes';
 
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

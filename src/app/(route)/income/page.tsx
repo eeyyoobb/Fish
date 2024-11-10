@@ -1,5 +1,4 @@
-import Announcements from "./components/Announcements";
-import EventCalendar from "./components/EventCalendar";
+import Announcements from "./components/Dashboard/Announcements";
 import prisma from "@/lib/prisma";
 import Tasks from "./components/Tasks/Tasks";
 import { auth } from "@clerk/nextjs/server";
@@ -18,9 +17,10 @@ const HomePage = async () => {
     // Fetch 3 tasks from the "YouTube" category
     const youtubeTasks = await prisma.task.findMany({
       where: {
+        isCompleted: false,
         completions: {
           none: {
-            userId: userId, 
+            userId: userId,
           },
         },
         category: {
@@ -41,6 +41,7 @@ const HomePage = async () => {
     // Fetch 2 tasks from other categories
     const otherCategoryTasks = await prisma.task.findMany({
       where: {
+        isCompleted: false,
         completions: {
           none: {
             userId: userId, 
@@ -84,11 +85,7 @@ const HomePage = async () => {
       </div>
       {/* RIGHT */}
       <div className="w-full xl:w-1/3 flex flex-col gap-8 -z-10">
-        {/* <EventCalendar /> */}
         <Announcements />
-        <div className="pool-ball">
-          <div className="pool-number" id="poolNumber">9</div>
-       </div>
       </div>
     </div>
   );

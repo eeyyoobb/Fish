@@ -8,44 +8,70 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { WithdrawSheet } from "./withdrwalSheet";
 import { TransferSheet } from "./transferSheet";
 import { TopUpSheet } from "./topUpSheet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
+type Transaction = {
+  id: string;
+  amount: number;
+  type: string;
+  status: string;
+  date: string;
+  description?: string;
+};
+
+type Wallet = {
+  balance: number;
+  account:string;
+};
+
+  
 export default function TransactionPage() {
   const [activeSheet, setActiveSheet] = useState<"withdraw" | "transfer" | "topup" | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [wallet, setWallet] = useState<Wallet | null>(null);
+
+
+
+
+  useEffect(() => {
+    async function fetchTransactions() {
+      try {
+        const response = await fetch("/api/transactions");
+        if (!response.ok) throw new Error("Failed to fetch transactions");
+        const data = await response.json();
+        setTransactions(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchTransactions();
+  }, []);
+
+  useEffect(() => {
+    async function fetchWallet() {
+      try {
+        const response = await fetch("/api/wallet"); // Ensure this URL is correct
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("hjk",data)
+        setWallet(data);
+      } catch (error) {
+        console.error("Failed to fetch wallet:", error);
+      }
+    }
   
-  // Mock user data - replace with actual user data from your auth system
-  const mockUserId = "user123";
-  const userAccountNumber = "9876-5432-1098-7654";
-
-  const transactions = [
-    {
-      id: 1,
-      type: "Withdrawal",
-      amount: -500,
-      status: "completed",
-      date: "2024-03-20",
-      description: "ATM Withdrawal"
-    },
-    {
-      id: 2,
-      type: "Top Up",
-      amount: 1000,
-      status: "completed",
-      date: "2024-03-19",
-      description: "Bank Transfer"
-    },
-    {
-      id: 3,
-      type: "Transfer",
-      amount: -250,
-      status: "pending",
-      date: "2024-03-18",
-      description: "To John Doe"
-    },
-  ];
-
+    fetchWallet();
+  }, []);
+  
+  // Format balance with 2 decimal places
+  const formattedBalance = wallet?.balance?.toFixed(2) || "0.00";
+  const Account = wallet?.account || "";
+  
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="realtive bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Balance Card */}
         <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-none shadow-xl">
@@ -56,7 +82,9 @@ export default function TransactionPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-bold">1,234.56 MTC</div>
+            <div className="text-4xl font-bold">
+            <h1>Wallet Balance: ${formattedBalance}</h1>
+            </div>
           </CardContent>
         </Card>
 
@@ -92,135 +120,13 @@ export default function TransactionPage() {
             <span>Transfer</span>
           </Button>
         </div>
-
-        {/* Transaction History */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <RefreshCw className="w-5 h-5" />
-              Transaction History
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-4">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="incoming">Incoming</TabsTrigger>
-                <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="all">
-                <ScrollArea className="h-[400px] w-full pr-4">
-                  <div className="space-y-4">
-                    {transactions.map((transaction) => (
-                      <div
-                        key={transaction.id}
-                        className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                      >
-                        <div className="flex items-center gap-4">
-                          {transaction.amount > 0 ? (
-                            <Plus className="w-8 h-8 text-green-500" />
-                          ) : (
-                            <MinusCircle className="w-8 h-8 text-red-500" />
-                          )}
-                          <div>
-                            <div className="font-semibold">{transaction.type}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {transaction.description}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className={`font-bold ${
-                            transaction.amount > 0 ? 'text-green-500' : 'text-red-500'
-                          }`}>
-                            {transaction.amount > 0 ? '+' : ''}{transaction.amount} MTC
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {transaction.date}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </TabsContent>
-              
-              <TabsContent value="incoming">
-                <ScrollArea className="h-[400px] w-full pr-4">
-                  <div className="space-y-4">
-                    {transactions
-                      .filter(t => t.amount > 0)
-                      .map((transaction) => (
-                        <div
-                          key={transaction.id}
-                          className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                        >
-                          <div className="flex items-center gap-4">
-                            <Plus className="w-8 h-8 text-green-500" />
-                            <div>
-                              <div className="font-semibold">{transaction.type}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {transaction.description}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-bold text-green-500">
-                              +{transaction.amount} MTC
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {transaction.date}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </ScrollArea>
-              </TabsContent>
-              
-              <TabsContent value="outgoing">
-                <ScrollArea className="h-[400px] w-full pr-4">
-                  <div className="space-y-4">
-                    {transactions
-                      .filter(t => t.amount < 0)
-                      .map((transaction) => (
-                        <div
-                          key={transaction.id}
-                          className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                        >
-                          <div className="flex items-center gap-4">
-                            <MinusCircle className="w-8 h-8 text-red-500" />
-                            <div>
-                              <div className="font-semibold">{transaction.type}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {transaction.description}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-bold text-red-500">
-                              {transaction.amount} MTC
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {transaction.date}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </ScrollArea>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Transaction Sheets */}
-      <WithdrawSheet
+       <WithdrawSheet
         isOpen={activeSheet === "withdraw"}
         onClose={() => setActiveSheet(null)}
-        userAccountNumber={userAccountNumber}
+        userAccountNumber={Account}
       />
       <TransferSheet
         isOpen={activeSheet === "transfer"}

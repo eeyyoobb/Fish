@@ -5,7 +5,6 @@ import TableSearch from "../../components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Tribe, Prisma, Creator } from "@prisma/client";
-import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 import { Filter } from "lucide-react";
 import { Sort } from "@/components/Icons";
@@ -42,7 +41,7 @@ const columns = [
     accessor: "supervisor",
     className: "hidden md:table-cell",
   },
-  ...(role === "school/admin"
+  ...(role === "income/admin"
     ? [
         {
           header: "Actions",
@@ -89,7 +88,11 @@ const renderRow = (item: TribeList) => (
       if (value !== undefined) {
         switch (key) {
           case "supervisorId":
-            query.supervisorId = value;
+            query.supervisor = {
+              some: {
+                id: value, 
+              },
+            };
             break;
           case "search":
             query.name = { contains: value, mode: "insensitive" };

@@ -6,15 +6,10 @@ import TableSearch from "../../components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Prisma, Category, Creator ,CategoryCreator} from "@prisma/client";
-import Image from "next/image";
 import {Filter,Sort } from "@/components/Icons";
 import { auth } from "@clerk/nextjs/server";
 
-type CategoryList = Category & {
-  creators: (CategoryCreator & {
-    creator: Creator; 
-  })[];
-};
+type CategoryList = Category & {creators: (CategoryCreator & {creator: Creator;})[];};
 
 const CategoryListPage = async ({
   searchParams,
@@ -94,7 +89,7 @@ const CategoryListPage = async ({
       include: {
         Creators: {
           include: {
-            Creator: true,
+            // Creator: true,
           },
         },
       },

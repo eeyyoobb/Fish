@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface TaskRowActionsProps {
   id: string;
@@ -22,13 +23,13 @@ const TaskRowActions = ({ id, initialStatus }: TaskRowActionsProps) => {
 
       if (response.ok) {
         setStatus(newStatus);
-        alert(`Task marked as ${newStatus.toLowerCase()}`);
+        toast(`Task marked as ${newStatus.toLowerCase()}`);
       } else {
-        alert("Failed to update task status");
+        toast("Failed to update task status");
       }
     } catch (error) {
       console.error("Error updating task status:", error);
-      alert("An error occurred while updating the task status");
+      toast("An error occurred while updating the task status");
     }
   };
 

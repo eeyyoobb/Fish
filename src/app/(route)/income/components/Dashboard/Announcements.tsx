@@ -6,22 +6,22 @@ const Announcements = async () => {
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
   const roleConditions: Record<string, any> = {
-    creator: { tasks: { some: { creatorId: userId! } } },
-    child: { children: { some: { clerkId: userId! } } },  // Ensure this matches your schema
-    parent: { children: { some: { parentId: userId! } } },  // Ensure this matches your schema
+    creator: { creator: { clerkId: userId! } },
+    child: { tribe: { children: { some: { clerkId: userId! } } } },
+    parent: { tribe: { children: { some: { fatherId: userId! } } } },
   };
 
   const data = await prisma.announcement.findMany({
     take: 3,
-    // orderBy: { date: "desc" },
-    // where: {
-    //   ...(role !== "admin" && {
-    //     OR: [
-    //       { tribeId: null },
-    //       { tribe: roleConditions[role as keyof typeof roleConditions] || {} },
-    //     ],
-    //   }),
-    // },
+    orderBy: { date: "desc" },
+    where: {
+      ...(role !== "admin" && {
+        OR: [
+          { tribeId: null },
+          roleConditions[role as keyof typeof roleConditions] || {} ,
+        ],
+      }),
+    },
   });
 
   return (

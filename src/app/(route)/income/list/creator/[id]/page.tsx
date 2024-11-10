@@ -1,8 +1,7 @@
 import prisma from "@/lib/prisma";
-import Announcements from "../../../components/Announcements";
-import BigCalendarContainer from "../../../components/BigCalendarContainer";
+import Announcements from "../../../components/Dashboard/Announcements";
 import FormContainer from "../../../components/FormContainer";
-import Performance from "../../../components/Performance";
+import Performance from "../../../components/Dashboard/Performance";
 import { auth } from "@clerk/nextjs/server";
 import { Creator } from "@prisma/client";
 import Image from "next/image";
@@ -28,7 +27,7 @@ const SingleCreatorPage = async ({
     include: {
       _count: {
         select: {
-          categories: true,
+          // categories: true,
           //tasks: true,
           // tribes: true,
         },
@@ -79,17 +78,13 @@ const SingleCreatorPage = async ({
               <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   {/* <MdBloodtype /> */}
-                  <span>{creator.bloodType}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   {/* <MdDateRange/> */}
-                  <span>
-                    {new Intl.DateTimeFormat("en-GB").format(creator.birthday)}
-                  </span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                 <Mail/>
-                  <span>{creator.email || "-"}</span>
+                  <span>{creator.email}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                   <PhoneIcon />
@@ -167,7 +162,7 @@ const SingleCreatorPage = async ({
         {/* BOTTOM */}
         <div className="glass mt-4 rounded-md p-4 h-[800px]">
           <h1>Creator&apos;s Schedule</h1>
-          <BigCalendarContainer type="creatorId" id={creator.id} />
+         
         </div>
       </div>
       {/* RIGHT */}

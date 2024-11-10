@@ -27,9 +27,12 @@ const Card = async ({ type }: { type: "child" | "parent" | "wallet" }) => {
         },
         select: {
           wallet: true,
+          balance: true,
+
         },
       });
-      data = userRecord?.wallet ?? "No wallet found";
+
+      data = userRecord?.balance ?? "No wallet found";
     } else if (type === "parent" && role) {
       //@ts-ignore
       const userRecord = await prisma[role].findUnique({
@@ -38,22 +41,39 @@ const Card = async ({ type }: { type: "child" | "parent" | "wallet" }) => {
         },
         select: {
           fatherId: true,
+          tribeId:true,
         },
       });
 
-      const fatherId = userRecord?.fatherId ?? "No father found";
-
-      if (fatherId && fatherId !== "No father found") {
-        const fatherUser = await clerkClient().users.getUser(fatherId); // Updated to clerkClient()
-        data = fatherUser?.firstName ?? "No father found";
+      let father = "No father found";
+      let tribeName = "No tribe found";
+  
+      const fatherId = userRecord?.fatherId;
+      const tribeId = userRecord?.tribeId;
+  
+      // Fetch father's first name if fatherId exists
+      if (fatherId) {
+        const fatherUser = await clerkClient().users.getUser(fatherId);
+        father = fatherUser?.firstName ?? "No father found";
       }
+  
+      // Fetch tribe name if tribeId exists
+      if (tribeId) {
+        const tribeRecord = await prisma.tribe.findUnique({
+          where: { id: tribeId },
+          select: { name: true },
+        });
+        tribeName = tribeRecord?.name ?? "No tribe found";
+      }
+  
+      // Concatenate father name and tribe name
+      data = `${father}, ${tribeName}`;
     }
   } catch (error) {
     console.error("Error fetching data:", error);
     data = "Error loading data";
   }
 
-  // Icon mapping based on type
   const iconMap = {
     child: <UsersIcon />,
     parent: <Parent />,
@@ -72,7 +92,7 @@ const Card = async ({ type }: { type: "child" | "parent" | "wallet" }) => {
         <h1 className="text-2xl font-semibold">{data}</h1>
       </div>
       <h2 className="capitalize text-sm font-medium ">
-        {type === "wallet" ? "Wallet Balance" : `${type}s`}
+        {type === "wallet" ? "Balance" : `${type}s`}
       </h2>
     </div>
   );

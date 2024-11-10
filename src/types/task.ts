@@ -1,3 +1,6 @@
+
+import { User } from "@clerk/nextjs/server";
+
 export interface TaskCompletion {
     id: string;
     createdAt: Date;
@@ -87,3 +90,28 @@ export interface Task{
         isCompleted: boolean;
         ownerId: string;
       }
+
+
+export type Role = "CHILD" | "CREATOR" | "ADMIN";
+
+export type ApprovalStatus = "APPROVED" | "DECLINED" | "PENDING";
+
+export interface TaskCompletion {
+  id: string;
+  userId: string;
+  taskId: string;
+  approvalStatus: ApprovalStatus;
+  isCompleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  platformUserId: string | null;
+  reward: number;
+}
+
+export interface UserMetadata {
+  role?: Role;
+}
+
+export interface SessionClaims {
+  metadata: UserMetadata;
+}

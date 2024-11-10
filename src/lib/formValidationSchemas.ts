@@ -36,7 +36,6 @@ export const creatorSchema = z.object({
   email: z
     .string()
     .email({ message: "Invalid email address!" })
-    .optional()
     .or(z.literal("")),
   phone: z.string().optional(),
   address: z.string(),
@@ -49,8 +48,8 @@ export const creatorSchema = z.object({
 
 export type CreatorSchema = z.infer<typeof creatorSchema>;
 
+
 export const childSchema = z.object({
-  id: z.string().optional(),
   username: z
     .string()
     .min(3, { message: "Username must be at least 3 characters long!" })
@@ -64,18 +63,16 @@ export const childSchema = z.object({
     .regex(/[\W_]/, { message: "Password must contain at least one special character." })
     .optional()
     .or(z.literal("")),
-  name: z.string().min(1, { message: "First name is required!" }),
-  surname: z.string().min(1, { message: "Last name is required!" }),
+  name: z.string().min(2, { message: "First name is required!" }),
+  surname: z.string().min(2, { message: "Last name is required!" }),
   email: z
     .string()
     .email({ message: "Invalid email address!" })
-    .optional()
     .or(z.literal("")),
   phone: z.string().optional(),
-  address: z.string(),
+  address: z.string().optional(),
   img: z.string().optional(),
-  fatherId: z.string().min(10, { message: "you must be invited to be registered OR click here Or you shold confirm" }),
-  //parentId: z.string().min(1, { message: "Parent Id is required!" }),
+  fatherId: z.string().min(12, { message: "you must be invited to be registered OR click here Or you shold confirm" }),
 });
 
 export type ChildSchema = z.infer<typeof childSchema>;

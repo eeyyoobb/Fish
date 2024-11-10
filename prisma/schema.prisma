@@ -18,10 +18,6 @@ model Admin {
   wallet      Int      @default(0)
   balance     Int      @default(0)  
   clerkId     String   @unique
-  tribeId     String   @db.ObjectId
-  tribe       Tribe    @relation(fields: [tribeId], references: [id])
-  gradeId     String   @db.ObjectId
-  grade       Grade    @relation(fields: [gradeId], references: [id])
 }
 
 model Child {
@@ -29,23 +25,24 @@ model Child {
   username    String       @unique
   name        String
   surname     String
-  email       String?      @unique
+  email       String       @unique
   phone       String?      @unique
-  address     String
+  address     String?
   img         String?
-  fatherId    String
+  fatherId    String?
   tribeId     String?      @db.ObjectId
-  tribe       Tribe?   @relation(fields: [tribeId], references: [id])
+  tribe       Tribe?       @relation(fields: [tribeId], references: [id])
   gradeId     String?      @db.ObjectId
-  grade       Grade?   @relation(fields: [gradeId], references: [id])
+  grade       Grade?       @relation(fields: [gradeId], references: [id])
   createdAt   DateTime     @default(now())
- 
+
   clerkId     String       @unique
   attendances Attendance[]
   results     Result[]
   wallet      Int           @default(0)
-  balance    Int           @default(0)
-  
+  balance     Int           @default(0)
+  account     String?        
+  monetization  Boolean     @default(false)
 }
 
 model Creator {
@@ -54,67 +51,76 @@ model Creator {
   username  String   @unique
   name      String
   surname   String
-  email     String?  @unique
+  email     String   @unique
   phone     String?  @unique
-  address   String
+  address   String?
   img       String?
-  bloodType String
-  sex       UserSex
+  //bloodType String
+  //sex       UserSex
   createdAt DateTime @default(now())
-  categories CategoryCreator[]
-  birthday  DateTime
+  //categories CategoryCreator[]
+  //birthday  DateTime
   wallet      Int    @default(0) 
   balance     Int    @default(0)
+  account     String?
+  tribeId     String?      @db.ObjectId
+  tribe       Tribe?       @relation(fields: [tribeId], references: [id])
+  gradeId     String?      @db.ObjectId
+  grade       Grade?       @relation(fields: [gradeId], references: [id])
+  announcements Announcement[]
+  fatherId    String?
+  attendances Attendance[]
+  results     Result[]
+  monetization  Boolean     @default(false)
+  
 }
 
 model Parent {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId   String
+  clerkId   String    @unique
   username  String    @unique
   name      String
   surname   String
-  email     String?   @unique
-  phone     String    @unique
-  address   String
+  fatherId   String?
+  img       String?
+  email     String    @unique
+  phone     String?   @unique
+  address   String?
   createdAt DateTime  @default(now())
-  // children   Child[]
-  tribes    Tribe[]
+  tribeId     String?      @db.ObjectId
+  tribe       Tribe?       @relation(fields: [tribeId], references: [id])
   wallet      Int    @default(0)
-  balance    Int    @default(0)
-  account     Int    @default(0)
+  balance     Int    @default(0)
+  account     String ?
+  monetization  Boolean     @default(true)
 }
 
 model Grade {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  level Int @unique
-
-  tribes   Tribe[]
-  admin   Admin[]
-
-  children Child[]
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  level     Int @unique
+  tribes    Tribe[]
+  children  Child[]
+  creator   Creator[]
 }
 
 model Tribe {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
   name     String @unique
   capacity Int
-
-  supervisorId  String?   @db.ObjectId
-  supervisor    Parent?   @relation(fields: [supervisorId], references: [id])
+  supervisor    Parent[]
   gradeId       String @db.ObjectId
   grade         Grade          @relation(fields: [gradeId], references: [id])
   events        Event[]
   announcements Announcement[]
-  admin        Admin[]
-
-  children Child[]
+  children      Child[]
+  creator       Creator[]
 }
 
 model Category {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  name     String   @unique
-  Tasks  Task[]
-  Creators CategoryCreator[]
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String   @unique
+  Tasks      Task[]
+  Creators   CategoryCreator[]
 }
 
 model CategoryCreator {
@@ -122,8 +128,8 @@ model CategoryCreator {
   categoryId String   @db.ObjectId
   category   Category  @relation(fields: [categoryId], references: [id])
   
-  CreatorId String   @db.ObjectId
-  Creator   Creator  @relation(fields: [CreatorId], references: [id])
+  // CreatorId String   @db.ObjectId
+  // Creator   Creator  @relation(fields: [CreatorId], references: [id])
 }
 
 model Task{
@@ -198,6 +204,9 @@ model Result {
   assignment   Assignment?@relation(fields: [assignmentId], references: [id])
   childId      String     @db.ObjectId
   child        Child    @relation(fields: [childId], references: [id])
+  creatorId      String     @db.ObjectId
+  creator        Creator    @relation(fields: [creatorId], references: [id])
+  
 }
 
 model Attendance {
@@ -207,6 +216,8 @@ model Attendance {
 
   childId String   @db.ObjectId
   child   Child  @relation(fields: [childId], references: [id])
+  creatorId      String     @db.ObjectId
+  creator        Creator    @relation(fields: [creatorId], references: [id])
   //TaskId  String   @db.ObjectId
   //Task    Task   @relation(fields: [TaskId], references: [id])
 }
@@ -230,6 +241,8 @@ model Announcement {
 
   tribeId     String?   @db.ObjectId
   tribe       Tribe?    @relation(fields: [tribeId], references: [id])
+  creatorId    String?   @db.ObjectId
+  creator      Creator?    @relation(fields: [creatorId], references: [id])
 }
 
 
@@ -276,5 +289,22 @@ enum TransactionStatus {
   COMPLETED
   FAILED
 }
+
+model Adjust {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  ywatch          Float?
+  ylike           Float?
+  ysub            Float?
+  join            Float?
+  fee             Int?
+  mtask           Int?
+  mchild          Int?
+  mcreate         Int?
+  Account         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+
 
 

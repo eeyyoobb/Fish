@@ -1,8 +1,8 @@
 
 
-import {  Assignment, Attendance,  Class,  Lesson, Result, Subject, } from "./Icons";
-import { Creator,Admin,Child, Auditor, } from "@/utils/Icons"
-import {House ,BookOpenCheck,CalendarDays,Volleyball } from 'lucide-react'
+import {  Attendance,People,WalletIcon } from "./Icons";
+import { Creator,Child, Auditor, } from "@/utils/Icons"
+import {House ,CalendarDays,Volleyball,Shapes,LayoutList,Signature ,ChartNoAxesCombined} from 'lucide-react'
 
 export const menuItems = [
     {
@@ -16,82 +16,88 @@ export const menuItems = [
         },
         {
           icon: Creator,
-          label: "creators",
+          label: "Creator",
           href: "/income/list/creator",
           visible: ["admin", "creator"],
         },
        
         {
           icon: Child,
-          label: "childs",
+          label: "Children",
           href: "/income/list/children",
-          visible: ["admin", "creator"],
+          visible: ["admin", "parent","creater"],
         },
         {
           icon: Auditor,
-          label: "audits",
+          label: "Audit",
           href: "/income/list/parents",
-          visible: ["admin", "creater"],
+          visible: ["admin", "auditor"],
         },
         {
-          icon: <Subject/>,
-          label: "Subjects",
+          icon: <Shapes/>,
+          label: "Category",
           href: "/income/list/catagories",
           visible: ["admin"],
         },
         {
-          icon: <Class/>,
-          label: "Classes",
+          icon: <People/>,
+          label: "My Tribes",
           href: "/income/list/tribes",
-          visible: ["admin", "creator"],
+          visible: ["admin", "auditer"],
         },
         {
-          icon: <Lesson/>,
-          label: "Lessons",
+          icon: <LayoutList/>,
+          label: "My Tasks",
           href: "/income/list/tasks",
-          visible: ["admin", "creator"],
+          visible: ["admin", "creator", "parent"],
         },
         {
-          icon: <Lesson/>,
+          icon: <Signature/>,
           label: "Approval",
           href: "/income/list/taskApproval",
-          visible: ["admin", "creator"],
+          visible: ["admin", "creator","parent","auditor"],
         },
         {
-          icon: <BookOpenCheck/>,
-          label: "Exams",
-          href: "/income/list/exams",
-          visible: ["admin", "creator", "child", "audit"],
+          icon: <WalletIcon />,
+          label: "Account",
+          href: "/income/account",
+          visible: ["admin", "creator","child","parent"],
         },
+        // {
+        //   icon: <BookOpenCheck/>,
+        //   label: "Exams",
+        //   href: "/income/list/exams",
+        //   visible: ["admin", "creator", "child", "audit"],
+        // },
+        // {
+        //   icon: <Assignment/>,
+        //   label: "Assignments",
+        //   href: "/income/list/assignments",
+        //   visible: ["admin", "creator", "child", "audit"],
+        // },
         {
-          icon: <Assignment/>,
-          label: "Assignments",
-          href: "/income/list/assignments",
-          visible: ["admin", "creator", "child", "audit"],
-        },
-        {
-          icon: <Result/>,
-          label: "Results",
+          icon: <ChartNoAxesCombined/>,
+          label: "Performance",
           href: "/income/list/results",
-          visible: ["admin", "creator", "child", "audit"],
+          visible: ["admin", "creator","parent","child"],
         },
         {
           icon: <Attendance/>,
           label: "Attendance",
           href: "/income/list/attendance",
-          visible: ["admin", "creator", "child", "audit"],
+          visible: ["admin", "creator", "child", "audit","parent"],
         },
-        {
-          icon: <CalendarDays/>,
-          label: "Events",
-          href: "/income/list/events",
-          visible: ["admin", "creator", "child", "audit"],
-        },
+        // {
+        //   icon: <CalendarDays/>,
+        //   label: "Events",
+        //   href: "/income/list/events",
+        //   visible: ["admin", "creator","audit","parent"],
+        // },
         {
           icon: <Volleyball/>,
-          label: "Pool",
-          href: "/game",
-          visible: ["admin", "creator", "child", "audit"],
+          label: "Game",
+          href: "/",
+          visible: ["admin", "creator", "child", "audit","parent"],
         },
       ],
     },

@@ -7,7 +7,6 @@ import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { useRouter, usePathname } from "next/navigation"; 
 import { logout } from "@/utils/Icons";
 import { useState, useEffect } from "react";
-import { dark } from '@clerk/themes';
 import { PencilIcon } from "lucide-react";
 import GenerateLinkButton from './Refer';
 import { motion } from 'framer-motion';

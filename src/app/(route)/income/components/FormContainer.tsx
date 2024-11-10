@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import FormModal from "./FormModal";
+import FormModal from "./ui/FormModal";
 import { auth } from "@clerk/nextjs/server";
 
 export type FormContainerProps = {

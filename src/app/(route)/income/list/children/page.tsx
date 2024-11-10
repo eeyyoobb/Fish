@@ -8,12 +8,13 @@ import { Avatar, Delete, View ,Filter,Sort} from "@/components/Icons";
 import { AvatarImg } from "@/components/image";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { Tribe, Prisma, Child } from "@prisma/client";
+import { Tribe, Prisma, Child ,Parent} from "@prisma/client";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 
 
-type ChildList = Child & { tribe: Tribe };
+type ChildList = Child & { tribe: Tribe & {supervisor:Parent} };
 
 
 const ChildListPage = async ({
@@ -21,7 +22,7 @@ const ChildListPage = async ({
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
-  const { sessionClaims } = auth();
+  const { userId,sessionClaims } = auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role || "";
   
   const columns = [
@@ -30,7 +31,7 @@ const ChildListPage = async ({
       accessor: "info",
     },
     {
-      header: "Child ID",
+      header: "username",
       accessor: "childId",
       className: "hidden md:table-cell",
     },
@@ -40,8 +41,8 @@ const ChildListPage = async ({
       className: "hidden md:table-cell",
     },
     {
-      header: "Phone",
-      accessor: "phone",
+      header: "Parent",
+      accessor: "parerntId",
       className: "hidden lg:table-cell",
     },
     {
@@ -59,6 +60,8 @@ const ChildListPage = async ({
       : []),
   ];
 
+  
+
   const renderRow = (item: ChildList) => (
     <tr key={item.id} className="border-b even:glass text-sm">
       <td className="flex items-center gap-4 p-4">
@@ -74,7 +77,7 @@ const ChildListPage = async ({
       </td>
       <td className="hidden md:table-cell">{item.username}</td>
       <td className="hidden md:table-cell">{item.tribe?.name}</td>
-      <td className="hidden md:table-cell">{item.phone}</td>
+      <td className="hidden md:table-cell">{item.tribe?.supervisor?.username || 'N/A'}</td>
       <td className="hidden md:table-cell">{item.address}</td>
       <td>
         <div className="flex items-center gap-2">
@@ -97,21 +100,18 @@ const ChildListPage = async ({
   const currentPage = page ? parseInt(page) : 1;
 
   // Build the query
-  const query: Prisma.ChildWhereInput = {};
+  const query: Prisma.ChildWhereInput = {
+    ...(role !== "admin" && userId ? { fatherId: userId } : {}),
+  };
 
   if (queryParams) {
     for (const [key, value] of Object.entries(queryParams)) {
       if (value) {
         switch (key) {
-          // case "creatorId":
-          //   query.tribe = {
-          //     tasks: {
-          //       some: {
-          //        supervisorId: value,
-          //       },
-          //     },
-          //   };
-          //   break;
+          case "parentId":
+            query.fatherId = { equals: value }
+            
+            break;
           case "search":
             query.name = { contains: value, mode: "insensitive" };
             break;
@@ -126,7 +126,13 @@ const ChildListPage = async ({
   const [data, count] = await prisma.$transaction([
     prisma.child.findMany({
       where: query,
-      include: { tribe: true },
+      include: { 
+      tribe: {
+        include: {
+          supervisor: true, // Include supervisor to access its fields like `username`
+        }
+      }
+    },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (currentPage - 1),
     }),

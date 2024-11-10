@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 import CreateContent from "../Tasks/CreateContent";
+import AdjustContent from "../Tasks/AdjustContent";
 import TaskItem from "../Tasks/TaskItem";
 import { add, plus } from "@/utils/Icons";
-import Modal from "../Modal";
-import axios from "axios";
+import Modal from "../ui/Modal";
 import { useUser } from "@clerk/nextjs";
-import { Task,TaskCompletion } from "@/types/task";
+import { Task } from "@/types/task";
 
 interface Props {
   title: string;
@@ -31,18 +31,30 @@ function Tasks({ title, tasks, }: Props) {
 
   return (
     <main className="p-2 w-full bg-gray-500 bg-opacity-10 border-2 border-gray-400 rounded-lg h-full overflow-y-auto">
+      <div>
       {isModalOpen && (
         <Modal content={<CreateContent closeModal={closeModal} />} closeModal={closeModal} />
       )}
+      <div>
+      {isModalOpen && (
+        <Modal content={<AdjustContent closeModal={closeModal} />} closeModal={closeModal} />
+      )}
+      </div>
+      </div>
       <h1 className="text-2xl font-bold relative mb-8">
         {title}
         <span className="absolute bottom-[-0.6rem] left-0 w-12 h-1 bg-brand rounded"></span>
       </h1>
 
       {(role === "creator" || role === "admin") && (
-        <button className="fixed top-5 right-20 w-12 h-12 rounded-full bg-gray-800 border-2 border-gray-600 shadow-lg text-white text-xl flex items-center justify-center" onClick={openModal}>
+        <>
+        <button className="fixed top-5 right-20 w-12 h-12 rounded-full bg-gray-600 border-2 border-gray-600 shadow-lg text-white text-xl flex items-center justify-center" onClick={openModal}>
           {plus}
         </button>
+        <button className="fixed top-5 right-10 w-12 h-12 rounded-full bg-gray-800 border-2 border-gray-600 shadow-lg text-white text-xl flex items-center justify-center" onClick={openModal}>
+        {plus}
+       </button>
+      </>
       )}
 
       <div className="grid tasks gap-3 mt-8">
@@ -75,6 +87,7 @@ function Tasks({ title, tasks, }: Props) {
             {add}
             Add New Task
           </button>
+          
         )}
       </div>
     </main>

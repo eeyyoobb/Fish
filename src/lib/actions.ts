@@ -1,6 +1,6 @@
  "use server";
 
-import { revalidatePath } from "next/cache";
+//import { revalidatePath } from "next/cache";
 import {
   TribeSchema,
   ExamSchema,
@@ -174,18 +174,10 @@ export const createCreator = async (
         username: data.username,
         name: data.name,
         surname: data.surname,
-        email: data.email || null,
+        email: data.email,
         phone: data.phone || null,
-        address: data.address,
+        address: data.address || null,
         img: data.img || null,
-        bloodType: data.bloodType,
-        sex: data.sex,
-        birthday: data.birthday,
-        categories: {
-          create: data.Categorys?.map((categoryId) => ({
-            category: { connect: { id: categoryId } },  // Connect categories correctly
-          })),
-        },
       },
     });
     // revalidatePath("/list/creators");
@@ -225,7 +217,7 @@ export const updateCreator = async (
         username: data.username,
         name: data.name,
         surname: data.surname,
-        email: data.email || null,
+        email: data.email,
         phone: data.phone || null,
         address: data.address,
         img: data.img || null,
@@ -286,7 +278,6 @@ export const deleteCreator = async (
 
 
 export const createChild = async (
-  currentState: CurrentState,
   data: ChildSchema
 ) => {
   console.log(data);
@@ -334,19 +325,16 @@ export const createChild = async (
         username: data.username,
         name: data.name,
         surname: data.surname,
-        email: data.email || null,
+        email: data.email,
         phone: data.phone || null,
-        address: data.address,
+        address: data.address || "",
         img: data.img || null,
         tribeId: tribeId, // Assign the father's tribe ID
-        gradeId: gradeId, // Assign the father's grade ID
+        gradeId: gradeId, 
         fatherId: data.fatherId,
       },
     });
 
-    // Optionally revalidate the path here
-    // revalidatePath("/list/childs");
-
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -355,46 +343,46 @@ export const createChild = async (
 };
 
 
-export const updateChild = async (
-  currentState: CurrentState,
-  data: ChildSchema
-) => {
-  if (!data.id) {
-    return { success: false, error: true };
-  }
-  try {
-    const user = await clerkClient.users.updateUser(data.id, {
-      username: data.username,
-      ...(data.password !== "" && { password: data.password }),
-      firstName: data.name,
-      lastName: data.surname,
-    });
+// export const updateChild = async (
+//   currentState: CurrentState,
+//   data: ChildSchema
+// ) => {
+//   // if (!data.id) {
+//   //   return { success: false, error: true };
+//   }
+//   try {
+//     const user = await clerkClient.users.updateUser(data.id, {
+//       username: data.username,
+//       ...(data.password !== "" && { password: data.password }),
+//       firstName: data.name,
+//       lastName: data.surname,
+//     });
 
-    await prisma.child.update({
-      where: {
-        id: data.id,
-      },
-      data: {
-        ...(data.password !== "" && { password: data.password }),
-        username: data.username,
-        name: data.name,
-        surname: data.surname,
-        email: data.email || null,
-        phone: data.phone || null,
-        address: data.address,
-        img: data.img || null,
-        // gradeId: data.gradeId.toString(),
-        // tribeId: data.tribeId.toString(),
-        //parentId: data.parentId,
-      },
-    });
-    // revalidatePath("/list/childs");
-    return { success: true, error: false };
-  } catch (err) {
-    console.log(err);
-    return { success: false, error: true };
-  }
-};
+//     await prisma.child.update({
+//       where: {
+//         id: data.id,
+//       },
+//       data: {
+//         ...(data.password !== "" && { password: data.password }),
+//         username: data.username,
+//         name: data.name,
+//         surname: data.surname,
+//         email: data.email,
+//         phone: data.phone || null,
+//         address: data.address,
+//         img: data.img || null,
+//         // gradeId: data.gradeId.toString(),
+//         // tribeId: data.tribeId.toString(),
+//         //parentId: data.parentId,
+//       },
+//     });
+//     // revalidatePath("/list/childs");
+//     return { success: true, error: false };
+//   } catch (err) {
+//     console.log(err);
+//     return { success: false, error: true };
+//   }
+// };
 
 export const deleteChild = async (
   currentState: CurrentState,

@@ -102,7 +102,7 @@ const renderRow = (item: CreatorList) => (
     prisma.creator.findMany({
       where: query,
       include: {
-        categories: true,
+        // categories: true,
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
