@@ -5,24 +5,24 @@ export const metadata = {
   title: "225 Days of Self Sanitizing Surface from Coronavirus",
   description: "Just 1 time application",
   openGraph: {
-    siteName: "Pure Surface",
-    title: "225 Days of Self Sanitizing Surface from Coronavirus",
+    siteName: "The Fish Way",
+    title: "All in One!",
     description: "Just 1 time application",
     url: "http://localhost:3000/income/registration",
     images: [
       {
-        url: "http://puresurface.in/200x200-png",
+        url: "/brand.png",
         type: "image/png",
         width: 300,
         height: 300,
       },
     ],
   },
-  twitter: {
+  telegram: {
     card: "summary_large_image",
     title: "225 Days of Self Sanitizing Surface from Coronavirus",
     description: "Just 1 time application",
-    images: ["http://puresurface.in/200x200-png"],
+    images: ["/brand.png"],
   },
 };
 

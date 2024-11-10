@@ -50,7 +50,7 @@ const Navbar = async () => {
     <div className="flex items-center justify-between p-0.5 ">
       {/* Brand Logo */}
       <div className="flex justify-start">
-        <Link href={`/${role}`} className="flex items-center gap-2 mb-4">
+        <Link  href={role === "admin" ? `/${role}` : `/income/${role}`} className="flex items-center gap-2 mb-4">
         <Image
             src="/brandlogo.png" // Your image source
             alt="Brand Logo" // Alternative text for accessibility
