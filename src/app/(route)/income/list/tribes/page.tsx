@@ -88,11 +88,7 @@ const renderRow = (item: TribeList) => (
       if (value !== undefined) {
         switch (key) {
           case "supervisorId":
-            query.supervisor = {
-              some: {
-                id: value, 
-              },
-            };
+            query.supervisorId = value;
             break;
           case "search":
             query.name = { contains: value, mode: "insensitive" };

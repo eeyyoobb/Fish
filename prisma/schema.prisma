@@ -87,8 +87,7 @@ model Parent {
   phone     String?   @unique
   address   String?
   createdAt DateTime  @default(now())
-  tribeId     String?      @db.ObjectId
-  tribe       Tribe?       @relation(fields: [tribeId], references: [id])
+  tribe       Tribe[]
   wallet      Int    @default(0)
   balance     Int    @default(0)
   account     String ?
@@ -107,9 +106,10 @@ model Tribe {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
   name     String @unique
   capacity Int
-  supervisor    Parent[]
-  gradeId       String @db.ObjectId
-  grade         Grade          @relation(fields: [gradeId], references: [id])
+  supervisorId      String?   @db.ObjectId
+  supervisor        Parent?    @relation(fields: [supervisorId], references: [id])
+  gradeId       String   @db.ObjectId
+  grade         Grade    @relation(fields: [gradeId], references: [id])
   events        Event[]
   announcements Announcement[]
   children      Child[]
