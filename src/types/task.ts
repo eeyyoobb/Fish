@@ -39,7 +39,6 @@ export interface Task{
     trackmin2: string; // Additional minimum value for tracking
     duration:string;
     ownerId:string;
-    countryCode:string;
     }
 
 export interface TaskItemProps {
@@ -62,33 +61,33 @@ export interface TaskItemProps {
     ownerId:string;
     }
 
-    export interface Category {
-        id: string;
-        name: string;
-    }
+  export interface Category {
+      id: string;
+      name: string;
+  }
 
-    export interface TaskFormData {
-        categoryId: string;
-        description: string;
-        ad1: string;
-        ad2: string;
-        ad3: string;
-        track: string;
-        trackmin: string;
-        track2: string;
-        trackmin2: string;
-        link: string;
-        reward: number;
-        duration: string;
-        threshold: number;
-    }
+export interface TaskFormData {
+    categoryId: string;
+    description: string;
+    ad1: string;
+    ad2: string;
+    ad3: string;
+    track: string;
+    trackmin: string;
+    track2: string;
+    trackmin2: string;
+    link: string;
+    reward: number;
+    duration: string;
+    threshold: number;
+}
 
-    export interface TaskSubmitData extends TaskFormData {
-        isUnderstand: boolean;
-        completionCount: number;
-        isCompleted: boolean;
-        ownerId: string;
-      }
+export interface TaskSubmitData extends TaskFormData {
+    isUnderstand: boolean;
+    completionCount: number;
+    isCompleted: boolean;
+    ownerId: string;
+  }
 
 
 export type Role = "CHILD" | "CREATOR" | "ADMIN";

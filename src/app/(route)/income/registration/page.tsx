@@ -1,6 +1,4 @@
-// app/(route)/income/registration/page.tsx
 
-// This is a server component by default unless marked with "use client"
 export const metadata = {
   title: "225 Days of Self Sanitizing Surface from Coronavirus",
   description: "Just 1 time application",
@@ -29,15 +27,12 @@ export const metadata = {
 
 import { auth } from '@clerk/nextjs/server';
 import RegistrationClientComponent from './registrationContiner';
-import { useRouter } from 'next/navigation';
- 
 
 
 
 export default function RegistrationPage() {
 
-  const { userId } = auth(); // Check if the user is authenticated
-  const router = useRouter(); 
+  const { userId } = auth(); 
 
   return (
     <main>

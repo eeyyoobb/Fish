@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const totalDeduction = amount + serviceFee;
 
     const role = (sessionClaims?.metadata as { role?: string })?.role;
-    // Find sender (child)
+    //@ts-ignore
     const fromUser = await prisma[role].findUnique({
       where: { clerkId: userId },
     });
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
           status: "COMPLETED",
         },
       }),
-      // Update sender's balance
+      //@ts-ignore
       prisma[role].update({
         where: { id: fromUser.id },
         data: {

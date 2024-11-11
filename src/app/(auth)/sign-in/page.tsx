@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import {brandname } from "@/components/brand"
 
 export default function SignInPage() {
-    const { isLoaded, isSignedIn, user } = useUser();
+    const { user } = useUser();
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(true);
 
@@ -17,7 +17,7 @@ export default function SignInPage() {
       
         if (role) {
           // If role is 'admin', redirect to '/admin', otherwise to '/income/[role]'
-          const path = role === "admin" ? "/admin" : `/income/${role}`;
+          const path = role === "admin" ? "/admin" : `/income`;
           router.push(path);
         }
       }, [user, router]);
@@ -27,7 +27,7 @@ export default function SignInPage() {
     };
 
     if (!isModalOpen) {
-        return null; // Render nothing if the modal is closed
+        return null; 
     }
    
    
@@ -153,9 +153,7 @@ export default function SignInPage() {
                         Resend code
                     </SignIn.Action>
                 </SignIn.Strategy>
-                
-                {/* Add additional strategies as necessary */}
             </SignIn.Root>
-          </div>
+     </div>
     );
 }
