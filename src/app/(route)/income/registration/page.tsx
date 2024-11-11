@@ -11,7 +11,7 @@ export const metadata = {
     url: "http://localhost:3000/income/registration",
     images: [
       {
-        url: "/brand.png",
+        url: "https://img.freepik.com/premium-vector/simple-fish-logo-with-orange-color-combination_995281-4026.jpg",
         type: "image/png",
         width: 300,
         height: 300,
@@ -27,12 +27,21 @@ export const metadata = {
 };
 
 
+import { auth } from '@clerk/nextjs/server';
 import RegistrationClientComponent from './registrationContiner';
+import { useRouter } from 'next/navigation';
+ 
+
+
 
 export default function RegistrationPage() {
+
+  const { userId } = auth(); // Check if the user is authenticated
+  const router = useRouter(); 
+
   return (
     <main>
-      <RegistrationClientComponent />
+     {!userId && <RegistrationClientComponent />}
     </main>
   );
 }

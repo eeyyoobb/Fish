@@ -6,7 +6,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth();
+    const { userId ,sessionClaims} = auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -16,8 +16,9 @@ export async function POST(req: Request) {
     const serviceFee = amount * serviceFeePercentage;
     const totalDeduction = amount + serviceFee;
 
+    const role = (sessionClaims?.metadata as { role?: string })?.role;
     // Find sender (child)
-    const fromUser = await prisma.child.findUnique({
+    const fromUser = await prisma[role].findUnique({
       where: { clerkId: userId },
     });
 
@@ -82,7 +83,7 @@ export async function POST(req: Request) {
         },
       }),
       // Update sender's balance
-      prisma.child.update({
+      prisma[role].update({
         where: { id: fromUser.id },
         data: {
           balance: {

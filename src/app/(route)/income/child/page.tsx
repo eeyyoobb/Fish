@@ -1,7 +1,6 @@
 import Announcements from "../components/Dashboard/Announcements";
 import Become from "../components/Dashboard/Become";
 import EventCalendarContainer from "../components/Dashboard/EventCalendarContainer";
-import FinanceChart from "../components/Market/FinanceChart";
 import { CountryDisplay } from '@/components/flag';
 
 

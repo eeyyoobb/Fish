@@ -1,5 +1,4 @@
 
-import { User } from "@clerk/nextjs/server";
 
 export interface TaskCompletion {
     id: string;
@@ -40,27 +39,27 @@ export interface Task{
     trackmin2: string; // Additional minimum value for tracking
     duration:string;
     ownerId:string;
-    
+    countryCode:string;
     }
 
-        export interface TaskItemProps {
-            description: string;
-            id: string;
-            link: string;
-            reward: number;
-            taskId: string;
-            completions: TaskCompletion[];
-            isCompleted: boolean;
-            ad1:string;
-            ad2:string;
-            ad3:string;
-            track: string;
-            trackmin: string;
-            track2: string;
-            trackmin2: string;
-            categoryName: string;
-            duration:string;
-            ownerId:string;
+export interface TaskItemProps {
+    description: string;
+    id: string;
+    link: string;
+    reward: number;
+    taskId: string;
+    completions: TaskCompletion[];
+    isCompleted: boolean;
+    ad1:string;
+    ad2:string;
+    ad3:string;
+    track: string;
+    trackmin: string;
+    track2: string;
+    trackmin2: string;
+    categoryName: string;
+    duration:string;
+    ownerId:string;
     }
 
     export interface Category {
@@ -115,3 +114,15 @@ export interface UserMetadata {
 export interface SessionClaims {
   metadata: UserMetadata;
 }
+
+export interface Adjust {
+  ywatch:number;
+  ylike:number;
+  ysub:number;
+  join:number;
+  fee:number;
+  mtask:number;
+  mchild:number;
+  mcreate:number;
+  Account:String;
+};

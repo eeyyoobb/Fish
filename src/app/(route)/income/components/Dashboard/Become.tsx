@@ -13,15 +13,15 @@ const DashboardPage = async () => {
 
     
     return (
-        <div className="relative bg-gradient-to-br from-brand to-glass rounded-2xl">
-                <div className="container flex flex-col mx-auto p-8 justify-end items-end">
+        <div className="relative w-full bg-gradient-to-br from-brand to-glass rounded-2xl ">
+            <div className="container flex flex-col mx-auto p-8 justify-end items-end ">
                 <Stat/>
-                </div>
-                {role !== "parent" && (
-                <div className="relative rounded-2xl shadow-sm p-4 border border-gray-100 m-6">
+            </div>
+            {role !== "parent" && (
+            <div className="relative rounded-2xl shadow-sm p-4 border border-gray-100 m-6">
                 <Role/>
-                </div>
-                )}
+            </div>
+            )}
         </div>
     );
 };

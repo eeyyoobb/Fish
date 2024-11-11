@@ -8,11 +8,12 @@ import { useUser } from "@clerk/nextjs";
 import crypto from 'crypto';
 import { TaskHeader } from "../Tasks/taskHeader";
 import { QuestionForm } from "./form";
-import { useCountry } from "@/hooks/location";
+import { useCountryCode } from "@/components/flag"
 import { useTaskVerification } from "@/hooks/taskVerify";
 import { TaskItemProps, Question } from "@/types/task";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 
 function TaskItem({
   description,
@@ -24,14 +25,14 @@ function TaskItem({
   ad1,
   ad2,
   ad3,
-  completions,
   isCompleted,
   categoryName,
   track,
   trackmin,
   trackmin2,
   track2,
-  duration
+  duration,
+
 }: TaskItemProps) {
   const [completed, setCompleted] = useState(isCompleted);
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
@@ -40,12 +41,13 @@ function TaskItem({
   const [hasVisitedLink, setHasVisitedLink] = useState(false);
   const router = useRouter();
   const { user } = useUser();
-  const { countryCode } = useCountry();
 
   const role = user?.publicMetadata.role as string;
   const userId = user?.id;
+  const countryCode = useCountryCode();
+  const adjustedReward = countryCode === "et" ? reward / 5 : reward;
 
-  const adjustedReward = countryCode === "ET" ? reward / 5 : reward;
+
 
   const { buttonState, isLoading, isClaiming, handleVerification } = useTaskVerification({
     taskId,
@@ -150,7 +152,8 @@ function TaskItem({
 
   return (
     <div className="relative p-3 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 h-auto min-h-[16rem] flex flex-col gap-1">
-      <TaskHeader categoryName={categoryName} reward={adjustedReward} />
+
+      <TaskHeader categoryName={categoryName} reward={adjustedReward} /> 
       
       {categoryName === "youtube" ? (
         <p className="text-sm text-gray-700 dark:text-gray-300">
@@ -161,7 +164,7 @@ function TaskItem({
               {/* {question.value} */}
               {index < selectedQuestions.length - 1 ? ", " : ""}
             </span>
-          ))}
+          ))} .. if the info not provided put 00.
         </p>
       ) : (
         <p className="text-sm text-gray-700 dark:text-gray-300">

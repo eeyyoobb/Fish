@@ -12,20 +12,20 @@ export const menuItems = [
           icon: <House/>,
           label: "Home",
           href: "/income",
-          visible: ["admin", "creater", "child", "audit"],
+          visible: ["admin", "creator", "child", "audit"],
         },
         {
           icon: Creator,
           label: "Creator",
-          href: "/income/list/creator",
-          visible: ["admin", "creator"],
+          href: "/income/list/Creator",
+          visible: ["admin", "auditor"],
         },
        
         {
           icon: Child,
           label: "Children",
           href: "/income/list/children",
-          visible: ["admin", "parent","creater"],
+          visible: ["admin", "parent","creator"],
         },
         {
           icon: Auditor,

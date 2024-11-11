@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import {currency} from "@/components/brand"
 
 interface CreateContentProps {
   closeModal: () => void;
@@ -29,6 +30,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
   const [isUnderstand, setIsUnderstand] = useState(false);
   const [link, setLink] = useState("");
   const [reward, setReward] = useState(0);
+  const [cost, setCost] = useState(0);
   const [duration, setDuration] = useState(0);
   const [threshold, setThreshold] = useState(10);
   const [categoryId, setCategoryId] = useState("");
@@ -52,14 +54,21 @@ function CreateContent({ closeModal }: CreateContentProps) {
     const category = categories.find(category => category.id === categoryId)?.name;
     if (category === "youtube") {
       // For YouTube: duration * 1.5 * threshold
-      const calculatedReward = Math.round(duration * 1.5 * threshold);
-      setReward(calculatedReward);
+      const calculatedCost = Math.round(duration * 1.5 * threshold);
+      setCost(calculatedCost);
     } else if (category) {
       // For non-YouTube: threshold * 1.5
-      const calculatedReward = Math.round(threshold * 1.5);
-      setReward(calculatedReward);
+      const calculatedCost = Math.round(threshold * 1.5);
+      setCost(calculatedCost);
     }
   }, [duration, threshold, categoryId, categories]);
+
+  useEffect(() => {
+  
+      // For YouTube: duration * 1.5 * threshold
+      const calculatedReward = Math.round(cost/threshold);
+      setReward(calculatedReward);
+  }, [cost, threshold]);
   
 
   const handleChange = (name: string) => (
@@ -302,11 +311,11 @@ function CreateContent({ closeModal }: CreateContentProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reward" className="text-gray-200">Payment/BTB</Label>
+            <Label htmlFor="reward" className="text-gray-200">Payment/{currency}</Label>
             <Input
               id="reward"
               type="number"
-              value={reward}
+              value={cost}
               disabled
               className="bg-gray-700 cursor-not-allowed"
             />

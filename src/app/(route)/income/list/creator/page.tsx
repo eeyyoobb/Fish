@@ -24,7 +24,7 @@ const columns = [
 ];
 
 const renderRow = (item: CreatorList) => (
-  <tr key={item.id} className="border-b border-gray-200 even:glass text-sm hover:bg-mayacard z-10">
+  <tr key={item.id} className="border-b border-gray-200 even:glass text-sm hover:glass z-10">
     <td className="flex items-center gap-4 p-4">
       {item.img ? (
         <Image
@@ -44,7 +44,7 @@ const renderRow = (item: CreatorList) => (
     </td>
     <td className="hidden md:table-cell">{item.username}</td>
     <td className="hidden md:table-cell">
-      {item.categories.map((category) => category.name).join(", ")}
+      {/* {item.categories.map((category) => category.name).join(", ")} */}
     </td>
     {/* <td className="hidden md:table-cell">
       {item.tribes.map((tribes) => tribes.name).join(", ")}

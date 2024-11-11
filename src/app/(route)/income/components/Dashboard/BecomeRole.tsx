@@ -125,7 +125,7 @@ export default function DashboardPage() {
 
     if (isLoading) {
         return (
-            <div className="p-6 max-w-7xl mx-auto">
+            <div className="p-6 max-w-7xl mx-auto mb-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map((i) => (
                         <div key={i} className="h-[200px] bg-gray-800/50 rounded-xl animate-pulse" />
@@ -136,8 +136,10 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className=" relative p-6 max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6 text-gray-100">Upgrade Your Role</h2>
+        <div className=" relative p-6 max-w-7xl mx-auto mb-3">
+          <h2 className="text-2xl font-bold relative mb-8">Upgrade Your Role
+          <span className="absolute bottom-[-0.6rem] left-0 w-12 h-1 bg-indigo-600 rounded"></span>
+          </h2>
           <div className="flex flex-col gap-6">
           
             {role === "child" && (
@@ -165,7 +167,7 @@ export default function DashboardPage() {
             )}
       
             {role !== "parent" && (
-              <div className="relative group w-full h-40 bg-gray-700 rounded-xl">
+              <div className="relative group w-full h-40 bg-gray-700 rounded-xl ">
               <div 
                    className="absolute inset-0 rounded-xl transition-all duration-300"
                    style={{
@@ -205,13 +207,10 @@ export default function DashboardPage() {
         }`}
       >
         {isMonetized ? (
-         <div className="flex items-center justify-center h-full text-5xl font-extrabold text-transparent bg-clip-text 
-         bg-gradient-to-r from-green-400 via-yellow-500 to-orange-500 
-         hover:scale-110 transform transition-all duration-300 
-         drop-shadow-2xl space-x-3">
+         <div className="confirm">
             <span>MONETIZED</span>
             <span className="text-yellow-500">
-              <Award className="w-10 h-10" /> {/* Adjust icon size as needed */}
+              <Award className="w-10 h-10" />
             </span>
             </div>
         ) : (

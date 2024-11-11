@@ -5,6 +5,7 @@ import * as SignIn from '@clerk/elements/sign-in';
 import { AvatarImg } from '../../../components/image';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
+import {brandname } from "@/components/brand"
 
 export default function SignInPage() {
     const { isLoaded, isSignedIn, user } = useUser();
@@ -42,7 +43,7 @@ export default function SignInPage() {
                     <header className="text-center flex flex-col items-center ">
                         <AvatarImg src={"/brandlogo.png"} />
                         <h1 className="mt-4 text-xl font-medium tracking-tight">
-                            Sign in Maya
+                            Sign in {brandname} 
                         </h1>
                     </header>
                     <Clerk.GlobalError className="block text-sm text-red-400" />

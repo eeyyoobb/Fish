@@ -44,7 +44,7 @@ const RoleButton: React.FC<RoleButtonProps> = ({
             <span className={`font-semibold ${isEligible ? 'text-white' : 'text-gray-300'}`}>
               {title}
             </span>
-            <span className={`text-sm ${isEligible ? 'text-indigo-200' : 'text-gray-400'}`}>
+            <span className={` glass text-sm ${isEligible ? 'text-indigo-200' : 'text-gray-400'} `}>
               {isEligible ? readyMessage : requirement}
             </span>
           </Button>

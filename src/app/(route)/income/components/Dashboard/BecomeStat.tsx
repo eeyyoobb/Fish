@@ -3,7 +3,7 @@ import { Wallet, Users, Crown, User,Award} from 'lucide-react';
 import StatCard from './StatCard';
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
-import { clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from '@clerk/express';
 
 
 const StatPage = async () => {
@@ -12,6 +12,7 @@ const StatPage = async () => {
     const fetchBalance = async () => {
         const role = (sessionClaims?.metadata as { role?: string })?.role;
         //@ts-ignore
+
         const userRecord = await prisma[role].findUnique({
             where: { clerkId: userId },
             select: { balance: true},
@@ -78,20 +79,30 @@ const StatPage = async () => {
         }
     
         const { fatherId, tribeId} = childRecord;
-    
         // Fetch father details from Clerk if fatherId exists
         let fatherName = "No father found";
+
+        // Check if fatherId is available and valid
         if (fatherId) {
             try {
+                // Fetch father details from Clerk API
                 const fatherUser = await clerkClient.users.getUser(fatherId);
-                fatherName = fatherUser?.firstName ?? "No father found";
+                
+                // If the user is found, use the username, otherwise fallback to default
+                fatherName = fatherUser?.username ?? "No father found";
             } catch (error) {
-                console.error("Error fetching father details:", error);
+                // Log the error with additional context
+                console.error("Error fetching father details for ID:", fatherId, error);
+                
+                // You might want to return or set a different value based on error
+                fatherName = "Error fetching father details";
             }
+        } else {
+            console.error("No valid fatherId provided");
         }
     
-        // Fetch tribe name if tribeId exists
         let tribeName = "No tribe found";
+
         if (tribeId) {
             const tribeRecord = await prisma.tribe.findUnique({
                 where: { id: tribeId },
@@ -100,20 +111,20 @@ const StatPage = async () => {
             tribeName = tribeRecord?.name ?? "No tribe found";
         }
     
-        return `${fatherName}, ${tribeName}`;
+        return `${fatherName},${tribeName}`;
 
     };
     
 
     return (
         <>
-                <div className="mb-8">
+                <div className="mb-8 w-full">
                     <h1 className="text-2xl font-bold relative mb-8">
                         Analytics
                         <span className="absolute bottom-[-0.6rem] left-0 w-12 h-1 bg-indigo-600 rounded"></span>
                     </h1>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="flex flex-col flex-grow gap-6">
                         <StatCard title="Current Balance" Icon={Wallet} prefix="$" fetchData={fetchBalance} />
                         <StatCard title="Total Children" Icon={Users} fetchData={fetchTotalChildren} />
                         <StatCard title="Completed Tasks" Icon={Crown} fetchData={fetchCompletedTasks} />

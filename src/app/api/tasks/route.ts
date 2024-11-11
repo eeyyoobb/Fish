@@ -39,13 +39,13 @@ export async function POST(req: Request) {
     
       if (!creator) {
         return NextResponse.json({ error: "Creator not found" });
-      } else if (creator.wallet < reward) {
-        return NextResponse.json({ error: "Insufficient wallet balance" });
+      } else if (creator.balance < reward) {
+        return NextResponse.json({ error: "Insufficient  balance" });
       }
       //@ts-ignore
       await prisma[role].update({
         where: { clerkId: userId },
-        data: { wallet: creator.wallet - reward },
+        data: { balance: creator.balance - reward },
       });
 
 
@@ -153,7 +153,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         duration,
         threshold,
         categoryId,
-        // Optionally update other fields as necessary
       },
     });
 

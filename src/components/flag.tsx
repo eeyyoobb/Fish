@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Globe2, MapPin, AlertCircle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from "sonner";
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface GeoData {
   country: string;
@@ -139,6 +138,8 @@ function LocationDisplay({ geoData }: { geoData: GeoData | null }) {
   );
 }
 
+
+
 export function NavbarFlag() {
   const [geoData, setGeoData] = useState<GeoData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -212,4 +213,43 @@ export function NavbarFlag() {
   }
 
   return null;
+}
+
+
+export function useCountryCode(): string {
+  const [countryCode, setCountryCode] = useState<string>('');
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      let success = false;
+      
+      for (const api of GEO_APIS) {
+        if (success) break;
+        try {
+          const response = await fetch(api);
+          if (!response.ok) continue;
+          const data = await response.json();
+
+          const code = (data.country_code || data.countryCode || '').toLowerCase();
+          
+          if (code) {
+            setCountryCode(code);
+            success = true;
+            break;
+          }
+        } catch (err) {
+          console.error(`Failed to fetch from ${api}:`, err);
+          continue;
+        }
+      }
+
+      if (!success) {
+        toast.error('Failed to detect country code');
+      }
+    };
+
+    fetchLocation();
+  }, []);
+
+  return countryCode;
 }
