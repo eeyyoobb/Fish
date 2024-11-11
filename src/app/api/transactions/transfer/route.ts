@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     // Search for recipient across all user types
-    const [adminUser, parentUser, childUser] = await Promise.all([
+    const [adminUser, parentUser, childUser,creatorUser] = await Promise.all([
       prisma.admin.findUnique({
         where: { username: toUsername },
       }),
@@ -37,10 +37,15 @@ export async function POST(req: Request) {
       prisma.child.findUnique({
         where: { username: toUsername },
       }),
+      prisma.creator.findUnique({
+        where: { username: toUsername },
+      }),
     ]);
 
     // Find which type of user it is and get their details
-    const toUser = adminUser || parentUser || childUser;
+    const toUser = adminUser || parentUser || childUser || creatorUser;
+    const recieverId = toUser?.clerkId;
+      
     if (!toUser) {
       return NextResponse.json({ error: "Recipient not found" }, { status: 404 });
     }
@@ -53,18 +58,24 @@ export async function POST(req: Request) {
     const getUpdateOperation = () => {
       if (adminUser) {
         return prisma.admin.update({
-          where: { id: toUser.id },
-          data: { balance: { increment: amount } },
+          where: { clerkId: recieverId },
+          data: { wallet: { increment: amount } },
         });
       } else if (parentUser) {
         return prisma.parent.update({
-          where: { id: toUser.id },
-          data: { balance: { increment: amount } },
+          where: { clerkId: recieverId },
+          data: { wallet: { increment: amount } },
         });
+      } else if (creatorUser) {
+        return prisma.parent.update({
+          where: { clerkId: recieverId },
+          data: { wallet: { increment: amount } },
+        });
+
       } else {
         return prisma.child.update({
-          where: { id: toUser.id },
-          data: { balance: { increment: amount } },
+          where: { clerkId: recieverId },
+          data: { wallet: { increment: amount } },
         });
       }
     };
@@ -75,8 +86,8 @@ export async function POST(req: Request) {
         data: {
           amount,
           type: TransactionType.TRANSFER,
-          fromUserId: fromUser.id,
-          toUserId: toUser.id,
+          fromUserId: userId,
+          toUserId: recieverId,
           serviceFee,
           description: `Transfer to ${toUser.username}`,
           status: "COMPLETED",

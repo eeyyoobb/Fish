@@ -31,13 +31,28 @@ const StatPage = async () => {
     };
 
     const fetchTotalChildren = async () => {
-        const role = (sessionClaims?.metadata as { role?: string })?.role;
         //@ts-ignore
-        return await prisma[role].count({
+        const childCount = await prisma.child.count({
             where: {
                 fatherId: userId,
             },
         });
+        const creatorCount = await prisma.creator.count({
+            where: {
+              fatherId: userId,
+            },
+          });
+      
+          // Fetch parent count based on `fatherId`
+          const parentCount = await prisma.parent.count({
+            where: {
+              fatherId: userId,
+            },
+          });
+          
+          const totalChildrenCount = childCount + creatorCount + parentCount;
+
+          return totalChildrenCount;
     };
 
     const fetchCompletedTasks = async () => {

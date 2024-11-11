@@ -7,7 +7,6 @@ import Script from 'next/script';
 import NextTopLoader from 'nextjs-toploader';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Toaster, toast } from 'sonner'
-//import ContextProvider from "../context/ContextProvider";
 import Sidebar from "@/components/sidebar";
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { dark, neobrutalism } from '@clerk/themes';

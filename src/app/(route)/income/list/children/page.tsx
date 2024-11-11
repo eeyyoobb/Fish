@@ -1,37 +1,32 @@
-// Import necessary components and libraries
-
 import FormContainer from "../../components/FormContainer";
 import Pagination from "../../components/Pagination";
 import Table from "../../components/Table"; // Uncomment if using Table component
 import TableSearch from "../../components/TableSearch"; // Uncomment if using TableSearch component
-import { Avatar, Delete, View ,Filter,Sort} from "@/components/Icons";
+import { Avatar, Delete, View, Filter, Sort } from "@/components/Icons";
 import { AvatarImg } from "@/components/image";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { Tribe, Prisma, Child ,Parent} from "@prisma/client";
+import { Tribe, Prisma, Child, Parent } from "@prisma/client";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
-import { clerkClient } from "@clerk/nextjs/server";
 
-
-type ChildList = Child & { tribe: Tribe & {supervisor:Parent} };
-
+type ChildList = Child & { tribe: Tribe & { supervisor: Parent } };
 
 const ChildListPage = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
-  const { userId,sessionClaims } = auth();
+  const { userId, sessionClaims } = auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role || "";
-  
+
   const columns = [
     {
       header: "Info",
       accessor: "info",
     },
     {
-      header: "username",
+      header: "Username",
       accessor: "childId",
       className: "hidden md:table-cell",
     },
@@ -42,7 +37,7 @@ const ChildListPage = async ({
     },
     {
       header: "Parent",
-      accessor: "parerntId",
+      accessor: "parentId",
       className: "hidden lg:table-cell",
     },
     {
@@ -60,8 +55,6 @@ const ChildListPage = async ({
       : []),
   ];
 
-  
-
   const renderRow = (item: ChildList) => (
     <tr key={item.id} className="border-b even:glass text-sm">
       <td className="flex items-center gap-4 p-4">
@@ -77,7 +70,9 @@ const ChildListPage = async ({
       </td>
       <td className="hidden md:table-cell">{item.username}</td>
       <td className="hidden md:table-cell">{item.tribe?.name}</td>
-      <td className="hidden md:table-cell">{item.tribe?.supervisor?.username || 'N/A'}</td>
+      <td className="hidden md:table-cell">
+        {item.tribe?.supervisor?.username || "N/A"}
+      </td>
       <td className="hidden md:table-cell">{item.address}</td>
       <td>
         <div className="flex items-center gap-2">
@@ -87,9 +82,7 @@ const ChildListPage = async ({
             </button>
           </Link>
           {role === "admin" && (
-            <>
-              <FormContainer table="creator" type="delete" id={item.id} />
-            </>
+            <FormContainer table="creator" type="delete" id={item.id} />
           )}
         </div>
       </td>
@@ -109,8 +102,7 @@ const ChildListPage = async ({
       if (value) {
         switch (key) {
           case "parentId":
-            query.fatherId = { equals: value }
-            
+            query.fatherId = { equals: value };
             break;
           case "search":
             query.name = { contains: value, mode: "insensitive" };
@@ -123,21 +115,37 @@ const ChildListPage = async ({
   }
 
   // Fetch children and count
-  const [data, count] = await prisma.$transaction([
+  const [data, childCount, creatorCount, parentCount] = await prisma.$transaction([
     prisma.child.findMany({
       where: query,
-      include: { 
-      tribe: {
-        include: {
-          supervisor: true, // Include supervisor to access its fields like `username`
-        }
-      }
-    },
+      include: {
+        tribe: {
+          include: {
+            supervisor: true,
+          },
+        },
+      },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (currentPage - 1),
     }),
+
     prisma.child.count({ where: query }),
+
+    prisma.creator.count({
+      where: {
+        fatherId: userId,
+      },
+    }),
+
+    prisma.parent.count({
+      where: {
+        fatherId: userId,
+      },
+    }),
   ]);
+
+  // Sum up the counts for total children
+  const totalChildrenCount = childCount + creatorCount + parentCount;
 
   return (
     <div className="p-4 rounded-md flex-1 m-4 mt-0">
@@ -160,7 +168,7 @@ const ChildListPage = async ({
       {/* Table List */}
       <Table columns={columns} renderRow={renderRow} data={data} />
       {/* Pagination */}
-      <Pagination page={currentPage} count={count} />
+      <Pagination page={currentPage} count={totalChildrenCount} />
     </div>
   );
 };

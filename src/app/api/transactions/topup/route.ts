@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       await tx.child.update({
         where: { clerkId: userId },
         data: {
-          balance: {
+          wallet: {
             increment: amount,
           },
         },
