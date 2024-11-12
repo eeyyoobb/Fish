@@ -7,9 +7,9 @@ const nextConfig = {
       images: {
         domains: ['img.clerk.com',"img.icons8.com","img.flagcdn.com"],
       },
-      // eslint:{
-      //   ignoreDuringBuilds:true,
-      // },
+      experimental: {
+        metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
+      },
       
       
 };

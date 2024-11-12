@@ -14,10 +14,12 @@ import { dark, neobrutalism } from '@clerk/themes';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "All In One",
+  title: "The Fish Way",
   description: "We are here for you!",
+  metadataBase: new URL("https://thefishway.vercel.app"), 
   openGraph: {
-    images: "/brandlogo.png", // Adjust this path to your image file as needed
+    title: "ALL IN ONE!",
+    images: "/brandlogo.png",
   },
 };
 

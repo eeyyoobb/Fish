@@ -299,16 +299,20 @@ function CreateContent({ closeModal }: CreateContentProps) {
 
 
           <div className="space-y-2">
-            <Label htmlFor="threshold" className="text-gray-200">Threshold</Label>
-            <Input
-              id="threshold"
-              type="number"
-              value={threshold}
-              onChange={handleChange("threshold")}
-              min="10"
-              required
-            />
-          </div>
+          <Label htmlFor="threshold" className="text-gray-200">Threshold</Label>
+          <Input
+            id="threshold"
+            type="number"
+            inputMode="numeric"  // Helps with mobile numeric keyboards
+            value={threshold}
+            onChange={handleChange("threshold")}
+            min="10"
+            required
+            className="appearance-none" // If custom styling needed, this removes default browser styling
+            style={{ WebkitAppearance: "textfield", MozAppearance: "textfield" }} // Ensure spinners appear on Safari
+          />
+        </div>
+
 
           <div className="space-y-2">
             <Label htmlFor="reward" className="text-gray-200">Payment/{currency}</Label>
