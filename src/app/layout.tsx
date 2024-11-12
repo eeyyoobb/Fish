@@ -8,7 +8,7 @@ import NextTopLoader from 'nextjs-toploader';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Toaster, toast } from 'sonner'
 import Sidebar from "@/components/sidebar";
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth} from '@clerk/nextjs/server';
 import { dark, neobrutalism } from '@clerk/themes';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -16,6 +16,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "All In One",
   description: "We are here for you!",
+  openGraph: {
+    images: "/brandlogo.png", // Adjust this path to your image file as needed
+  },
 };
 
 
@@ -24,7 +27,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { userId,sessionClaims } = auth();
+  const { sessionClaims } = auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role; 
   
   return (

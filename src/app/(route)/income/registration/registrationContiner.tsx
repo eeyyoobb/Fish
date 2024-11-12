@@ -17,7 +17,14 @@ import {useRouter} from "next/navigation";
 
 const formSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string()
+  .min(8, { message: "Password must be at least 8 characters long!" })
+  .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter." })
+  .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter." })
+  .regex(/[0-9]/, { message: "Password must contain at least one number." })
+  .regex(/[\W_]/, { message: "Password must contain at least one special character." })
+  .optional()
+  .or(z.literal("")),
   name: z.string().min(2, "Name must be at least 2 characters"),
   surname: z.string().min(2, "Surname must be at least 2 characters"),
   email: z.string().email("Invalid email address").or(z.literal("")),

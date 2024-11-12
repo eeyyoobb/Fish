@@ -25,7 +25,7 @@ export const menuItems = [
           icon: Child,
           label: "Children",
           href: "/income/list/children",
-          visible: ["admin", "parent","creator"],
+          visible: ["admin", "parent","creator","child"],
         },
         {
           icon: Auditor,

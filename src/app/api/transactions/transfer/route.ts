@@ -89,7 +89,7 @@ export async function POST(req: Request) {
           fromUserId: userId,
           toUserId: recieverId,
           serviceFee,
-          description: `Transfer to ${toUser.username}`,
+          description: `Transfer from ${fromUser.username} to ${toUser.username}`,
           status: "COMPLETED",
         },
       }),
@@ -102,7 +102,6 @@ export async function POST(req: Request) {
           },
         },
       }),
-      // Update recipient's balance
       getUpdateOperation(),
     ]);
 

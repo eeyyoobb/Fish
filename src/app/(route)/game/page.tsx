@@ -1,131 +1,234 @@
 "use client";
+import Image from 'next/image';
 import { useState } from 'react';
+import {toast} from "sonner";
 
 interface Player {
   id: number;
   name: string;
   score: number;
+  balls: number[];
+  isOut?: boolean;
 }
 
-const initialPlayers: Player[] = [
-  { id: 1, name: 'Player 1', score: 0 },
-  { id: 2, name: 'Player 2', score: 0 },
-  { id: 3, name: 'Player 3', score: 0 },
-  { id: 4, name: 'Player 4', score: 0 },
-];
-
 const initialBoxValues = [
-  { name: 'White', value: 0, id: 1, disabled: false },
-  { name: 'Play', value: 0, id: 2, disabled: false },
-  { name: '3', value: 6, id: 3, disabled: false },
-  { name: '4', value: 4, id: 4, disabled: false },
-  { name: '5', value: 5, id: 5, disabled: false },
-  { name: '6', value: 6, id: 6, disabled: false },
-  { name: '7', value: 7, id: 7, disabled: false },
-  { name: '8', value: 8, id: 8, disabled: false },
-  { name: '9', value: 9, id: 9, disabled: false },
-  { name: '10', value: 10, id: 10, disabled: false },
-  { name: '11', value: 11, id: 11, disabled: false },
-  { name: '12', value: 12, id: 12, disabled: false },
-  { name: '13', value: 13, id: 13, disabled: false },
-  { name: '14', value: 14, id: 14, disabled: false },
-  { name: '15', value: 15, id: 15, disabled: false },
+  { id: 3, value: 6, image: '/balls/3.png', disabled: false },
+  { id: 4, value: 4, image: '/balls/4.png', disabled: false },
+  { id: 5, value: 5, image: '/balls/5.png', disabled: false },
+  { id: 6, value: 6, image: '/balls/6.png', disabled: false },
+  { id: 7, value: 7, image: '/balls/7.png', disabled: false },
+  { id: 8, value: 8, image: '/balls/8.png', disabled: false },
+  { id: 9, value: 9, image: '/balls/9.png', disabled: false },
+  { id: 10, value: 10, image: '/balls/10.png', disabled: false },
+  { id: 11, value: 11, image: '/balls/11.png', disabled: false },
+  { id: 12, value: 12, image: '/balls/12.png', disabled: false },
+  { id: 13, value: 13, image: '/balls/13.png', disabled: false },
+  { id: 14, value: 14, image: '/balls/14.png', disabled: false },
+  { id: 15, value: 15, image: '/balls/15.png', disabled: false },
 ];
 
 const GamePage = () => {
-  const [players, setPlayers] = useState<Player[]>(initialPlayers);
-  const [boxValues, setBoxValues] = useState<typeof initialBoxValues>(initialBoxValues);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [lastBoxValue, setLastBoxValue] = useState(0);
-  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null); // Store the timeout ID
+  const [lastClickedBall, setLastClickedBall] = useState<number | null>(null);
+  const [allBalls, setAllBalls] = useState(initialBoxValues);
+  const [numPlayers, setNumPlayers] = useState(2);
 
-  const handleBoxClick = (value: number, index: number) => {
-    // Clear any previous click timeout
-    if (clickTimeout) {
-      clearTimeout(clickTimeout);
-      setClickTimeout(null);
-      // If the box was clicked before the timeout, it's a double click
-      handleDoubleClick(value);
-      return;
-    }
-
-    // Set a timeout to detect single click
-    const timeout = setTimeout(() => {
-      // Get the current player
-      const currentPlayer = players[currentPlayerIndex];
-
-      // Update the current player's score
-      const updatedPlayers = players.map((player) =>
-        player.id === currentPlayer.id ? { ...player, score: player.score + value } : player
-      );
-
-      // Disable the clicked box (except for box 1 and 2)
-      setBoxValues((prev) =>
-        prev.map((box, i) =>
-          (i === index && i > 1) ? { ...box, disabled: true } : box
-        )
-      );
-
-      // Set the last box value
-      setLastBoxValue(value);
-
-      // Update the players' state
-      setPlayers(updatedPlayers);
-
-      // If the clicked box is "White" or "Play", move to the next player
-      if (index === 0 || index === 1) {
-        setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
-      }
-
-      // Clear the timeout
-      setClickTimeout(null);
-    }, 300); // Timeout duration to distinguish single and double click
-
-    // Store the timeout ID
-    setClickTimeout(timeout);
+  
+  
+  const initializePlayers = (num: number) => {
+    const newPlayers = Array.from({ length: num }, (_, i) => ({
+      id: i + 1,
+      name: `Player ${i + 1}`,
+      score: 0,
+      balls: [],
+      isOut: false,
+    }));
+    setPlayers(newPlayers);
+    setCurrentPlayerIndex(0);
   };
 
-  const handleDoubleClick = (value: number) => {
-    // Get the current player
-    const currentPlayer = players[currentPlayerIndex];
+  const handleNumPlayersChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedNum = parseInt(event.target.value);
+    setNumPlayers(selectedNum);
+    initializePlayers(selectedNum);
+  };
 
-    // Deduct the box value from the current player's score
-    const updatedPlayers = players.map((player) =>
-      player.id === currentPlayer.id ? { ...player, score: player.score - value } : player
+  const handleBoxClick = (value: number, index: number) => {
+    const currentPlayerId = players[currentPlayerIndex].id;
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) =>
+        player.id === currentPlayerId
+          ? {
+              ...player,
+              score: player.score + value,
+              balls: [...player.balls, value],
+            }
+          : player
+      )
     );
 
-    // Update the players' state
-    setPlayers(updatedPlayers);
+    setAllBalls((prevBalls) =>
+      prevBalls.map((ball, i) =>
+        i === index ? { ...ball, disabled: true } : ball
+      )
+    );
+
+    setLastClickedBall(value);
+    checkWinningCondition();
+  };
+
+  const handleCueClick = () => {
+    if (lastClickedBall === null) return;
+
+    const currentPlayerId = players[currentPlayerIndex].id;
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) =>
+        player.id === currentPlayerId
+          ? { ...player, score: player.score - 2*lastClickedBall }
+          : player
+      )
+    );
+
+    setLastClickedBall(null);
+    handleNextPlayer();
+  };
+
+  const handleFoulClick = () => {
+    if (lastClickedBall === null) return;
+  
+    const currentPlayerId = players[currentPlayerIndex].id;
+  
+    // Update the current player's score and balls array
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) =>
+        player.id === currentPlayerId
+          ? {
+              ...player,
+              score: player.score - 2 * lastClickedBall,
+              balls: player.balls.slice(0, -1), // Remove the last ball
+            }
+          : player
+      )
+    );
+  
+    // Re-enable the last clicked ball in the allBalls array
+    setAllBalls((prevBalls) =>
+      prevBalls.map((ball) =>
+        ball.value === lastClickedBall ? { ...ball, disabled: false } : ball
+      )
+    );
+  
+    // Clear the last clicked ball
+    setLastClickedBall(null);
+    
+    // Move to the next player
+    handleNextPlayer();
+  };
+  
+
+  const handleNextPlayer = () => {
+    setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
+  };
+
+  const checkWinningCondition = () => {
+    const totalRemainingPoints = allBalls
+      .filter((ball) => !ball.disabled)
+      .reduce((acc, ball) => acc + ball.value, 0);
+    const sortedScores = [...players]
+      .filter((player) => !player.isOut)
+      .sort((a, b) => b.score - a.score);
+    const highestScore = sortedScores[0]?.score || 0;
+    const secondHighestScore = sortedScores[1]?.score || 0;
+
+    players.forEach((player) => {
+      if (!player.isOut && player.score > totalRemainingPoints + secondHighestScore) {
+        toast(`${player.name} is the winner!`);
+        setPlayers((prevPlayers) =>
+          prevPlayers.map((p) =>
+            p.id === player.id ? { ...p, isOut: true } : p
+          )
+        );
+      }
+    });
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl mb-4">Game Page</h1>
-      <div className="grid grid-cols-15 mb-4">
-        {boxValues.map((box, index) => (
-          <div
-            key={box.id}
-            className={`glass flex justify-center items-center border border-gray-300 rounded-full h-16 w-16 cursor-pointer transition-colors duration-300 ${box.disabled ? 'bg-gray-300 cursor-not-allowed' : 'hover:bg-gray-200'}`}
-            onClick={() => !box.disabled && handleBoxClick(box.value, index)}
-            style={{ backgroundColor: box.disabled ? '#e5e5e5' : 'gray-500' }}
-          >
-            {box.name}
-          </div>
-        ))}
-      </div>
-      <div>
-        <h2 className="text-xl">Player Scores:</h2>
-        <ul>
-          {players.map((player) => (
-            <li key={player.id}>
-              {player.name}: {player.score}
-            </li>
+    <div className="p-4 bg-gradient-to-b from-green-600/70 to-green-900/70">
+      <h1 className="text-2xl mb-4">Pool Game Score Tracker</h1>
+
+      <div className="mb-4">
+        <label htmlFor="numPlayers" className="mr-2">Number of Players:</label>
+        <select
+          id="numPlayers"
+          value={numPlayers}
+          onChange={handleNumPlayersChange}
+          className="p-2 border rounded"
+        >
+          {[2, 3, 4, 5, 6].map((num) => (
+            <option key={num} value={num}>
+              {num}
+            </option>
           ))}
-        </ul>
+        </select>
       </div>
-      <div className="mt-4">
-        <h3>Current Player: {players[currentPlayerIndex].name}</h3>
+
+      <div className="border-white p-4 mb-6 rounded-lg bg-teal-900/90">
+        <h2 className="text-xl mb-2">All Balls</h2>
+        <div className="flex gap-4 mb-2">
+          {allBalls.map((ball, index) => (
+            <div
+              key={ball.id}
+              className={`flex justify-center items-center border rounded-full cursor-pointer transition-colors duration-300 ${ball.disabled ? 'filter grayscale' : ''}`}
+              onClick={() => !ball.disabled && handleBoxClick(ball.value, index)}
+            >
+              {ball.image && (
+                <Image
+                  src={ball.image}
+                  alt={`${ball.value}`}
+                  width={50}
+                  height={50}
+                  className="w-full h-full object-cover rounded-full"
+                />
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-center items-center w-full h-full">
+          <button onClick={handleCueClick}>
+            <Image src="/balls/0.png" alt="white" width={20} height={20} className="w-full h-full object-cover rounded-full object-center" />
+          </button>
+          <button className="mt-2 p-2 bg-red-500/70 text-white rounded ml-2" onClick={handleFoulClick}>Foul</button>
+          <button className="mt-2 p-2 bg-teal-700/70 text-white rounded ml-2" onClick={handleNextPlayer}>Next Player</button>
+        </div>
       </div>
+
+      {players.map((player, index) => (
+        <div
+          key={player.id}
+          className={`border border-green-700 bg-teal-900/70 p-4 mb-4 rounded-lg ${player.isOut ? 'bg-red-700' : currentPlayerIndex === index ? 'border-orange-500 glow-effect' : ''}`}
+        >
+          <h2 className="text-xl">{player.name}</h2>
+          <p>Score: {player.score}</p>
+          {player.isOut && <p className="text-red-500">Out</p>}
+          <div className="mt-4">
+            <h2 className="text-lg mb-2">Player&apos;s Balls</h2>
+            <div className="flex gap-4">
+              {player.balls.map((ballValue, i) => (
+                <div key={i} className="flex justify-center items-center border rounded-full">
+                  <Image
+                    src={`/balls/${ballValue}.png`}
+                    alt={`Ball ${ballValue}`}
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
