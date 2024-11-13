@@ -100,6 +100,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
       }
     } else if (name === "duration") {
       setDuration((prev) => Math.max(0, Number(prev)).toString());
+
     }
   };
 
@@ -172,7 +173,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
       isUnderstand,
       link,
       reward,
-      duration: formatMinute(duration),
+      duration: formatMinute((duration.toString())),
       threshold: Number(threshold),
       categoryId,
       ownerId,
@@ -318,8 +319,10 @@ function CreateContent({ closeModal }: CreateContentProps) {
                 <Input
                   id="duration"
                   type="number"
+                  inputMode="numeric"
                   value={duration}
-                  onChange={handleChange("duration")}
+                  onChange={(e) => setDuration((e.target.value))}
+                  onBlur={handleBlur("duration")}
                   min="2"
                   required
                 />

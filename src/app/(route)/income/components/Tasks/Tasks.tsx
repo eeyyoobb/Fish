@@ -103,7 +103,6 @@ function Tasks({ title, tasks, }: Props) {
             {add}
             Add New Task
           </button>
-
         )}
         
       </div>

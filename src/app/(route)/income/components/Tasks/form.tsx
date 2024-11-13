@@ -16,9 +16,7 @@ interface QuestionFormProps {
 
 export function QuestionForm({
   selectedQuestions,
-  userAnswers,
   setUserAnswers,
-  isLoading,
   onSubmit
 }: QuestionFormProps) {
   const [formattedCode, setFormattedCode] = useState("");
@@ -65,7 +63,7 @@ export function QuestionForm({
   if (isSubmitted) return null;
 
   return (
-    <form onSubmit={handleSubmit} className="absolute  bg-gray-800 bg-opacity-60  ">
+    <form onSubmit={handleSubmit} className="relative bg-gray-800 bg-opacity-60  ">
       <div className="glass">
       <div className="space-y-2  rounded">
         {/* <label
