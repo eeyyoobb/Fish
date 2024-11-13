@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState, useEffect } from "react";
-import { UserPlus, Loader2 } from "lucide-react";
+import { UserPlus, Loader2 ,EyeIcon ,EyeOffIcon} from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,7 @@ export default function RegisterPage() {
   const [isEmailValid, setIsEmailValid] = useState(true);
   const searchParams = useSearchParams();
   const referralId = searchParams.get("referral");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false); 
 
   const router = useRouter();
   const form = useForm<FormValues>({
@@ -76,6 +77,8 @@ export default function RegisterPage() {
   //     setIsEmailValid(true);
   //   }
   // }, [email, validateField]);
+
+  const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
 
   async function onSubmit(data: FormValues) {
     if (!isUsernameValid || !isEmailValid) {
@@ -218,19 +221,35 @@ export default function RegisterPage() {
               )}
             />
 
-            <FormField
+           <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <div className="relative">
+                      <Input
+                        type={isPasswordVisible ? "text" : "password"}
+                        placeholder="••••••••"
+                        {...field}
+                      />
+                      <div
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                        onClick={togglePasswordVisibility}
+                      >
+                        {isPasswordVisible ? (
+                          <EyeOffIcon className="w-5 h-5 text-gray-500" />
+                        ) : (
+                          <EyeIcon className="w-5 h-5 text-gray-500" />
+                        )}
+                      </div>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> 
 
             <FormField
               control={form.control}

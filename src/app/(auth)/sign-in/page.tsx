@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import * as Clerk from '@clerk/elements/common';
 import * as SignIn from '@clerk/elements/sign-in';
 import { AvatarImg } from '../../../components/image';
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import {brandname } from "@/components/brand"
@@ -30,7 +31,11 @@ export default function SignInPage() {
         return null; 
     }
    
-   
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    const togglePasswordVisibility = () => {
+      setIsPasswordVisible((prev) => !prev);
+    };
 
 
     return (
@@ -58,14 +63,26 @@ export default function SignInPage() {
                             <Clerk.FieldError className="block text-sm text-red-400" />
                         </Clerk.Field>
                         <Clerk.Field name="password" className="space-y-2">
-                            <Clerk.Label className="text-sm font-medium ">Password</Clerk.Label>
-                            <Clerk.Input
-                                type="password"
-                                required
-                                className="w-full rounded-md glass px-3.5 py-2 text-sm outline-none ring-1 ring-inset ring-zinc-300 hover:ring-zinc-400 focus:ring-[1.5px] focus:ring-zinc-950 data-[invalid]:ring-red-400"
-                            />
-                            <Clerk.FieldError className="block text-sm text-red-400" />
-                        </Clerk.Field>
+                            <Clerk.Label className="text-sm font-medium">Password</Clerk.Label>
+                                <div className="relative">
+                                    <Clerk.Input
+                                    type={isPasswordVisible ? "text" : "password"}
+                                    required
+                                    className="w-full rounded-md glass px-3.5 py-2 text-sm outline-none ring-1 ring-inset ring-zinc-300 hover:ring-zinc-400 focus:ring-[1.5px] focus:ring-zinc-950 data-[invalid]:ring-red-400"
+                                    />
+                                    <div
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                                    onClick={togglePasswordVisibility}
+                                    >
+                                    {isPasswordVisible ? (
+                                        <EyeOffIcon className="w-5 h-5 text-gray-500" />
+                                    ) : (
+                                        <EyeIcon className="w-5 h-5 text-gray-500" />
+                                    )}
+                                    </div>
+                                </div>
+                                <Clerk.FieldError className="block text-sm text-red-400" />
+                            </Clerk.Field>
                     </div>
                     <SignIn.Action
                         submit
