@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState,useCallback  } from "react";
+
+import React, { useEffect, useState,useCallback} from "react";
 import { edit, trash } from "@/utils/Icons";
 import { toast } from "sonner";
 import axios from "axios";
@@ -14,6 +15,9 @@ import { TaskItemProps, Question } from "@/types/task";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+const getCountryCodeFromName = (countryName: string): string => {
+  return countryName ? countryName.slice(0, 2).toLowerCase() : "";
+};
 
 function TaskItem({
   description,
@@ -32,6 +36,7 @@ function TaskItem({
   trackmin2,
   track2,
   duration,
+  country,
 
 }: TaskItemProps) {
   const [completed, setCompleted] = useState(isCompleted);
@@ -45,18 +50,8 @@ function TaskItem({
   const role = user?.publicMetadata.role as string;
   const userId = user?.id;
   const countryCode = useCountryCode();
-  const adjustedReward = countryCode === "et" ? reward / 5 : reward;
-
-
-
-  const { buttonState, isLoading, isClaiming, handleVerification } = useTaskVerification({
-    taskId,
-    reward: adjustedReward,
-    onComplete: () => {
-      setCompleted(true);
-      router.refresh();
-    }
-  });
+  
+  const taskCountryCode = country ? getCountryCodeFromName(country):null;
 
   const getDeterministicQuestions = useCallback(
     (username: string, userId: string): Question[] => {
@@ -81,6 +76,11 @@ function TaskItem({
     [ad1, ad2, ad3, duration, track, trackmin, trackmin2,track2]
   );
 
+
+
+  const adjustedReward = countryCode === "et" ? reward / 5 : reward;
+
+
   useEffect(() => {
     if (user && user.username) {
       const questions = getDeterministicQuestions(user.username, user.id);
@@ -88,6 +88,16 @@ function TaskItem({
     }
   }, [user, getDeterministicQuestions]);
 
+  const { buttonState, isLoading, isClaiming, handleVerification } = useTaskVerification({
+    taskId,
+    reward: adjustedReward,
+    onComplete: () => {
+      setCompleted(true);
+      router.refresh();
+    }
+  });
+
+  if (taskCountryCode && taskCountryCode !== countryCode) return null;
 
   const handleEarnClick = async () => {
     if (!hasVisitedLink) {

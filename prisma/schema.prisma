@@ -18,6 +18,10 @@ model Admin {
   wallet      Int      @default(0)
   balance     Int      @default(0)  
   clerkId     String   @unique
+  tribeId     String?      @db.ObjectId
+  tribe       Tribe?       @relation(fields: [tribeId], references: [id])
+  gradeId     String?      @db.ObjectId
+  grade       Grade?       @relation(fields: [gradeId], references: [id])
 }
 
 model Child {
@@ -55,11 +59,6 @@ model Creator {
   phone     String?  @unique
   address   String?
   img       String?
-  //bloodType String
-  //sex       UserSex
-  createdAt DateTime @default(now())
-  //categories CategoryCreator[]
-  //birthday  DateTime
   wallet      Int    @default(0) 
   balance     Int    @default(0)
   account     String?
@@ -68,11 +67,11 @@ model Creator {
   gradeId     String?      @db.ObjectId
   grade       Grade?       @relation(fields: [gradeId], references: [id])
   announcements Announcement[]
-  fatherId    String?
+  fatherId     String?
   attendances Attendance[]
   results     Result[]
   monetization  Boolean     @default(false)
-  
+  createdAt DateTime @default(now())
 }
 
 model Parent {
@@ -92,6 +91,8 @@ model Parent {
   balance     Int    @default(0)
   account     String ?
   monetization  Boolean     @default(true)
+
+  
 }
 
 model Grade {
@@ -100,20 +101,23 @@ model Grade {
   tribes    Tribe[]
   children  Child[]
   creator   Creator[]
+  admin     Admin[]
 }
 
 model Tribe {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  name     String @unique
-  capacity Int
-  supervisorId      String?   @db.ObjectId
-  supervisor        Parent?    @relation(fields: [supervisorId], references: [id])
-  gradeId       String   @db.ObjectId
-  grade         Grade    @relation(fields: [gradeId], references: [id])
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String   @unique
+  capacity      Int
+  supervisorId  String?    
+  parentId      String?   @db.ObjectId
+  parent        Parent?    @relation(fields: [parentId], references: [id])
+  gradeId       String ?  @db.ObjectId
+  grade         Grade  ?   @relation(fields: [gradeId], references: [id])
   events        Event[]
   announcements Announcement[]
   children      Child[]
   creator       Creator[]
+  admin         Admin[]
 }
 
 model Category {
@@ -147,7 +151,7 @@ model Task{
   isUnderstand       Boolean   @default(false)
   link               String?
   reward             Int
-  duration           String 
+  duration           String
   threshold          Int
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @default(now()) @updatedAt @map("updated_at")
@@ -204,8 +208,8 @@ model Result {
   assignment   Assignment?@relation(fields: [assignmentId], references: [id])
   childId      String     @db.ObjectId
   child        Child    @relation(fields: [childId], references: [id])
-  creatorId      String     @db.ObjectId
-  creator        Creator    @relation(fields: [creatorId], references: [id])
+  creatorId    String     @db.ObjectId
+  creator       Creator    @relation(fields: [creatorId], references: [id])
   
 }
 
@@ -304,6 +308,8 @@ model Adjust {
   Account         String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  balance         Float?
+  wallet          Float?
 }
 
 

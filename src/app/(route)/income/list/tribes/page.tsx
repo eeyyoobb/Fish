@@ -4,12 +4,12 @@ import Table from "../../components/Table";
 import TableSearch from "../../components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { Tribe, Prisma, Creator } from "@prisma/client";
+import { Tribe, Prisma, Parent } from "@prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import { Filter } from "lucide-react";
 import { Sort } from "@/components/Icons";
 
-type TribeList = Tribe & { supervisor: Creator };
+type TribeList = Tribe & { parent: Parent };
 
 const TribeListPage = async ({
   searchParams,
@@ -60,7 +60,7 @@ const renderRow = (item: TribeList) => (
     <td className="hidden md:table-cell">{item.capacity}</td>
     <td className="hidden md:table-cell">{item.name[0]}</td>
     <td className="hidden md:table-cell">
-    {item.supervisor ? `${item.supervisor.name} ${item.supervisor.surname}` : "No Supervisor"}
+    {item.parent ? `${item.parent.name} ${item.parent.surname}` : "No Supervisor"}
     </td>
     <td>
       <div className="flex items-center gap-2">
@@ -104,7 +104,7 @@ const renderRow = (item: TribeList) => (
     prisma.tribe.findMany({
       where: query,
       include: {
-        supervisor: true,
+        parent: true,
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),

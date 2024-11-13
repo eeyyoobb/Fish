@@ -118,13 +118,6 @@ const ChildListPage = async ({
   const [data, childCount, creatorCount, parentCount] = await prisma.$transaction([
     prisma.child.findMany({
       where: query,
-      include: {
-        tribe: {
-          include: {
-            supervisor: true,
-          },
-        },
-      },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (currentPage - 1),
     }),

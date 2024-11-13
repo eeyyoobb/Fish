@@ -19,6 +19,12 @@ interface Category {
   name: string;
 }
 
+type OptionType = {
+  value: string;
+  label: string;
+};
+
+
 function CreateContent({ closeModal }: CreateContentProps) {
   const [description, setDescription] = useState("");
   const [ad1, setAd1] = useState("");
@@ -32,7 +38,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
   const [link, setLink] = useState("");
   const [reward, setReward] = useState(0);
   const [cost, setCost] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState("");
   const [threshold, setThreshold] = useState("");
   const [thresholdError, setThresholdError] = useState(false);
   const [categoryId, setCategoryId] = useState("");
@@ -57,7 +63,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
   useEffect(() => {
     const category = categories.find(category => category.id === categoryId)?.name;
     if (category === "youtube") {
-      const calculatedCost = Math.round(duration * 1.5 * Number(threshold));
+      const calculatedCost = Math.round(Number(duration) * 1.5 * Number(threshold));
       setCost(calculatedCost);
     } else if (category) {
       const calculatedCost = Math.round(Number(threshold) * 1.5);
@@ -93,7 +99,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
         setThresholdError(false);
       }
     } else if (name === "duration") {
-      setDuration((prev) => Math.max(0, Number(prev)));
+      setDuration((prev) => Math.max(0, Number(prev)).toString());
     }
   };
 
@@ -113,9 +119,6 @@ function CreateContent({ closeModal }: CreateContentProps) {
         break;
       case "link":
         setLink(value);
-        break;
-      case "duration":
-        setDuration(Number(value));
         break;
       case "categoryId":
         setCategoryId(value);
@@ -169,7 +172,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
       isUnderstand,
       link,
       reward,
-      duration,
+      duration: formatMinute(duration),
       threshold: Number(threshold),
       categoryId,
       ownerId,

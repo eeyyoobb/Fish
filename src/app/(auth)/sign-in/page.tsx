@@ -12,6 +12,7 @@ export default function SignInPage() {
     const { user } = useUser();
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(true);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     useEffect(() => {
         const role = user?.publicMetadata?.role;
@@ -31,7 +32,7 @@ export default function SignInPage() {
         return null; 
     }
    
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    
 
     const togglePasswordVisibility = () => {
       setIsPasswordVisible((prev) => !prev);
