@@ -4,7 +4,7 @@
 //   description: "Just 1 time application",
 //   openGraph: {
 //     siteName: "The Fish Way",
-//     title: "All in One!",
+//     title: "All in One reg!",
 //     description: "Just 1 time application",
 //     url: "http://localhost:3000/income/registration",
 //     images: [

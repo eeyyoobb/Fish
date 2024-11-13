@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: "We are here for you!",
   metadataBase: new URL("https://thefishway.vercel.app"), 
   openGraph: {
-    title: "ALL IN ONE!",
+    title: "ALL IN ONE layout!",
     images: "/brandlogo.png",
   },
 };
