@@ -175,7 +175,7 @@ function TaskItem({
       <p className="text-sm">{description}</p>
 
       <div className="flex-grow">
-        {categoryName === "youtube" && hasVisitedLink && (
+        {categoryName === "youtube" && hasVisitedLink ? (
           <QuestionForm
             selectedQuestions={selectedQuestions}
             userAnswers={userAnswers}
@@ -183,7 +183,7 @@ function TaskItem({
             isLoading={isLoading}
             onSubmit={handleEarnClick}
           />
-        )}
+        ):(
           <div className="mt-2">
             <Input
               type="text"
@@ -194,6 +194,7 @@ function TaskItem({
               disabled={completed || isLoading || !hasVisitedLink}
             />
           </div>
+        )}
       </div>
 
       <div className="flex justify-between gap-5 mt-4">

@@ -100,13 +100,13 @@ export function QuestionForm({
         ))}
       </div> */}
 
-      <Button
+      {/* <Button
         type="submit"
         disabled={isLoading || formattedCode.replace(/[^0-9]/g, "").length !== 6}
         className="w-full"
       >
         {isLoading ? "Verifying..." : "Submit Code"}
-      </Button>
+      </Button> */}
       </div>
     </form>
   );

@@ -21,6 +21,7 @@ export async function POST(req: Request) {
       duration,
       threshold,
       categoryId,
+      country,
 
     } = await req.json();
     const { userId, sessionClaims } = auth();
@@ -74,6 +75,7 @@ export async function POST(req: Request) {
         ownerId: userId, // Set ownerId to the authenticated user's ID
         completionCount: 0,
         isCompleted: false,
+        country,
       },
     });
 

@@ -1,4 +1,5 @@
 "use client";
+
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import {currency} from "@/components/brand"
+import {currency} from "@/components/brand";
 
 interface CreateContentProps {
   closeModal: () => void;
@@ -32,10 +33,13 @@ function CreateContent({ closeModal }: CreateContentProps) {
   const [reward, setReward] = useState(0);
   const [cost, setCost] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [threshold, setThreshold] = useState(10);
+  const [threshold, setThreshold] = useState("");
+  const [thresholdError, setThresholdError] = useState(false);
   const [categoryId, setCategoryId] = useState("");
   const [ownerId] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
+
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -53,25 +57,47 @@ function CreateContent({ closeModal }: CreateContentProps) {
   useEffect(() => {
     const category = categories.find(category => category.id === categoryId)?.name;
     if (category === "youtube") {
-      // For YouTube: duration * 1.5 * threshold
-      const calculatedCost = Math.round(duration * 1.5 * threshold);
+      const calculatedCost = Math.round(duration * 1.5 * Number(threshold));
       setCost(calculatedCost);
     } else if (category) {
-      // For non-YouTube: threshold * 1.5
-      const calculatedCost = Math.round(threshold * 1.5);
+      const calculatedCost = Math.round(Number(threshold) * 1.5);
       setCost(calculatedCost);
     }
   }, [duration, threshold, categoryId, categories]);
 
   useEffect(() => {
-  
-      // For YouTube: duration * 1.5 * threshold
-      const calculatedReward = Math.round(cost/threshold);
-      setReward(calculatedReward);
+    const calculatedReward = Math.round(cost/Number(threshold));
+    setReward(calculatedReward);
   }, [cost, threshold]);
   
+  const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setThreshold(value);
+    setThresholdError(Number(value) < 10);
+  };
 
-  const handleChange = (name: string) => (
+  const handleMinuteChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (value.length > 2) {
+      value = value.slice(0, 2); // Limit to 2 digits
+    }
+    setter(value);
+  };
+
+  const handleBlur = (name: string) => () => {
+    if (name === "threshold") {
+      const value = Number(threshold);
+      if (value < 10) {
+        setThresholdError(true);
+      } else {
+        setThresholdError(false);
+      }
+    } else if (name === "duration") {
+      setDuration((prev) => Math.max(0, Number(prev)));
+    }
+  };
+
+    const handleChange = (name: string) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { value } = e.target;
@@ -79,26 +105,11 @@ function CreateContent({ closeModal }: CreateContentProps) {
       case "description":
         setDescription(value);
         break;
-      case "ad1":
-        setAd1(value);
-        break;
-      case "ad2":
-        setAd2(value);
-        break;
-      case "ad3":
-        setAd3(value);
-        break;
       case "track":
         setTrack(value);
         break;
-      case "trackmin":
-        setTrackmin(value);
-        break;
       case "track2":
         setTrack2(value);
-        break;
-      case "trackmin2":
-        setTrackmin2(value);
         break;
       case "link":
         setLink(value);
@@ -106,38 +117,65 @@ function CreateContent({ closeModal }: CreateContentProps) {
       case "duration":
         setDuration(Number(value));
         break;
-      case "threshold":
-        setThreshold(Math.max(10, Number(value)));
-        break;
       case "categoryId":
         setCategoryId(value);
+        break;
+      case "country":
+        setSelectedCountry(value);
         break;
       default:
         break;
     }
   };
 
+  const formatMinute = (value: string) => {
+    if (!value) return "";
+    const numValue = value.replace(/\D/g, '');
+    return numValue.length === 1 ? `0${numValue}` : numValue;
+  };
+
+  const countries = [
+    "United States",
+    "United Kingdom",
+    "France",
+    "Germany",
+    "Canada",
+    "Italy",
+    "Spain",
+    "Australia",
+    "India",
+    "Japan",
+  ];
+
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (Number(threshold) < 10) {
+      toast.error("Threshold must be at least 10");
+      return;
+    }
+
     const task = {
       description,
-      ad1,
-      ad2,
-      ad3,
+      ad1: formatMinute(ad1),
+      ad2: formatMinute(ad2),
+      ad3: formatMinute(ad3),
       track,
-      trackmin,
+      trackmin: formatMinute(trackmin),
       track2,
-      trackmin2,
+      trackmin2: formatMinute(trackmin2),
       isUnderstand,
       link,
       reward,
       duration,
-      threshold,
+      threshold: Number(threshold),
       categoryId,
       ownerId,
       completionCount: 0,
       isCompleted: false,
+      country: selectedCountry,
     };
 
     try {
@@ -159,11 +197,11 @@ function CreateContent({ closeModal }: CreateContentProps) {
   return (
     <form onSubmit={handleSubmit} className="realtive inset-0 z-50 flex items-center justify-center">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h1 className="text-2xl font-semibold mb-6 text-gray-100 ">Create a Task</h1>
+        <h1 className="text-2xl font-semibold mb-6 text-gray-100">Create a Task</h1>
 
-        <div className="space-y-4 ">
-          <div className="space-y-2 ">
-            <Label htmlFor="category" className="text-gray-200 ">Category</Label>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-gray-200">Category</Label>
             <Select value={categoryId} onValueChange={(value) => setCategoryId(value)}>
               <SelectTrigger id="category">
                 <SelectValue placeholder="Select Category" />
@@ -178,6 +216,7 @@ function CreateContent({ closeModal }: CreateContentProps) {
             </Select>
           </div>
 
+         
           <div className="space-y-2">
             <Label htmlFor="description" className="text-gray-200">Description</Label>
             <Textarea
@@ -197,8 +236,9 @@ function CreateContent({ closeModal }: CreateContentProps) {
                   id="ad1"
                   type="text"
                   value={ad1}
-                  onChange={handleChange("ad1")}
-                  placeholder="e.g., 02"
+                  onChange={handleMinuteChange(setAd1)}
+                  placeholder="00"
+                  maxLength={2}
                 />
               </div>
 
@@ -208,8 +248,9 @@ function CreateContent({ closeModal }: CreateContentProps) {
                   id="ad2"
                   type="text"
                   value={ad2}
-                  onChange={handleChange("ad2")}
-                  placeholder="e.g., 02"
+                  onChange={handleMinuteChange(setAd2)}
+                  placeholder="00"
+                  maxLength={2}
                 />
               </div>
 
@@ -219,8 +260,9 @@ function CreateContent({ closeModal }: CreateContentProps) {
                   id="ad3"
                   type="text"
                   value={ad3}
-                  onChange={handleChange("ad3")}
-                  placeholder="e.g., 02"
+                  onChange={handleMinuteChange(setAd3)}
+                  placeholder="00"
+                  maxLength={2}
                 />
               </div>
 
@@ -240,7 +282,9 @@ function CreateContent({ closeModal }: CreateContentProps) {
                   id="trackmin"
                   type="text"
                   value={trackmin}
-                  onChange={handleChange("trackmin")}
+                  onChange={handleMinuteChange(setTrackmin)}
+                  placeholder="00"
+                  maxLength={2}
                 />
               </div>
 
@@ -260,20 +304,23 @@ function CreateContent({ closeModal }: CreateContentProps) {
                   id="trackmin2"
                   type="text"
                   value={trackmin2}
-                  onChange={handleChange("trackmin2")}
+                  onChange={handleMinuteChange(setTrackmin2)}
+                  placeholder="00"
+                  maxLength={2}
                 />
               </div>
+
               <div className="space-y-2">
-            <Label htmlFor="duration" className="text-gray-200">Duration (minutes)</Label>
-            <Input
-              id="duration"
-              type="number"
-              value={duration}
-              onChange={handleChange("duration")}
-              min="2"
-              required
-            />
-          </div>
+                <Label htmlFor="duration" className="text-gray-200">Duration (minutes)</Label>
+                <Input
+                  id="duration"
+                  type="number"
+                  value={duration}
+                  onChange={handleChange("duration")}
+                  min="2"
+                  required
+                />
+              </div>
             </>
           )}
 
@@ -297,22 +344,47 @@ function CreateContent({ closeModal }: CreateContentProps) {
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="threshold" className="text-gray-200">
+              Threshold
+              {thresholdError && (
+                <span className="text-red-500 text-sm ml-2">Minimum value is 10</span>
+              )}
+            </Label>
+            <Input
+              id="threshold"
+              type="number"
+              inputMode="numeric"
+              value={threshold}
+              onChange={handleThresholdChange}
+              onBlur={handleBlur("threshold")}
+              min="10"
+              required
+              placeholder="Minimum value is 10"
+              className={`appearance-none ${thresholdError ? 'border-red-500' : ''}`}
+            />
+          </div>
 
           <div className="space-y-2">
-          <Label htmlFor="threshold" className="text-gray-200">Threshold</Label>
-          <Input
-            id="threshold"
-            type="number"
-            inputMode="numeric"  // Helps with mobile numeric keyboards
-            value={threshold}
-            onChange={handleChange("threshold")}
-            min="10"
-            required
-            className="appearance-none" // If custom styling needed, this removes default browser styling
-            style={{ WebkitAppearance: "textfield", MozAppearance: "textfield" }} // Ensure spinners appear on Safari
-          />
-        </div>
-
+          <Label htmlFor="country" className="text-gray-200">
+              Select Country
+            </Label>
+            <select
+              id="country"
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              className="bg-gray-700 text-white px-4 py-2 rounded-md"
+            >
+              <option value="" disabled>
+                Select a country
+              </option>
+              {countries.map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="reward" className="text-gray-200">Payment/{currency}</Label>

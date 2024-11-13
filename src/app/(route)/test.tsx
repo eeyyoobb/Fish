@@ -1,213 +1,377 @@
 "use client";
+ 
 
-import { Users, Crown, DollarSign } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import RoleButton from './RoleButton';
-import { useToast } from "@/hooks/use-toast"
-import { useUser } from '@clerk/nextjs';
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import {currency} from "@/components/brand";
 
+interface CreateContentProps {
+  closeModal: () => void;
+}
 
-export default function DashboardPage() {
-    const { user} = useUser();
-    const role = user?.publicMetadata.role as string;
+interface Category {
+  id: string;
+  name: string;
+}
 
-    const { toast } = useToast();
-    const [balance, setBalance] = useState(0);
-    const [totalChildren, setTotalChildren] = useState(0);
-    const [completedTasks, setCompletedTasks] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isMonetized, setIsMonetized] = useState(false);
+function CreateContent({ closeModal }: CreateContentProps) {
+  const [description, setDescription] = useState("");
+  const [ad1, setAd1] = useState("");
+  const [ad2, setAd2] = useState("");
+  const [ad3, setAd3] = useState("");
+  const [track, setTrack] = useState("");
+  const [trackmin, setTrackmin] = useState("");
+  const [track2, setTrack2] = useState("");
+  const [trackmin2, setTrackmin2] = useState("");
+  const [isUnderstand, setIsUnderstand] = useState(false);
+  const [link, setLink] = useState("");
+  const [reward, setReward] = useState(0);
+  const [cost, setCost] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [threshold, setThreshold] = useState("");
+  const [thresholdError, setThresholdError] = useState(false);
+  const [categoryId, setCategoryId] = useState("");
+  const [ownerId] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [balanceRes, childrenRes, tasksRes] = await Promise.all([
-                    fetch('/api/balance'),
-                    fetch('/api/children'),
-                    fetch('/api/complited')
-                ]);
-
-                const balanceData = await balanceRes.json();
-                const childrenData = await childrenRes.json();
-                const tasksData = await tasksRes.json();
-
-                setBalance(balanceData.balance || 0);
-                setIsMonetized(balanceData.monetization || false);
-                setTotalChildren(childrenData.count || 0);
-                setCompletedTasks(tasksData.count || 0);
-            } catch (error) {
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Failed to load dashboard data. Please try again.",
-                });
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [toast]);
-
-    console.log(balance, totalChildren, completedTasks);
-
-    const isCreatorEligible = balance >= 1000;
-    const isParentEligible = totalChildren >= 20 && completedTasks >= 20;
-    const isMonetizeEligible = totalChildren >= 5 && completedTasks >= 20;
-
-    const calculateProgress = (current: number, required: number) => {
-        return Math.min((current / required) * 100, 100);
-    };
-    
-    const getProgressColor = (percentage: number) => {
-        if (percentage <= 33) return 'from-red-500 to-orange-500';
-        if (percentage <= 66) return 'from-orange-500 to-yellow-500';
-        return 'from-green-400 to-green-600';
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("/api/categories");
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
     };
 
-    const creatorProgress = calculateProgress(balance, 1000);
-    const parentProgress = calculateProgress(totalChildren + completedTasks, 40);
-    const monetizeProgress = calculateProgress(totalChildren + completedTasks, 7);
+    fetchCategories();
+  }, []);
 
-    const handleRoleUpdate = async (role: string) => {
-        try {
-            const response = await fetch('/api/role', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ role })
-            });
+  useEffect(() => {
+    const category = categories.find(category => category.id === categoryId)?.name;
+    if (category === "youtube") {
+      const calculatedCost = Math.round(duration * 1.5 * Number(threshold));
+      setCost(calculatedCost);
+    } else if (category) {
+      const calculatedCost = Math.round(Number(threshold) * 1.5);
+      setCost(calculatedCost);
+    }
+  }, [duration, threshold, categoryId, categories]);
 
-            if (!response.ok) throw new Error('Failed to update role');
-            
-            toast({
-                title: "Success",
-                description: `Your role has been updated to ${role}`,
-            });
-        } catch (error) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Failed to update role. Please try again.",
-            });
-        }
-    };
-    const handleMonetization = async () => {
-        try {
-            const response = await fetch('/api/monitize', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ role: 'monetized' })
-            });
-    
-            if (!response.ok) throw new Error('Failed to update monetization');
-            setIsMonetized(true);
-            toast({
-                title: "Success",
-                description: "Your account has been successfully monetized!",
-            });
-        } catch (error) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Failed to update monetization. Please try again.",
-            });
-        }
-    };
-    
+  useEffect(() => {
+    const calculatedReward = Math.round(cost/Number(threshold));
+    setReward(calculatedReward);
+  }, [cost, threshold]);
+  
+  const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setThreshold(value);
+    setThresholdError(Number(value) < 10);
+  };
 
-    if (isLoading) {
-        return (
-            <div className="p-6 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-[200px] bg-gray-800/50 rounded-xl animate-pulse" />
-                    ))}
-                </div>
-            </div>
-        );
+  const handleMinuteChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (value.length > 2) {
+      value = value.slice(0, 2); // Limit to 2 digits
+    }
+    setter(value);
+  };
+
+  const handleBlur = (name: string) => () => {
+    if (name === "threshold") {
+      const value = Number(threshold);
+      if (value < 10) {
+        setThresholdError(true);
+      } else {
+        setThresholdError(false);
+      }
+    } else if (name === "duration") {
+      setDuration((prev) => Math.max(0, Number(prev)));
+    }
+  };
+
+  const handleChange = (name: string) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { value } = e.target;
+    switch (name) {
+      case "description":
+        setDescription(value);
+        break;
+      case "track":
+        setTrack(value);
+        break;
+      case "track2":
+        setTrack2(value);
+        break;
+      case "link":
+        setLink(value);
+        break;
+      case "duration":
+        setDuration(Number(value));
+        break;
+      case "categoryId":
+        setCategoryId(value);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const formatMinute = (value: string) => {
+    if (!value) return "";
+    const numValue = value.replace(/\D/g, '');
+    return numValue.length === 1 ? `0${numValue}` : numValue;
+  };
+
+  const thresholdValue = Number(threshold);
+  if (thresholdValue < 10) {
+    toast.error("Threshold must be at least 10");
+    return;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (Number(threshold) < 10) {
+      toast.error("Threshold must be at least 10");
+      return;
     }
 
-    return (
-        <div className="p-6 max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6 text-gray-100">Upgrade Your Role</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          
-            {role === "child" && (
-              <div className="relative group ">
-                <div 
-                    className={`absolute inset-0 rounded-xl transition-opacity duration-300 ${getProgressColor(creatorProgress)}`} 
-                    style={{ width: `${creatorProgress}%`, opacity: 0.2 }}
-                />
-                <div className="relative bg-gray-800/90 rounded-xl p-6 backdrop-blur-sm border border-gray-700 hover:scale-105 blockAnime">
-                  <RoleButton 
-                    title="Become Creator"
-                    Icon={Crown}
-                    isEligible={isCreatorEligible}
-                    requirement={`Need $${1000 - balance} more`}
-                    readyMessage="Ready to create!"
-                    onClick={() => handleRoleUpdate('creator')}
-                  />
-                  <div className="absolute bottom-3 right-3 text-sm font-medium text-gray-300">
-                    {creatorProgress.toFixed(0)}%
-                  </div>
-                </div>
-              </div>
-            )}
-      
-            {role !== "parent" && (
-              <div className="relative group">
-                <div 
-                  className={`absolute inset-0 rounded-xl bg-gradient-to-r ${getProgressColor(parentProgress)} opacity-25 transition-opacity duration-300`}
-                  style={{ width: `${parentProgress}%`, minHeight: "100%", borderRadius: "inherit" }} 
-                />
-                <div className="relative bg-gray-800/90 rounded-xl p-6 backdrop-blur-sm border border-gray-700 hover:scale-105 blockAnime">
-                  <RoleButton
-                    title="Apply as Parent"
-                    Icon={Users}
-                    isEligible={isParentEligible}
-                    requirement={`Need ${20 - totalChildren} more children and ${20 - completedTasks} more tasks`}
-                    readyMessage="Ready to parent!"
-                    onClick={() => handleRoleUpdate('parent')}
-                  />
-                  <div className="absolute bottom-3 right-3 text-sm font-medium text-gray-300">
-                    {parentProgress.toFixed(0)}%
-                  </div>
-                </div>
-              </div>
-            )}
-      
-            <div className="relative group">
-              {isMonetized && (
-                <div 
-                  className="absolute inset-0 rounded-xl bg-green-600 opacity-25 hover:scale-105 blockAnime"
-                  style={{ width: '100%', minHeight: "100%", borderRadius: "inherit" }} 
-                />
-              )}
-              <div 
-                className={`relative rounded-xl p-6 border hover:scale-105 blockAnime ${
-                  isMonetized ? "bg-green-600 text-white border-green-500" : "bg-gray-800/90 text-gray-300 border-gray-700 backdrop-blur-sm"
-                }`}
-              >
-                {isMonetized ? (
-                  <div className="text-center text-xl font-bold hover:scale-105">MONETIZED</div>
-                ) : (
-                  <>
-                    <RoleButton
-                      title="Monetize Account"
-                      Icon={DollarSign}
-                      isEligible={isMonetizeEligible}
-                      requirement={`Need ${5 - totalChildren} more children and ${2 - completedTasks} more tasks`}
-                      readyMessage="Ready to monetize!"
-                      onClick={() => handleMonetization()}
-                    />
-                    <div className="absolute bottom-3 right-3 text-sm font-medium">
-                      {monetizeProgress.toFixed(0)}%
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
+    const task = {
+      description,
+      ad1: formatMinute(ad1),
+      ad2: formatMinute(ad2),
+      ad3: formatMinute(ad3),
+      track,
+      trackmin: formatMinute(trackmin),
+      track2,
+      trackmin2: formatMinute(trackmin2),
+      isUnderstand,
+      link,
+      reward,
+      duration,
+      threshold: thresholdValue,
+      categoryId,
+      ownerId,
+      completionCount: 0,
+      isCompleted: false,
+    };
+
+    try {
+      const res = await axios.post("/api/tasks", task);
+      if (res.data.error) {
+        toast.error(res.data.error);
+      } else {
+        toast.success("Task created successfully.");
+        closeModal();
+      }
+    } catch (error) {
+      toast.error("Something went wrong.");
+      console.log(error);
+    }
+  };
+
+  const isYouTubeCategory = categories.find(category => category.id === categoryId)?.name === "youtube";
+
+  return (
+    <form onSubmit={handleSubmit} className="realtive inset-0 z-50 flex items-center justify-center">
+      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h1 className="text-2xl font-semibold mb-6 text-gray-100">Create a Task</h1>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-gray-200">Category</Label>
+            <Select value={categoryId} onValueChange={(value) => setCategoryId(value)}>
+              <SelectTrigger id="category">
+                <SelectValue placeholder="Select Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-gray-200">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={handleChange("description")}
+              className="min-h-[100px] glass"
+              required
+            />
+          </div>
+
+          {isYouTubeCategory && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="ad1" className="text-gray-200">First Ad Minute</Label>
+                <Input
+                  id="ad1"
+                  type="text"
+                  value={ad1}
+                  onChange={handleMinuteChange(setAd1)}
+                  placeholder="00"
+                  maxLength={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ad2" className="text-gray-200">Second Ad Minute</Label>
+                <Input
+                  id="ad2"
+                  type="text"
+                  value={ad2}
+                  onChange={handleMinuteChange(setAd2)}
+                  placeholder="00"
+                  maxLength={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ad3" className="text-gray-200">Third Ad Minute</Label>
+                <Input
+                  id="ad3"
+                  type="text"
+                  value={ad3}
+                  onChange={handleMinuteChange(setAd3)}
+                  placeholder="00"
+                  maxLength={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="track" className="text-gray-200">Special Image 1</Label>
+                <Input
+                  id="track"
+                  type="text"
+                  value={track}
+                  onChange={handleChange("track")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="trackmin" className="text-gray-200">Special Image 1 Minute</Label>
+                <Input
+                  id="trackmin"
+                  type="text"
+                  value={trackmin}
+                  onChange={handleMinuteChange(setTrackmin)}
+                  placeholder="00"
+                  maxLength={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="track2" className="text-gray-200">Special Image 2</Label>
+                <Input
+                  id="track2"
+                  type="text"
+                  value={track2}
+                  onChange={handleChange("track2")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="trackmin2" className="text-gray-200">Special Image 2 Minute</Label>
+                <Input
+                  id="trackmin2"
+                  type="text"
+                  value={trackmin2}
+                  onChange={handleMinuteChange(setTrackmin2)}
+                  placeholder="00"
+                  maxLength={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="duration" className="text-gray-200">Duration (minutes)</Label>
+                <Input
+                  id="duration"
+                  type="number"
+                  value={duration}
+                  onChange={handleChange("duration")}
+                  min="2"
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="understand"
+              checked={isUnderstand}
+              onCheckedChange={(checked) => setIsUnderstand(checked as boolean)}
+            />
+            <Label htmlFor="understand" className="text-gray-200">Understands Task</Label>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="link" className="text-gray-200">Link</Label>
+            <Input
+              id="link"
+              type="url"
+              value={link}
+              onChange={handleChange("link")}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="threshold" className="text-gray-200">
+              Threshold
+              {thresholdError && (
+                <span className="text-red-500 text-sm ml-2">Minimum value is 10</span>
+              )}
+            </Label>
+            <Input
+              id="threshold"
+              type="number"
+              inputMode="numeric"
+              value={threshold}
+              onChange={handleThresholdChange}
+              onBlur={handleBlur("threshold")}
+              min="10"
+              required
+              placeholder="Minimum value is 10"
+              className={`appearance-none ${thresholdError ? 'border-red-500' : ''}`}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="reward" className="text-gray-200">Payment/{currency}</Label>
+            <Input
+              id="reward"
+              type="number"
+              value={cost}
+              disabled
+              className="bg-gray-700 cursor-not-allowed"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            Create Task
+          </button>
         </div>
-      );
-    }
+      </div>
+      <div className="fixed inset-0 bg-black bg-opacity-50 -z-10" onClick={closeModal} />
+    </form>
+  );
+}
+
+export default CreateContent;

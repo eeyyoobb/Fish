@@ -156,7 +156,7 @@ model Task{
   isCompleted        Boolean         @default(false)
   completions        TaskCompletion[] 
   ownerId            String 
-
+  country            String?
 }
 
 model TaskCompletion {
@@ -297,6 +297,7 @@ model Adjust {
   ysub            Float?
   join            Float?
   fee             Int?
+  token           Int?
   mtask           Int?
   mchild          Int?
   mcreate         Int?

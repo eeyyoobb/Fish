@@ -39,6 +39,7 @@ export interface Task{
     trackmin2: string; // Additional minimum value for tracking
     duration:string;
     ownerId:string;
+    country: string | null;
     }
 
 export interface TaskItemProps {
@@ -59,6 +60,7 @@ export interface TaskItemProps {
     categoryName: string;
     duration:string;
     ownerId:string;
+    country: string | null;
     }
 
   export interface Category {

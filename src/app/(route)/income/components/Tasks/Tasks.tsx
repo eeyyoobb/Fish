@@ -52,6 +52,7 @@ function Tasks({ title, tasks, }: Props) {
     <span className="absolute bottom-[-0.6rem] left-0 w-12 h-1 bg-brand rounded"></span>
   </h1>
 
+
   {(role === "creator" || role === "admin") && (
     <>
       <button
@@ -93,6 +94,7 @@ function Tasks({ title, tasks, }: Props) {
             trackmin2={task.trackmin2 } 
             duration={task.duration}
             ownerId={task.ownerId}
+            country={task.country}
           />
         ))}
 
@@ -101,7 +103,9 @@ function Tasks({ title, tasks, }: Props) {
             {add}
             Add New Task
           </button>
+
         )}
+        
       </div>
     </main>
   );
