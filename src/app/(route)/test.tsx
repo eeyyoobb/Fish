@@ -1,377 +1,238 @@
 "use client";
- 
 
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import {currency} from "@/components/brand";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import crypto from "crypto";
+import { TaskHeader } from "../Tasks/taskHeader";
+import { QuestionForm } from "./form";
+import { useCountryCode } from "@/components/flag";
+import { useTaskVerification } from "@/hooks/taskVerify";
+import { TaskItemProps, Question } from "@/types/task";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-interface CreateContentProps {
-  closeModal: () => void;
-}
+const getCountryCodeFromName = (countryName: string): string => {
+  const countryCodeMap: { [key: string]: string } = {
+    "United States": "us",
+    "United Kingdom": "gb",
+  };
+  return countryCodeMap[countryName] || countryName.slice(0, 2).toLowerCase();
+};
 
-interface Category {
-  id: string;
-  name: string;
-}
+function TaskItem({
+  description,
+  link,
+  reward,
+  taskId,
+  id,
+  ownerId,
+  ad1,
+  ad2,
+  ad3,
+  isCompleted,
+  categoryName,
+  track,
+  trackmin,
+  trackmin2,
+  track2,
+  duration,
+  country,
+}: TaskItemProps) {
+  const [completed, setCompleted] = useState(isCompleted);
+  const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+  const [platform, setPlatform] = useState("");
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [taskFailed, setTaskFailed] = useState(false);
+  const [isContentVisible, setIsContentVisible] = useState(false); // State to manage content visibility
+  const router = useRouter();
+  const { user } = useUser();
+  const role = user?.publicMetadata.role as string;
 
-function CreateContent({ closeModal }: CreateContentProps) {
-  const [description, setDescription] = useState("");
-  const [ad1, setAd1] = useState("");
-  const [ad2, setAd2] = useState("");
-  const [ad3, setAd3] = useState("");
-  const [track, setTrack] = useState("");
-  const [trackmin, setTrackmin] = useState("");
-  const [track2, setTrack2] = useState("");
-  const [trackmin2, setTrackmin2] = useState("");
-  const [isUnderstand, setIsUnderstand] = useState(false);
-  const [link, setLink] = useState("");
-  const [reward, setReward] = useState(0);
-  const [cost, setCost] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [threshold, setThreshold] = useState("");
-  const [thresholdError, setThresholdError] = useState(false);
-  const [categoryId, setCategoryId] = useState("");
-  const [ownerId] = useState("");
-  const [categories, setCategories] = useState<Category[]>([]);
+  const countryCode = useCountryCode();
+  const taskCountryCode = country ? getCountryCodeFromName(country) : null;
+  const adjustedReward = countryCode === "et" ? reward / 5 : reward;
+
+  const getDeterministicQuestions = useCallback(
+    (username: string, userId: string): Question[] => {
+      const hash = crypto.createHash("md5").update(username + userId).digest("hex");
+      const index = parseInt(hash.slice(0, 2), 16) % 5;
+
+      const questions: Question[] = [
+        { key: "ad1", value: String(ad1), prompt: "the first ad?" },
+        { key: "duration", value: String(duration), prompt: "the duration of the video?" },
+        { key: "ad2", value: String(ad2), prompt: "the second ad?" },
+        { key: "ad3", value: String(ad3), prompt: "the third ad?" },
+        { key: "track", value: trackmin, prompt: `you see the ${track}?` },
+        { key: "track2", value: trackmin2, prompt: `you see the ${track2}?` },
+      ];
+
+      return [
+        questions[(index + 0) % questions.length],
+        questions[(index + 1) % questions.length],
+        questions[(index + 2) % questions.length],
+      ];
+    },
+    [ad1, ad2, ad3, duration, track, trackmin, trackmin2, track2]
+  );
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("/api/categories");
-        setCategories(response.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    const category = categories.find(category => category.id === categoryId)?.name;
-    if (category === "youtube") {
-      const calculatedCost = Math.round(duration * 1.5 * Number(threshold));
-      setCost(calculatedCost);
-    } else if (category) {
-      const calculatedCost = Math.round(Number(threshold) * 1.5);
-      setCost(calculatedCost);
+    if (user && user.username) {
+      const questions = getDeterministicQuestions(user.username, user.id);
+      setSelectedQuestions(questions);
     }
-  }, [duration, threshold, categoryId, categories]);
+  }, [user, getDeterministicQuestions]);
 
-  useEffect(() => {
-    const calculatedReward = Math.round(cost/Number(threshold));
-    setReward(calculatedReward);
-  }, [cost, threshold]);
-  
-  const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setThreshold(value);
-    setThresholdError(Number(value) < 10);
-  };
+  const { buttonState, isLoading, isClaiming, handleVerification } = useTaskVerification({
+    taskId,
+    reward: adjustedReward,
+    onComplete: () => {
+      setCompleted(true);
+      router.refresh();
+    },
+  });
 
-  const handleMinuteChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-    if (value.length > 2) {
-      value = value.slice(0, 2); // Limit to 2 digits
-    }
-    setter(value);
-  };
+  if (taskCountryCode && taskCountryCode !== countryCode) return null;
 
-  const handleBlur = (name: string) => () => {
-    if (name === "threshold") {
-      const value = Number(threshold);
-      if (value < 10) {
-        setThresholdError(true);
-      } else {
-        setThresholdError(false);
-      }
-    } else if (name === "duration") {
-      setDuration((prev) => Math.max(0, Number(prev)));
-    }
-  };
+  const handleButtonClick = async () => {
+    if (taskFailed) return;
 
-  const handleChange = (name: string) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { value } = e.target;
-    switch (name) {
-      case "description":
-        setDescription(value);
-        break;
-      case "track":
-        setTrack(value);
-        break;
-      case "track2":
-        setTrack2(value);
-        break;
-      case "link":
-        setLink(value);
-        break;
-      case "duration":
-        setDuration(Number(value));
-        break;
-      case "categoryId":
-        setCategoryId(value);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const formatMinute = (value: string) => {
-    if (!value) return "";
-    const numValue = value.replace(/\D/g, '');
-    return numValue.length === 1 ? `0${numValue}` : numValue;
-  };
-
-  const thresholdValue = Number(threshold);
-  if (thresholdValue < 10) {
-    toast.error("Threshold must be at least 10");
-    return;
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (Number(threshold) < 10) {
-      toast.error("Threshold must be at least 10");
+    if (!startTime) {
+      window.open(link, "_blank");
+      setStartTime(Date.now());
       return;
     }
 
-    const task = {
-      description,
-      ad1: formatMinute(ad1),
-      ad2: formatMinute(ad2),
-      ad3: formatMinute(ad3),
-      track,
-      trackmin: formatMinute(trackmin),
-      track2,
-      trackmin2: formatMinute(trackmin2),
-      isUnderstand,
-      link,
-      reward,
-      duration,
-      threshold: thresholdValue,
-      categoryId,
-      ownerId,
-      completionCount: 0,
-      isCompleted: false,
-    };
+    const elapsedTime = (Date.now() - startTime) / 1000 / 60;
+    const durationInMinutes = Number(duration);
 
-    try {
-      const res = await axios.post("/api/tasks", task);
-      if (res.data.error) {
-        toast.error(res.data.error);
-      } else {
-        toast.success("Task created successfully.");
-        closeModal();
+    if (elapsedTime < durationInMinutes / 2) {
+      toast.error("You're cheating! Task failed.");
+      setTaskFailed(true);
+      return;
+    }
+
+    if (categoryName === "youtube") {
+      if (Object.keys(userAnswers).length !== selectedQuestions.length) {
+        toast.error("Please answer all questions");
+        return;
       }
-    } catch (error) {
-      toast.error("Something went wrong.");
-      console.log(error);
+      await handleVerification(userAnswers, selectedQuestions);
+    } else {
+      if (!platform.trim()) {
+        toast.error("Please enter your user ID");
+        return;
+      }
+      await handleVerification({}, [], platform.trim());
     }
   };
 
-  const isYouTubeCategory = categories.find(category => category.id === categoryId)?.name === "youtube";
+  const handleDelete = async () => {
+    try {
+      const res = await axios.delete(`/api/tasks/${id}`);
+      if (res.status === 200) {
+        toast.success("Task deleted");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      toast.error("Failed to delete task");
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const res = await axios.put(`/api/tasks`);
+      if (res.status === 200) {
+        toast.success("Task updated");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+      toast.error("Failed to update task");
+    }
+  };
+
+  const getButtonText = () => {
+    if (taskFailed) return "Failed";
+    if (isClaiming) return "Processing...";
+    if (completed) return "Completed";
+    if (buttonState === "failed") return "Failed";
+    if (!startTime) return "Start Task";
+    return "Verify Task";
+  };
+
+  const getButtonStyle = () => {
+    if (taskFailed) return "bg-red-500 cursor-not-allowed";
+    if (completed) return "bg-gray-500 cursor-not-allowed";
+    if (buttonState === "failed") return "bg-red-500 cursor-not-allowed";
+    if (startTime) return "bg-green-500 hover:bg-green-600";
+    return "bg-brand hover:bg-orange-600";
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="realtive inset-0 z-50 flex items-center justify-center">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h1 className="text-2xl font-semibold mb-6 text-gray-100">Create a Task</h1>
+    <div className="h-0.5px md:relative md:h-auto p-3 sm:p-4 md:p-5 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 flex flex-col gap-1 w-full max-w-[95vw] sm:max-w-[540px] md:max-w-[640px] mx-auto">
+      {/* Task Header and Start Button (Visible on small screens) */}
+      <TaskHeader categoryName={categoryName} reward={adjustedReward} link={link} />
+      
+      <Button
+        onClick={() => setIsContentVisible(true)}
+        className="w-full sm:w-auto bg-brand hover:bg-orange-600 mt-4"
+      >
+        Start Task
+      </Button>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="category" className="text-gray-200">Category</Label>
-            <Select value={categoryId} onValueChange={(value) => setCategoryId(value)}>
-              <SelectTrigger id="category">
-                <SelectValue placeholder="Select Category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-gray-200">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={handleChange("description")}
-              className="min-h-[100px] glass"
-              required
-            />
-          </div>
-
-          {isYouTubeCategory && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="ad1" className="text-gray-200">First Ad Minute</Label>
-                <Input
-                  id="ad1"
-                  type="text"
-                  value={ad1}
-                  onChange={handleMinuteChange(setAd1)}
-                  placeholder="00"
-                  maxLength={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ad2" className="text-gray-200">Second Ad Minute</Label>
-                <Input
-                  id="ad2"
-                  type="text"
-                  value={ad2}
-                  onChange={handleMinuteChange(setAd2)}
-                  placeholder="00"
-                  maxLength={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ad3" className="text-gray-200">Third Ad Minute</Label>
-                <Input
-                  id="ad3"
-                  type="text"
-                  value={ad3}
-                  onChange={handleMinuteChange(setAd3)}
-                  placeholder="00"
-                  maxLength={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="track" className="text-gray-200">Special Image 1</Label>
-                <Input
-                  id="track"
-                  type="text"
-                  value={track}
-                  onChange={handleChange("track")}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="trackmin" className="text-gray-200">Special Image 1 Minute</Label>
-                <Input
-                  id="trackmin"
-                  type="text"
-                  value={trackmin}
-                  onChange={handleMinuteChange(setTrackmin)}
-                  placeholder="00"
-                  maxLength={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="track2" className="text-gray-200">Special Image 2</Label>
-                <Input
-                  id="track2"
-                  type="text"
-                  value={track2}
-                  onChange={handleChange("track2")}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="trackmin2" className="text-gray-200">Special Image 2 Minute</Label>
-                <Input
-                  id="trackmin2"
-                  type="text"
-                  value={trackmin2}
-                  onChange={handleMinuteChange(setTrackmin2)}
-                  placeholder="00"
-                  maxLength={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="duration" className="text-gray-200">Duration (minutes)</Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  value={duration}
-                  onChange={handleChange("duration")}
-                  min="2"
-                  required
-                />
-              </div>
-            </>
+      {/* Content that shows after Start Task */}
+      {isContentVisible && (
+        <div className="mt-4 sm:mt-6 flex flex-col gap-3">
+          {categoryName === "youtube" ? (
+            <p className="text-sm md:text-base text-gray-700 dark:text-gray-300">
+              To get your reward, write the minute of{" "}
+              {selectedQuestions.map((question, index) => (
+                <span key={question.key}>
+                  <span className="text-brand">{question.prompt} </span>
+                  {index < selectedQuestions.length - 1 ? ", " : ""}
+                </span>
+              ))}{" "}
+              .. if the info is not provided, put 00.
+            </p>
+          ) : (
+            <p className="text-sm md:text-base text-gray-700 dark:text-gray-300">
+              To complete this task, please enter your user ID
+            </p>
           )}
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="understand"
-              checked={isUnderstand}
-              onCheckedChange={(checked) => setIsUnderstand(checked as boolean)}
-            />
-            <Label htmlFor="understand" className="text-gray-200">Understands Task</Label>
-          </div>
+          <p className="text-sm md:text-base my-2">{description}</p>
 
-          <div className="space-y-2">
-            <Label htmlFor="link" className="text-gray-200">Link</Label>
-            <Input
-              id="link"
-              type="url"
-              value={link}
-              onChange={handleChange("link")}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="threshold" className="text-gray-200">
-              Threshold
-              {thresholdError && (
-                <span className="text-red-500 text-sm ml-2">Minimum value is 10</span>
+          <div className="flex-grow flex flex-col gap-1 w-full md:flex-row md:items-center md:justify-between">
+            <div className="relative flex-grow mt-2 sm:mt-3 md:mt-0">
+              {platform && platform.length < 2 && (
+                <Input
+                  value={platform}
+                  onChange={(e) => setPlatform(e.target.value)}
+                  placeholder="Enter your user ID"
+                  className="block w-full p-2 border border-gray-300 rounded-md"
+                />
               )}
-            </Label>
-            <Input
-              id="threshold"
-              type="number"
-              inputMode="numeric"
-              value={threshold}
-              onChange={handleThresholdChange}
-              onBlur={handleBlur("threshold")}
-              min="10"
-              required
-              placeholder="Minimum value is 10"
-              className={`appearance-none ${thresholdError ? 'border-red-500' : ''}`}
-            />
+            </div>
+            <div className="flex gap-3 mt-3">
+              <Button
+                onClick={handleButtonClick}
+                disabled={isLoading || taskFailed}
+                className={`w-full sm:w-auto ${getButtonStyle()}`}
+              >
+                {getButtonText()}
+              </Button>
+            </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="reward" className="text-gray-200">Payment/{currency}</Label>
-            <Input
-              id="reward"
-              type="number"
-              value={cost}
-              disabled
-              className="bg-gray-700 cursor-not-allowed"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-          >
-            Create Task
-          </button>
         </div>
-      </div>
-      <div className="fixed inset-0 bg-black bg-opacity-50 -z-10" onClick={closeModal} />
-    </form>
+      )}
+    </div>
   );
 }
 
-export default CreateContent;
+export default TaskItem;

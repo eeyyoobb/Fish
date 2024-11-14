@@ -48,7 +48,7 @@ const Menu = () => {
   }
 
   return (
-    <div className="flex flex-row md:flex-col items-center md:p-4 glass">
+    <div className="absolute sm:w-full flex flex-row md:flex-col items-center md:p-4 glass sm:bottom-0 md:static sm:mr-2">
       {/* User Profile Section */}
 
       <div className="flex items-center mb-4 relative md:w-full ">
@@ -162,7 +162,7 @@ const Menu = () => {
       </div>
 
       {/* Sign Out Button */}
-      <div className="relative m-4">
+      <div className="relative m-4 right-0">
         <button
           className="flex items-center justify-center w-full py-2 rounded-md md-border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition duration-300"
           onClick={() => {

@@ -1,7 +1,7 @@
 "use client";
 import Image from 'next/image';
 import { useState } from 'react';
-import {toast} from "sonner";
+import { toast } from "sonner";
 
 interface Player {
   id: number;
@@ -28,31 +28,13 @@ const initialBoxValues = [
 ];
 
 const GamePage = () => {
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [players, setPlayers] = useState<Player[]>([
+    { id: 1, name: "Player 1", score: 0, balls: [], isOut: false },
+    { id: 2, name: "Player 2", score: 0, balls: [], isOut: false }
+  ]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [lastClickedBall, setLastClickedBall] = useState<number | null>(null);
   const [allBalls, setAllBalls] = useState(initialBoxValues);
-  const [numPlayers, setNumPlayers] = useState(2);
-
-  
-  
-  const initializePlayers = (num: number) => {
-    const newPlayers = Array.from({ length: num }, (_, i) => ({
-      id: i + 1,
-      name: `Player ${i + 1}`,
-      score: 0,
-      balls: [],
-      isOut: false,
-    }));
-    setPlayers(newPlayers);
-    setCurrentPlayerIndex(0);
-  };
-
-  const handleNumPlayersChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedNum = parseInt(event.target.value);
-    setNumPlayers(selectedNum);
-    initializePlayers(selectedNum);
-  };
 
   const handleBoxClick = (value: number, index: number) => {
     const currentPlayerId = players[currentPlayerIndex].id;
@@ -85,7 +67,7 @@ const GamePage = () => {
     setPlayers((prevPlayers) =>
       prevPlayers.map((player) =>
         player.id === currentPlayerId
-          ? { ...player, score: player.score - 2*lastClickedBall }
+          ? { ...player, score: player.score - 2 * lastClickedBall }
           : player
       )
     );
@@ -96,39 +78,55 @@ const GamePage = () => {
 
   const handleFoulClick = () => {
     if (lastClickedBall === null) return;
-  
+
     const currentPlayerId = players[currentPlayerIndex].id;
-  
-    // Update the current player's score and balls array
+
     setPlayers((prevPlayers) =>
       prevPlayers.map((player) =>
         player.id === currentPlayerId
           ? {
               ...player,
               score: player.score - 2 * lastClickedBall,
-              balls: player.balls.slice(0, -1), // Remove the last ball
+              balls: player.balls.slice(0, -1),
             }
           : player
       )
     );
-  
-    // Re-enable the last clicked ball in the allBalls array
+
     setAllBalls((prevBalls) =>
       prevBalls.map((ball) =>
         ball.value === lastClickedBall ? { ...ball, disabled: false } : ball
       )
     );
-  
-    // Clear the last clicked ball
+
     setLastClickedBall(null);
-    
-    // Move to the next player
     handleNextPlayer();
   };
-  
 
   const handleNextPlayer = () => {
     setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
+  };
+
+  const addPlayer = () => {
+    const newPlayerId = players.length + 1;
+    const newPlayer: Player = {
+      id: newPlayerId,
+      name: `Player ${newPlayerId}`,
+      score: 0,
+      balls: [],
+      isOut: false,
+    };
+    setPlayers([...players, newPlayer]);
+  };
+
+  const resetGame = () => {
+    setPlayers([
+      { id: 1, name: "Player 1", score: 0, balls: [], isOut: false },
+      { id: 2, name: "Player 2", score: 0, balls: [], isOut: false }
+    ]);
+    setCurrentPlayerIndex(0);
+    setLastClickedBall(null);
+    setAllBalls(initialBoxValues);
   };
 
   const checkWinningCondition = () => {
@@ -156,79 +154,70 @@ const GamePage = () => {
   return (
     <div className="p-4 bg-gradient-to-b from-green-600/70 to-green-900/70">
       <h1 className="text-2xl mb-4">Pool Game Score Tracker</h1>
-
       <div className="mb-4">
-        <label htmlFor="numPlayers" className="mr-2">Number of Players:</label>
-        <select
-          id="numPlayers"
-          value={numPlayers}
-          onChange={handleNumPlayersChange}
-          className="p-2 border rounded"
-        >
-          {[2, 3, 4, 5, 6].map((num) => (
-            <option key={num} value={num}>
-              {num}
-            </option>
-          ))}
-        </select>
+        <button onClick={resetGame} className="mt-2 p-2 bg-yellow-500 text-white rounded">Restart Game</button>
       </div>
 
-      <div className="border-white p-4 mb-6 rounded-lg bg-teal-900/90">
-        <h2 className="text-xl mb-2">All Balls</h2>
-        <div className="flex gap-4 mb-2">
-          {allBalls.map((ball, index) => (
-            <div
-              key={ball.id}
-              className={`flex justify-center items-center border rounded-full cursor-pointer transition-colors duration-300 ${ball.disabled ? 'filter grayscale' : ''}`}
-              onClick={() => !ball.disabled && handleBoxClick(ball.value, index)}
-            >
-              {ball.image && (
-                <Image
-                  src={ball.image}
-                  alt={`${ball.value}`}
-                  width={50}
-                  height={50}
-                  className="w-full h-full object-cover rounded-full"
-                />
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-center items-center w-full h-full">
-          <button onClick={handleCueClick}>
-            <Image src="/balls/0.png" alt="white" width={20} height={20} className="w-full h-full object-cover rounded-full object-center" />
-          </button>
-          <button className="mt-2 p-2 bg-red-500/70 text-white rounded ml-2" onClick={handleFoulClick}>Foul</button>
-          <button className="mt-2 p-2 bg-teal-700/70 text-white rounded ml-2" onClick={handleNextPlayer}>Next Player</button>
-        </div>
-      </div>
-
-      {players.map((player, index) => (
-        <div
-          key={player.id}
-          className={`border border-green-700 bg-teal-900/70 p-4 mb-4 rounded-lg ${player.isOut ? 'bg-red-700' : currentPlayerIndex === index ? 'border-orange-500 glow-effect' : ''}`}
-        >
-          <h2 className="text-xl">{player.name}</h2>
-          <p>Score: {player.score}</p>
-          {player.isOut && <p className="text-red-500">Out</p>}
-          <div className="mt-4">
-            <h2 className="text-lg mb-2">Player&apos;s Balls</h2>
-            <div className="flex gap-4">
-              {player.balls.map((ballValue, i) => (
-                <div key={i} className="flex justify-center items-center border rounded-full">
+      <div className="flex w-full">
+        <div className="relative w-1/4 border-white p-2 mb-6 rounded-lg bg-teal-900/90">
+          <h2 className="text-xl mb-2">All Balls</h2>
+          <div className="flex flex-col gap-4 mb-2">
+            {allBalls.map((ball, index) => (
+              <div
+                key={ball.id}
+                className={`flex justify-center items-center border rounded-full cursor-pointer transition-colors duration-300 ${ball.disabled ? 'hidden' : ''}`}
+                onClick={() => !ball.disabled && handleBoxClick(ball.value, index)}
+                style={{ maxHeight: '35px' }}
+              >
+                {ball.image && (
                   <Image
-                    src={`/balls/${ballValue}.png`}
-                    alt={`Ball ${ballValue}`}
-                    width={40}
-                    height={40}
+                    src={ball.image}
+                    alt={`${ball.value}`}
+                    width={50}
+                    height={50}
                     className="w-full h-full object-cover rounded-full"
                   />
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      ))}
+
+        <div className='flex flex-col items-center justify-center w-full h-full m-3'>
+          <div className="flex justify-center items-center w-full h-full m-2">
+            <button onClick={handleCueClick}>
+              <Image src="/balls/0.png" alt="white" width={20} height={20} className="w-full h-full object-cover rounded-full object-center" />
+            </button>
+            <button className="mt-2 p-2 bg-red-500/70 text-white rounded ml-2" onClick={handleFoulClick}>Foul</button>
+            <button className="mt-2 p-2 bg-teal-700/70 text-white rounded ml-2" onClick={handleNextPlayer}>Next Player</button>
+          </div>
+          {players.map((player, index) => (
+            <div
+              key={player.id}
+              className={`border border-green-700 bg-teal-900/70 p-4 mb-4 rounded-lg ${player.isOut ? 'bg-red-700' : currentPlayerIndex === index ? 'border-orange-500 glow-effect' : ''}`}
+              style={{maxHeight: '200px' }}
+            >
+              <h2 className="text-xl">{player.name}</h2>
+              <p>Score: {player.score}</p>
+              {player.isOut && <p className="text-red-500">Out</p>}
+              <div className="mt-4">
+                <h2 className="text-lg mb-2">Player&apos;s Balls</h2>
+                <div className="flex gap-4">
+                  {player.balls.map((ball, ballIndex) => (
+                    <span
+                      key={ballIndex}
+                      className="border border-white rounded-full px-2 py-1"
+                    >
+                      {ball}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+          <button className="mt-2 p-2 bg-teal-700 text-white rounded"  onClick={addPlayer} >Add Player</button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -14,6 +14,17 @@ import { useTaskVerification } from "@/hooks/taskVerify";
 import { TaskItemProps, Question } from "@/types/task";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+
 
 const getCountryCodeFromName = (countryName: string): string => {
   const countryCodeMap: { [key: string]: string } = {
@@ -56,6 +67,7 @@ function TaskItem({
   const countryCode = useCountryCode();
   const taskCountryCode = country ? getCountryCodeFromName(country) : null;
   const adjustedReward = countryCode === "et" ? reward / 5 : reward;
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const getDeterministicQuestions = useCallback(
     (username: string, userId: string): Question[] => {
@@ -104,13 +116,14 @@ function TaskItem({
     if (!startTime) {
       window.open(link, "_blank");
       setStartTime(Date.now());
+      setIsDrawerOpen(true);
       return;
     }
 
     const elapsedTime = (Date.now() - startTime) / 1000 / 60;
     const durationInMinutes = Number(duration);
 
-    if (elapsedTime < durationInMinutes) {
+    if (elapsedTime < durationInMinutes/2) {
       toast.error("You're cheating! Task failed.");
       setTaskFailed(true);
       return;
@@ -174,12 +187,15 @@ function TaskItem({
     return "bg-brand hover:bg-orange-600";
   };
 
+
+
   return (
-    <div className="relative p-3 sm:p-4 md:p-5 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 h-auto min-h-[16rem] flex flex-col gap-1 w-full max-w-[95vw] sm:max-w-[540px] md:max-w-[640px] mx-auto">
-      <TaskHeader categoryName={categoryName} reward={adjustedReward} />
+    <div className="relative md:h-auto p-3 sm:p-4 md:p-5 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 flex md:flex-col md:justify-between gap-40 md:gap-1 w-full max-w-[95vw] sm:max-w-[540px] md:max-w-[640px] mx-auto">
+      <div className="w-2/3 md:w-full border-white">
+      <TaskHeader categoryName={categoryName} reward={adjustedReward} link={link}/>
 
       {categoryName === "youtube" ? (
-        <p className="text-sm md:text-base text-gray-700 dark:text-gray-300">
+        <p className="hidden md:block text-sm md:text-base text-gray-700 dark:text-gray-300">
           To get your reward, write the minute of{" "}
           {selectedQuestions.map((question, index) => (
             <span key={question.key}>
@@ -195,10 +211,10 @@ function TaskItem({
         </p>
       )}
 
-      <p className="text-sm md:text-base my-2">{description}</p>
-   
-      <div className="flex-grow flex flex-col gap-1  w-full md:flex-row md:items-center md:justify-between">
-      <div className=" realtive flex-grow mt-2 sm:mt-3 md:mt-4 md:w-2/3 ">
+      <p className=" hidden md:block text-sm md:text-base my-2">{description}</p>
+    </div>
+      <div className="flex-grow flex flex-col gap-1 w-1/3 md:w-full md:flex-row md:items-center justify-between ">
+      <div className=" realtive flex-grow mt-2 sm:mt-3 md:mt-4 md:w-2/3 hidden md:block ">
         {categoryName === "youtube" && startTime ? (
           <div className="mb-6 sm:mb-0">
             <QuestionForm
@@ -223,7 +239,7 @@ function TaskItem({
         )}
       </div>
 
-      <div className="relative md:w-1/3 flex-grow flex flex-col md:mt-4 sm:flex-row justify-between gap-3 sm:gap-5 mt-2 sm:relative bottom-0 left-0 right-0 p-3 sm:p-0 bg-background sm:bg-transparent border-t sm:border-t-0">
+      <div className="relative hidden  md:w-1/3 flex-grow md:flex md:flex-col md:mt-4 sm:flex-row  justify-between gap-3 sm:gap-5 mt-2 sm:relative bottom-0 left-0 right-0 p-3 sm:p-0 bg-background sm:bg-transparent border-t sm:border-t-0 mr-1">
         <Button
           onClick={handleButtonClick}
           className={`${getButtonStyle()} w-full sm:w-auto`}
@@ -260,6 +276,103 @@ function TaskItem({
           </Button>
         </div>
     )}
+
+  <div className="block md:hidden ">
+     <Drawer>
+        <DrawerTrigger>
+           <Button className="md:hidden w-50 items-center">Open</Button>
+        </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle><TaskHeader categoryName={categoryName} reward={adjustedReward} link={link}/></DrawerTitle>
+          <DrawerDescription>
+          {categoryName === "youtube" ? (
+            <p className="text-sm md:text-base text-gray-700 dark:text-gray-300">
+              To get your reward, write the minute of{" "}
+              {selectedQuestions.map((question, index) => (
+                <span key={question.key}>
+                  <span className="text-brand">{question.prompt} </span>
+                  {index < selectedQuestions.length - 1 ? ", " : ""}
+                </span>
+              ))}{" "}
+              .. if the info is not provided, put 00.
+            </p>
+          ) : (
+            <p className="text-sm md:text-base text-gray-700 dark:text-gray-300">
+              To complete this task, please enter your user ID
+            </p>
+          )}
+         </DrawerDescription>
+             <DrawerDescription>{description}</DrawerDescription>
+              </DrawerHeader>
+
+              <DrawerFooter>
+              <div className=" realtive flex-grow mt-2 sm:mt-3 md:mt-4 md:w-2/3  ">
+                {categoryName === "youtube" && startTime ? (
+                  <div className="mb-6 sm:mb-0">
+                    <QuestionForm
+                      selectedQuestions={selectedQuestions}
+                      userAnswers={userAnswers}
+                      setUserAnswers={setUserAnswers}
+                      isLoading={isLoading}
+                      onSubmit={handleButtonClick}
+                    />
+                  </div>
+                ) : (
+                  <div className={`mt-2 mb-6 sm:mb-0 ${categoryName === "youtube" ? "hidden" : ""}`}>
+                    <Input
+                      type="text"
+                      placeholder="Enter your user ID"
+                      value={platform}
+                      onChange={(e) => setPlatform(e.target.value)}
+                      className="w-full"
+                      disabled={completed || isLoading || !startTime || taskFailed}
+                    />
+                  </div>
+                )}
+              </div>
+                <Button onClick={handleButtonClick}
+                  className={`${getButtonStyle()} w-full sm:w-auto`}
+                  disabled={isLoading || taskFailed || completed || buttonState === "failed"}
+                >
+                  <span className="block sm:hidden md:block">{getButtonText()}</span>
+                  {!taskFailed && startTime ? (
+                    <span className="hidden sm:block md:hidden">Verify</span>
+                  ) : !taskFailed && !startTime ? (
+                    <span className="hidden sm:block md:hidden">Start</span>
+                  ) : (
+                    <span className="hidden sm:block md:hidden">Failed</span>
+                  )}</Button>
+                <DrawerClose>
+                  <Button variant="outline">Cancel</Button>
+                </DrawerClose>
+                { role === "admin" && (
+                  <DrawerClose>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <Button 
+                        variant="destructive" 
+                        onClick={handleDelete} 
+                        disabled={completed}
+                        className="flex-1 sm:flex-none"
+                      >
+                        <Trash className="w-4 h-4 sm:mr-0 md:mr-2" />
+                        <span className="ml-2 sm:hidden md:inline">Delete</span>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleUpdate}
+                        className="flex-1 sm:flex-none"
+                      >
+                        <Edit className="w-4 h-4 sm:mr-0 md:mr-2" />
+                        <span className="ml-2 sm:hidden md:inline">Update</span>
+                      </Button>
+                    </div>
+                    </DrawerClose>
+                  )}
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+       </div>
       </div>
     </div>
   );

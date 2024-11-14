@@ -1,201 +1,138 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface AdjustContentProps {
   closeModal: () => void;
+  initialData?: Partial<AdjustData>;
 }
 
-const AdjustContent = ({ closeModal }: AdjustContentProps) => {
-  const [ywatch, setYwatch] = useState<number | undefined>(undefined);
-  const [ylike, setYlike] = useState<number | undefined>(undefined);
-  const [ysub, setYsub] = useState<number | undefined>(undefined);
-  const [join, setJoin] = useState<number | undefined>(undefined);
-  const [fee, setFee] = useState<number | undefined>(undefined);
-  const [token, setToken] = useState<number | undefined>(undefined);
-  const [mtask, setMtask] = useState<number | undefined>(undefined);
-  const [mchild, setMchild] = useState<number | undefined>(undefined);
-  const [mcreate, setMcreate] = useState<number | undefined>(undefined);
-  const [Account, setAccount] = useState<string | undefined>(undefined);
-  const [balance, setBalance] = useState<number | undefined>(undefined);
+interface AdjustData {
+  ywatch?: number;
+  ylike?: number;
+  ysub?: number;
+  join?: number;
+  fee?: number;
+  token?: number;
+  mtask?: number;
+  mchild?: number;
+  mcreate?: number;
+  Account?: string;
+  balance?: number;
+  wallet?: number;
+}
 
-  const handleChange = (setter: React.Dispatch<React.SetStateAction<any>>) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { value } = e.target;
-    setter(value ? parseFloat(value) : undefined);
-  };
+const AdjustContent = ({ closeModal, initialData = {} }: AdjustContentProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [values, setValues] = useState<AdjustData>(initialData);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const id = "6735bdb18d3506112211fd45"; // You can later replace with dynamic ID
+  useEffect(() => {
+    axios
+      .get(`/api/adjusts/${id}`)
+      .then((res) => setValues((prevValues) => ({ ...prevValues, ...res.data })))
+      .catch((err) => console.log(err));
+  }, [id]);
+
+  const router = useRouter();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const adjustData = {
-      ywatch,
-      ylike,
-      ysub,
-      join,
-      fee,
-      token,
-      mtask,
-      mchild,
-      mcreate,
-      Account,
-      balance,
-    };
-
+    setIsSubmitting(true);
     try {
-      const res = await axios.post("/api/adjusts", adjustData);
-      if (res.data.error) {
-        toast.error(res.data.error);
-      } else {
-        toast.success("Task adjusted successfully.");
-        closeModal();
-      }
-    } catch (error) {
-      toast.error("Something went wrong.");
-      console.error(error);
+      await axios.put(`/api/adjusts/${id}`, values);
+      router.push('/income');
+      toast.success("Task updated successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update task");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const inputFields = [
+    { id: "ywatch", label: "YouTube Watch", type: "number" },
+    { id: "ylike", label: "YouTube Likes", type: "number" },
+    { id: "ysub", label: "YouTube Subscribers", type: "number" },
+    { id: "join", label: "Join Count", type: "number" },
+    { id: "fee", label: "Fee", type: "number" },
+    { id: "token", label: "Token", type: "number" },
+    { id: "mtask", label: "Monetization Tasks", type: "number" },
+    { id: "mchild", label: "Monetization Child Tasks", type: "number" },
+    { id: "mcreate", label: "Monetization Created Tasks", type: "number" },
+    { id: "Account", label: "Account", type: "text" },
+    { id: "balance", label: "Balance", type: "number" },
+    { id: "wallet", label: "Wallet", type: "number" },
+  ] as const;
+
   return (
-    <form onSubmit={handleSubmit} className="relative inset-0 z-50 flex items-center justify-center">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h1 className="text-2xl font-semibold mb-6 text-gray-100">Adjust Task</h1>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="ywatch" className="text-gray-200">YouTube Watch</Label>
-            <Input
-              id="ywatch"
-              type="number"
-              value={ywatch ?? ""}
-              onChange={handleChange(setYwatch)}
-              placeholder="Enter YouTube watch count"
-            />
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/50" onClick={closeModal} />
+      <div className="relative bg-background p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-semibold">Adjust Task</h2>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={closeModal}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              ×
+            </Button>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="ylike" className="text-gray-200">YouTube Likes</Label>
-            <Input
-              id="ylike"
-              type="number"
-              value={ylike ?? ""}
-              onChange={handleChange(setYlike)}
-              placeholder="Enter YouTube like count"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {inputFields.map(({ id, label, type }) => (
+              <div key={id} className="space-y-2">
+                <Label htmlFor={id} className="text-sm font-medium">
+                  {label}
+                </Label>
+                <Input
+                  id={id}
+                  type={type}
+                  value={values[id as keyof AdjustData]}
+                  onChange={(e) =>
+                    setValues((prevValues) => ({
+                      ...prevValues,
+                      [id]: type === "number" ? Number(e.target.value) : e.target.value,
+                    }))
+                  }
+                  placeholder={`Enter ${label.toLowerCase()}`}
+                  className={cn("w-full", type === "number" && "appearance-none")}
+                />
+              </div>
+            ))}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="ysub" className="text-gray-200">YouTube Subscribers</Label>
-            <Input
-              id="ysub"
-              type="number"
-              value={ysub ?? ""}
-              onChange={handleChange(setYsub)}
-              placeholder="Enter YouTube subscriber count"
-            />
+          <div className="flex justify-end gap-3 mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeModal}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {isSubmitting ? "Updating..." : "Update Task"}
+            </Button>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="join" className="text-gray-200">Join Count</Label>
-            <Input
-              id="join"
-              type="number"
-              value={join ?? ""}
-              onChange={handleChange(setJoin)}
-              placeholder="Enter join count"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="fee" className="text-gray-200">Fee</Label>
-            <Input
-              id="fee"
-              type="number"
-              value={fee ?? ""}
-              onChange={handleChange(setFee)}
-              placeholder="Enter fee"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="token" className="text-gray-200">Token</Label>
-            <Input
-              id="token"
-              type="number"
-              value={token ?? ""}
-              onChange={handleChange(setToken)}
-              placeholder="Enter token amount"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="mtask" className="text-gray-200">Monthly Tasks</Label>
-            <Input
-              id="mtask"
-              type="number"
-              value={mtask ?? ""}
-              onChange={handleChange(setMtask)}
-              placeholder="Enter monthly tasks"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="mchild" className="text-gray-200">Monthly Child Tasks</Label>
-            <Input
-              id="mchild"
-              type="number"
-              value={mchild ?? ""}
-              onChange={handleChange(setMchild)}
-              placeholder="Enter monthly child tasks"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="mcreate" className="text-gray-200">Monthly Created Tasks</Label>
-            <Input
-              id="mcreate"
-              type="number"
-              value={mcreate ?? ""}
-              onChange={handleChange(setMcreate)}
-              placeholder="Enter monthly created tasks"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="Account" className="text-gray-200">Account</Label>
-            <Input
-              id="Account"
-              type="text"
-              value={Account ?? ""}
-              onChange={(e) => setAccount(e.target.value)}
-              placeholder="Enter account information"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="balance" className="text-gray-200">Balance</Label>
-            <Input
-              id="balance"
-              type="number"
-              value={balance ?? ""}
-              onChange={handleChange(setBalance)}
-              placeholder="Enter balance"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-          >
-            Adjust Task
-          </button>
-        </div>
+        </form>
       </div>
-      <div className="fixed inset-0 bg-black bg-opacity-50 -z-10" onClick={closeModal} />
-    </form>
+    </div>
   );
 };
 
