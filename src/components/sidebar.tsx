@@ -44,20 +44,20 @@ const Menu = () => {
   }, [isLoaded]);
 
   if (loading) {
-    return <FishLoader />; // Show fish loader while loading
+    return <FishLoader />; 
   }
 
   return (
-    <div className="absolute sm:w-full flex flex-row md:flex-col items-center md:p-4 glass sm:bottom-0 md:static sm:mr-2">
-      {/* User Profile Section */}
+    <div className="absolute sm:w-full flex md:flex-col  items-center md:p-4 glass bottom-0 md:top-0 md:static sm:mr-2 ">
 
-      <div className="flex items-center mb-4 relative md:w-full ">
-        <div className="profile w-full flex flex-col items-center">
+      <div className="flex flex-col">
+        <div className="flex md:flex-col items-center mb-4 relative md:w-full ">
+         <div className="profile w-full flex flex-col items-center ">
           <div className="profile-overlay absolute inset-0 backdrop-blur-lg bg-black/20 rounded-lg"></div>
           {isSignedIn ? (
-            <div className="flex flex-col items-center">
-              {/* Profile Image */}
-              <div className="w-16 h-16 overflow-hidden rounded-full relative mb-2">
+            <div className="flex  md:flex-col items-center">
+
+              <div className="w-10 h-10 md:w-16 md:h-16 overflow-hidden rounded-full relative mb-2">
                 <Image
                   width={70}
                   height={70}
@@ -67,14 +67,11 @@ const Menu = () => {
                 />
               </div>
 
-              {/* Conditional First Name or Complete Profile */}
+
               {!user.firstName ? (
                 <h1 className="mt-1 text-lg capitalize z-10">
                   <span className="cursor-pointer rounded-md border border-red-600 flex items-center justify-center p-2" onClick={() => openUserProfile()}>
-                    {/* Pencil Icon for Small Screens */}
                     <PencilIcon className="h-5 w-5 text-red-600 block lg:hidden" />
-                    
-                    {/* Text for Larger Screens */}
                     <span className="text-red-500 hidden lg:inline ml-2">Add Profile</span>
                   </span>
                 </h1>
@@ -89,16 +86,16 @@ const Menu = () => {
                 </>
               )}
 
-              {/* Role display */}
               <h1 className="mt-1 text-sm bg-brand rounded p-1 z-10 text-gray-900">{role}</h1>
             </div>
           ) : null}
-        </div>
-      </div>
+        </div> 
+      
+      
 
 
-      <div className="flex flex-col">
-      {/* Menu Items */}
+      <div className="flex md:flex-col">
+      
       <motion.button
         onClick={handleClick}
         className="border-brand px-6 py-2 rounded-md relative radial-gradient"
@@ -115,18 +112,18 @@ const Menu = () => {
           mass: 2,
         }}
       >
-        <div className="flex flex-row items-center justify-center text-brand-100 brand tracking-wide font-light relative h-5 w-28">
-            <h1 className="flex items-center justify-center text-brand" style={{ width: 250, height: 50 }}>
+        <div className="flex flex-row items-center justify-center text-brand-100 brand tracking-wide font-light">
+            <h1 className="flex items-center justify-center text-brand" style={{maxWidth: 50, maxHeight: 50 }}>
               <Gauge aria-hidden="true" />
             </h1>
-            <h2 className="text-sm">Dashboard</h2>
+            <h2 className="text-sm hidden md:block">Dashboard</h2>
           </div>
         <span className="block absolute inset-0 rounded-md p-px linear-overlay" />
       </motion.button>
-      
+      </div>
+      </div>
 
-
-      <nav className="mt-4 text-sm w-full">
+      <nav className="mt -1 md:mt-4 text-sm w-full">
         {menuItems.map((section) => (
           <div className="flex flex-row md:flex-col gap-3 flex-wrap" key={section.title}>
             <span className="hidden lg:block font-light my-4">{section.title}</span>
@@ -145,7 +142,7 @@ const Menu = () => {
                       background: isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
                     }}
                   >
-                    {/* Left-to-right hover animation */}
+
                     <span
                       className={`absolute left-0 bottom-0 h-full w-0 bg-gray-500 opacity-20 transition-all duration-500 ease-in-out group-hover:w-full`}
                     />
@@ -161,9 +158,9 @@ const Menu = () => {
       </nav>
       </div>
 
-      {/* Sign Out Button */}
-      <div className="relative m-4 right-0">
-        <button
+
+      <div className="relative flex flex-col m-2 right-0 sm:left-0 just">
+         <button
           className="flex items-center justify-center w-full py-2 rounded-md md-border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition duration-300"
           onClick={() => {
             signOut(() => {
@@ -175,9 +172,10 @@ const Menu = () => {
           <p className="hidden lg:block">Sign Out</p>
         </button>
 
-        <GenerateLinkButton referralId={referralId ?? ''} />
+        <GenerateLinkButton referralId={referralId ?? ''} /> 
       </div>
     </div>
+   
   );
 };
 

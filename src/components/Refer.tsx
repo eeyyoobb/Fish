@@ -22,7 +22,7 @@ const GenerateLinkButton = ({ referralId }: { referralId: string }) => {
   return (
     <button
       onClick={handleClick}
-      className="items-center justify-center w-full py-2 rounded-lg  md-border border-gray-600  hover:bg-gray-600 hover:text-white transition duration-300500 text-white  px-4 "
+      className="flex flex-col items-center justify-center w-full py-2 rounded-lg  md-border border-gray-600  hover:bg-gray-600 hover:text-white transition duration-300500 text-white  px-4 "
     >
       Invite friend <Avatar/>
     </button>

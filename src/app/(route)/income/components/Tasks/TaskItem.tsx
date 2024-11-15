@@ -189,9 +189,11 @@ function TaskItem({
 
 
 
-  return (
-    <div className="relative md:h-auto p-3 sm:p-4 md:p-5 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 flex md:flex-col md:justify-between gap-40 md:gap-1 w-full max-w-[95vw] sm:max-w-[540px] md:max-w-[640px] mx-auto">
-      <div className="w-2/3 md:w-full border-white">
+  return ( 
+    <div className="relative w-full md:h-auto p-3 sm:p-4 md:p-5 rounded-lg bg-gray-500 bg-opacity-10 shadow-lg border-2 border-gray-00 flex md:flex-col md:justify-between gap-40 md:gap-1  max-w-[95vw] sm:max-w-[540px] md:max-w-[640px] mx-auto">
+      <div className="w-full max-sm:flex max-sm:justify-between">
+      <div className="max-sm:w-7/9 md:w-full border-white">
+      <div>
       <TaskHeader categoryName={categoryName} reward={adjustedReward} link={link}/>
 
       {categoryName === "youtube" ? (
@@ -213,8 +215,8 @@ function TaskItem({
 
       <p className=" hidden md:block text-sm md:text-base my-2">{description}</p>
     </div>
-      <div className="flex-grow flex flex-col gap-1 w-1/3 md:w-full md:flex-row md:items-center justify-between ">
-      <div className=" realtive flex-grow mt-2 sm:mt-3 md:mt-4 md:w-2/3 hidden md:block ">
+      <div className="flex flex-col gap-1 w-1/3 md:w-full md:flex-row md:items-center ">
+      <div className={`relative flex-grow mt-2 sm:mt-3 md:mt-4 md:w-2/3 ${categoryName === "youtube" && startTime ? "block" : "hidden"}`}>
         {categoryName === "youtube" && startTime ? (
           <div className="mb-6 sm:mb-0">
             <QuestionForm
@@ -238,8 +240,8 @@ function TaskItem({
           </div>
         )}
       </div>
-
-      <div className="relative hidden  md:w-1/3 flex-grow md:flex md:flex-col md:mt-4 sm:flex-row  justify-between gap-3 sm:gap-5 mt-2 sm:relative bottom-0 left-0 right-0 p-3 sm:p-0 bg-background sm:bg-transparent border-t sm:border-t-0 mr-1">
+     
+      <div className="relative hidden md:w-1/3 flex-grow md:flex md:mt-4 sm:flex-row justify-between gap-3 sm:gap-5 mt-2 sm:relative bottom-0 left-0 right-0 p-3 sm:p-0 bg-background sm:bg-transparent border-t sm:border-t-0 mr-1">
         <Button
           onClick={handleButtonClick}
           className={`${getButtonStyle()} w-full sm:w-auto`}
@@ -254,9 +256,9 @@ function TaskItem({
             <span className="hidden sm:block md:hidden">Failed</span>
           )}
         </Button>
-        </div>
+        
     { role === "admin" && (
-        <div className="flex gap-2 w-full sm:w-auto">
+        <>
           <Button 
             variant="destructive" 
             onClick={handleDelete} 
@@ -264,7 +266,7 @@ function TaskItem({
             className="flex-1 sm:flex-none"
           >
             <Trash className="w-4 h-4 sm:mr-0 md:mr-2" />
-            <span className="ml-2 sm:hidden md:inline">Delete</span>
+            <span className="ml-2 hidden lg:inline">Delete</span>
           </Button>
           <Button 
             variant="outline" 
@@ -272,15 +274,18 @@ function TaskItem({
             className="flex-1 sm:flex-none"
           >
             <Edit className="w-4 h-4 sm:mr-0 md:mr-2" />
-            <span className="ml-2 sm:hidden md:inline">Update</span>
+            <span className="ml-2 hidden lg:inline">Update</span>
           </Button>
-        </div>
+        </>
     )}
+  </div>
+  </div>
+  </div>
 
-  <div className="block md:hidden ">
+  <div className="block md:hidden max-sm:w-2/9 max-sm:justify-end ">
      <Drawer>
         <DrawerTrigger>
-           <Button className="md:hidden w-50 items-center">Open</Button>
+           <Button className="ml-auto md:hidden relative w-50 items-center">Open</Button>
         </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
@@ -307,7 +312,7 @@ function TaskItem({
               </DrawerHeader>
 
               <DrawerFooter>
-              <div className=" realtive flex-grow mt-2 sm:mt-3 md:mt-4 md:w-2/3  ">
+              <div className="realtive flex-grow mt-2 sm:mt-3 md:mt-4 md:w-2/3  ">
                 {categoryName === "youtube" && startTime ? (
                   <div className="mb-6 sm:mb-0">
                     <QuestionForm
@@ -348,7 +353,7 @@ function TaskItem({
                 </DrawerClose>
                 { role === "admin" && (
                   <DrawerClose>
-                    <div className="flex gap-2 w-full sm:w-auto">
+                    <div className="flex w-full sm:w-auto ">
                       <Button 
                         variant="destructive" 
                         onClick={handleDelete} 
